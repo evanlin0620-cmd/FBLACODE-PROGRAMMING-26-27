@@ -1,0 +1,19 @@
+{
+  "extraKnownMarketplaces": {
+    "humanizer": {
+      "source": { "source": "git", "url": "https://github.com/blader/humanizer.git" }
+    },
+    "impeccable": {
+      "source": { "source": "git", "url": "https://github.com/pbakaus/impeccable.git" }
+    },
+    "chrome-devtools-plugins": {
+      "source": { "source": "git", "url": "https://github.com/ChromeDevTools/chrome-devtools-mcp.git" }
+    }
+  },
+  "enabledPlugins": {
+    "humanizer@humanizer": true,
+    "chrome-devtools-mcp@chrome-devtools-plugins": true,
+    "impeccable@impeccable": true
+  },
+  "enableAllProjectMcpServers": true
+}
