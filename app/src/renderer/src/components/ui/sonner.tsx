@@ -25,6 +25,13 @@ const Toaster = ({ theme = "light", ...props }: ToasterProps) => {
           "--normal-text": "var(--popover-foreground)",
           "--normal-border": "var(--border)",
           "--border-radius": "var(--radius)",
+          // Sonner's light rich colors miss AA (error text 4.3:1, warning ~3:1). Its dark ones pass.
+          ...(theme === "light" && {
+            "--success-text": "#15803d",
+            "--error-text": "#b91c1c",
+            "--warning-text": "#92400e",
+            "--info-text": "#0369a1",
+          }),
         } as React.CSSProperties
       }
       {...props}

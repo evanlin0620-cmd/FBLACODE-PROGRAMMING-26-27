@@ -35,6 +35,9 @@ export function HourPill({ status }: { status: HourStatus }): React.JSX.Element 
   return <Pill tone="amber">Pending</Pill>
 }
 
+// Full-width fill slid left inside the clipped track: animates on the compositor, unlike width.
+const FILL = 'h-full w-full rounded-full transition-transform duration-300 ease-snappy'
+
 /**
  * The signature element: how full a shift is. Green while there is room,
  * amber with the waitlist count once full.
@@ -57,7 +60,7 @@ export function CapacityBar({ activity, className }: { activity: Activity; class
         aria-valuenow={confirmed}
         aria-valuetext={label}
       >
-        <div className={cn('h-full rounded-full transition-[width] duration-500 ease-out', full ? 'bg-warning' : 'bg-primary')} style={{ width: `${pct}%` }} />
+        <div className={cn(FILL, full ? 'bg-warning' : 'bg-primary')} style={{ transform: `translateX(${pct - 100}%)` }} />
       </div>
     </div>
   )
@@ -68,7 +71,7 @@ export function Meter({ value, max, tone = 'green', label }: { value: number; ma
   const pct = max <= 0 ? 0 : Math.min(100, (value / max) * 100)
   return (
     <div className="h-2 overflow-hidden rounded-full bg-track" role="meter" aria-label={label} aria-valuemin={0} aria-valuemax={max} aria-valuenow={value}>
-      <div className={cn('h-full rounded-full transition-[width] duration-700 ease-out', tone === 'green' ? 'bg-primary' : 'bg-warning')} style={{ width: `${pct}%` }} />
+      <div className={cn(FILL, tone === 'green' ? 'bg-primary' : 'bg-warning')} style={{ transform: `translateX(${pct - 100}%)` }} />
     </div>
   )
 }

@@ -12,7 +12,7 @@ import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { ChartContainer, type ChartConfig } from '@/components/ui/chart'
-import { EmptyState, Loader, PageBody, PageHeader, Panel } from '@/components/page'
+import { ChartTable, EmptyState, Loader, PageBody, PageHeader, Panel } from '@/components/page'
 import { Meter } from '@/components/status'
 import { FormField } from '@/components/form'
 import { CertificateView } from '@/components/certificate-view'
@@ -185,8 +185,9 @@ export function Reports(): React.JSX.Element {
                   <>
                     <div className="grid gap-5 lg:grid-cols-2">
                       <Panel title="Hours by month">
-                        <ChartContainer config={chartConfig} className="aspect-auto h-[220px] w-full">
-                          <BarChart data={r.byMonth.map((m) => ({ label: `${fmtMonth(m.month)} ’${m.month.slice(2, 4)}`, hours: m.hours }))} margin={{ top: 20 }} accessibilityLayer>
+                        <ChartTable caption="Approved hours by month" unit="hours" rows={r.byMonth.map((m) => ({ label: `${fmtMonth(m.month)} ${m.month.slice(0, 4)}`, value: m.hours }))} />
+                        <ChartContainer config={chartConfig} className="aspect-auto h-[220px] w-full" aria-hidden>
+                          <BarChart data={r.byMonth.map((m) => ({ label: `${fmtMonth(m.month)} ’${m.month.slice(2, 4)}`, hours: m.hours }))} margin={{ top: 20 }} accessibilityLayer={false}>
                             <CartesianGrid vertical={false} />
                             <XAxis dataKey="label" tickLine={false} axisLine={false} tickMargin={8} />
                             <Bar dataKey="hours" fill="var(--color-hours)" radius={5} isAnimationActive={false}>

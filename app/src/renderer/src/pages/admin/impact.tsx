@@ -3,7 +3,7 @@ import { Link } from 'react-router'
 import { Bar, BarChart, CartesianGrid, Cell, LabelList, XAxis } from 'recharts'
 import { Button } from '@/components/ui/button'
 import { ChartContainer, type ChartConfig } from '@/components/ui/chart'
-import { Loader, PageBody, PageHeader, Panel } from '@/components/page'
+import { ChartTable, Loader, PageBody, PageHeader, Panel } from '@/components/page'
 import { Meter, Pill } from '@/components/status'
 import { useQuery } from '@/lib/hooks'
 import { fmtDay, fmtHours, fmtMonth } from '@/lib/format'
@@ -64,14 +64,15 @@ export function ImpactDashboard(): React.JSX.Element {
                     title="Approved hours by month"
                     description={`Last 6 months · ${fmtHours(sixMonthTotal)} hours total · the current month is lighter because it isn’t over yet`}
                   >
-                    <ChartContainer config={chartConfig} className="aspect-auto min-h-[300px] w-full flex-1">
+                    <ChartTable caption="Approved hours by month" unit="hours" rows={s.hoursByMonth.map((m) => ({ label: fmtMonth(m.month), value: m.hours }))} />
+                    <ChartContainer config={chartConfig} className="aspect-auto min-h-[300px] w-full flex-1" aria-hidden>
                       <BarChart
                         data={s.hoursByMonth.map((m, i) => ({
                           ...m,
                           label: i === s.hoursByMonth.length - 1 ? `${fmtMonth(m.month)} (so far)` : fmtMonth(m.month)
                         }))}
                         margin={{ top: 24 }}
-                        accessibilityLayer
+                        accessibilityLayer={false}
                       >
                         <CartesianGrid vertical={false} />
                         <XAxis dataKey="label" tickLine={false} axisLine={false} tickMargin={8} />

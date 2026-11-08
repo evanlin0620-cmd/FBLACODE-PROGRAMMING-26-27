@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Textarea } from '@/components/ui/textarea'
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { EmptyState, Loader, PageBody, PageHeader } from '@/components/page'
@@ -46,20 +46,21 @@ export function Approvals(): React.JSX.Element {
         subtitle="Check each entry, then approve it or send it back with a reason. Volunteers are notified right away."
       />
       <PageBody>
+        {/* The table sits in a TabsContent so each tab's aria-controls points at a real panel. */}
+        <Tabs
+          value={tab}
+          onValueChange={(v) => {
+            setTab(v as HourStatus)
+            setSelected([])
+          }}
+          className="gap-0"
+        >
         <div className="mb-4 flex flex-wrap items-center gap-3">
-          <Tabs
-            value={tab}
-            onValueChange={(v) => {
-              setTab(v as HourStatus)
-              setSelected([])
-            }}
-          >
-            <TabsList>
-              <TabsTrigger value="pending">Waiting</TabsTrigger>
-              <TabsTrigger value="approved">Approved</TabsTrigger>
-              <TabsTrigger value="rejected">Not approved</TabsTrigger>
-            </TabsList>
-          </Tabs>
+          <TabsList>
+            <TabsTrigger value="pending">Waiting</TabsTrigger>
+            <TabsTrigger value="approved">Approved</TabsTrigger>
+            <TabsTrigger value="rejected">Not approved</TabsTrigger>
+          </TabsList>
           <div className="relative w-[280px]">
             <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" aria-hidden />
             <Input data-page-search aria-label="Search by volunteer or activity" className="pl-9" placeholder="Search volunteer or activity" value={q} onChange={(e) => setQ(e.target.value)} />
@@ -77,6 +78,7 @@ export function Approvals(): React.JSX.Element {
           )}
         </div>
 
+        <TabsContent value={tab}>
         <Loader query={list} skeleton="table">
           {() =>
             rows.length === 0 ? (
@@ -140,10 +142,16 @@ export function Approvals(): React.JSX.Element {
                         {tab === 'pending' && (
                           <TableCell className="pr-4 text-right">
                             <div className="flex justify-end gap-1">
-                              <Button variant="ghost" size="sm" onClick={() => setRejecting([h.id])}>
+                              <Button variant="ghost" size="sm" onClick={() => setRejecting([h.id])} aria-label={`Reject ${h.volunteerName}, ${h.activityTitle}`}>
                                 Reject
                               </Button>
-                              <Button variant="outline" size="sm" onClick={() => decide([h.id], 'approved')} disabled={review.pending}>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => decide([h.id], 'approved')}
+                                disabled={review.pending}
+                                aria-label={`Approve ${h.volunteerName}, ${h.activityTitle}`}
+                              >
                                 Approve
                               </Button>
                             </div>
@@ -157,6 +165,8 @@ export function Approvals(): React.JSX.Element {
             )
           }
         </Loader>
+        </TabsContent>
+        </Tabs>
       </PageBody>
 
       <Dialog

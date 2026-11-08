@@ -21,7 +21,7 @@ const SHORTCUTS = [
 
 function AnswerCard({ faq, best }: { faq: Faq; best?: boolean }): React.JSX.Element {
   return (
-    <article className="rounded-xl border bg-card p-5">
+    <article className="animate-in rounded-xl border bg-card p-5 duration-200 ease-snappy fade-in-0 slide-in-from-bottom-1">
       {best && <Pill tone="green">Best answer</Pill>}
       <h2 className="mt-3 text-lg font-semibold">{faq.question}</h2>
       <p className="mt-2 max-w-[65ch] leading-relaxed">{faq.answer}</p>
@@ -80,7 +80,7 @@ export function HelpPage(): React.JSX.Element {
                   <p className="mt-1 text-sm text-muted-foreground">Try different words, or pick a topic from the list.</p>
                 </div>
               )}
-              {best && <AnswerCard faq={best} best />}
+              {best && <AnswerCard key={best.id} faq={best} best />}
               {related.length > 0 && (
                 <div>
                   <h2 className="mb-2 text-sm font-semibold">Related questions</h2>

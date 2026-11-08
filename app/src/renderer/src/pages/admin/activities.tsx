@@ -305,7 +305,7 @@ function DangerZone({ activity, onChanged }: { activity: Activity; onChanged: ()
             <AlertDialogFooter>
               <AlertDialogCancel>Keep it</AlertDialogCancel>
               <AlertDialogAction
-                className="bg-destructive text-white hover:bg-destructive/90"
+                className="bg-destructive text-white hover:bg-[color-mix(in_srgb,var(--destructive)_86%,black)]"
                 onClick={async () => {
                   if ((await del.run(activity.id)) !== undefined) navigate('/admin/activities')
                 }}

@@ -61,7 +61,13 @@ export function SignupButton({ activity, onChange, size = 'default' }: { activit
   if (activity.mySignup) {
     return (
       <>
-        <Button variant="outline" size={size} onClick={() => setConfirming(true)} disabled={cancel.pending}>
+        <Button
+          variant="outline"
+          size={size}
+          onClick={() => setConfirming(true)}
+          disabled={cancel.pending}
+          aria-label={`${activity.mySignup === 'waitlisted' ? 'Leave waitlist' : 'Cancel sign-up'} for ${activity.title}`}
+        >
           {activity.mySignup === 'waitlisted' ? 'Leave waitlist' : 'Cancel sign-up'}
         </Button>
         <AlertDialog open={confirming} onOpenChange={setConfirming}>
@@ -94,7 +100,8 @@ export function SignupButton({ activity, onChange, size = 'default' }: { activit
   }
 
   return (
-    <Button variant={full ? 'outline' : 'default'} size={size} onClick={doJoin} disabled={join.pending}>
+    // The visible label starts the accessible name, so voice control still matches "Sign up".
+    <Button variant={full ? 'outline' : 'default'} size={size} onClick={doJoin} disabled={join.pending} aria-label={join.pending ? undefined : `${full ? 'Join waitlist' : 'Sign up'} for ${activity.title}`}>
       {join.pending ? 'Saving…' : full ? 'Join waitlist' : 'Sign up'}
     </Button>
   )

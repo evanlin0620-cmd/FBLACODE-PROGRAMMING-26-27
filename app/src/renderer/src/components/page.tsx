@@ -99,6 +99,25 @@ export function EmptyState({
   )
 }
 
+/** The numbers behind a chart, for screen readers. The SVG chart itself is aria-hidden. */
+export function ChartTable({ caption, unit, rows }: { caption: string; unit: string; rows: { label: string; value: number }[] }): React.JSX.Element {
+  return (
+    <table className="sr-only">
+      <caption>{caption}</caption>
+      <tbody>
+        {rows.map((r) => (
+          <tr key={r.label}>
+            <th scope="row">{r.label}</th>
+            <td>
+              {r.value} {unit}
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  )
+}
+
 /** A titled white panel. Used for dashboard sections; never nested. */
 export function Panel({
   title,

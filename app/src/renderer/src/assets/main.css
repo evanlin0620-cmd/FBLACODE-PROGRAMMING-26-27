@@ -87,6 +87,8 @@
 
 @theme inline {
   --font-sans: 'Geist Variable', ui-sans-serif, system-ui, sans-serif;
+  /* Strong ease-out for UI motion; the CSS keyword ease-out starts too softly. */
+  --ease-snappy: cubic-bezier(0.23, 1, 0.32, 1);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);

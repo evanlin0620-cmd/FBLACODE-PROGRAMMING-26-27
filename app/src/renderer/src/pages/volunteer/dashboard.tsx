@@ -81,7 +81,9 @@ export function VolunteerDashboard(): React.JSX.Element {
                                 {a.title}
                               </Link>
                               <p className="truncate text-sm text-muted-foreground tabular">
-                                {fmtDay(a.startAt).split(',')[0]} {fmtRange(a.startAt, a.endAt)} · {a.location}
+                                {/* The date tile beside this is aria-hidden, so screen readers get the full date here. */}
+                                <span className="sr-only">{fmtDay(a.startAt)}</span>
+                                <span aria-hidden>{fmtDay(a.startAt).split(',')[0]}</span> {fmtRange(a.startAt, a.endAt)} · {a.location}
                               </p>
                             </div>
                             <SignupPill status={a.mySignup!} position={a.myWaitlistPosition} />

@@ -165,7 +165,7 @@ export function AppShell(): React.JSX.Element {
         </SidebarHeader>
 
         <SidebarContent>
-          <SidebarGroup>
+          <SidebarGroup role="navigation" aria-label="Main menu">
             <SidebarGroupLabel>Menu</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
@@ -203,7 +203,7 @@ export function AppShell(): React.JSX.Element {
 
           <DropdownMenu>
             <DropdownMenuTrigger className="mt-1 flex w-full items-center gap-2.5 rounded-lg p-2 text-left hover:bg-sidebar-accent">
-              <span className="grid size-8 shrink-0 place-items-center rounded-full bg-accent text-xs font-semibold text-accent-foreground">
+              <span className="grid size-8 shrink-0 place-items-center rounded-full bg-accent text-xs font-semibold text-accent-foreground" aria-hidden>
                 {initials(user.fullName)}
               </span>
               <span className="min-w-0 flex-1 leading-tight">
@@ -236,9 +236,10 @@ export function AppShell(): React.JSX.Element {
       </Sidebar>
 
       <SidebarInset className="min-w-0 overflow-y-auto">
-        <main id="main" className="min-h-full">
+        {/* SidebarInset is already the <main> landmark; a second <main> would nest landmarks. */}
+        <div id="main" className="min-h-full">
           <Outlet />
-        </main>
+        </div>
       </SidebarInset>
     </SidebarProvider>
   )

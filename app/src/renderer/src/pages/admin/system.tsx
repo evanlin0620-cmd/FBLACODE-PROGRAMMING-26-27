@@ -207,7 +207,7 @@ export function Settings(): React.JSX.Element {
               <AlertDialogFooter>
                 <AlertDialogCancel>Keep my data</AlertDialogCancel>
                 <AlertDialogAction
-                  className="bg-destructive text-white hover:bg-destructive/90"
+                  className="bg-destructive text-white hover:bg-[color-mix(in_srgb,var(--destructive)_86%,black)]"
                   onClick={async () => {
                     if ((await reset.run(undefined)) !== undefined) {
                       toast.success('Demo data restored. Log in again to continue.')
