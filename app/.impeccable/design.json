@@ -1,0 +1,151 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-06T00:00:00Z",
+  "title": "Design System: ServeHub",
+  "extensions": {
+    "colorMeta": {
+      "riverside-green": { "role": "primary", "displayName": "Riverside Green", "canonical": "#15803d", "cssVar": "--primary", "dark": "#22c55e", "tonalRamp": ["#052e16", "#14532d", "#166534", "#15803d", "#16a34a", "#4ade80", "#bbf7d0", "#f0fdf4"] },
+      "on-green": { "role": "primary", "displayName": "On Green", "canonical": "#ffffff", "cssVar": "--primary-foreground", "dark": "#052e16" },
+      "green-wash": { "role": "primary", "displayName": "Green Wash", "canonical": "#ecfdf5", "cssVar": "--accent", "dark": "#10291b" },
+      "green-ink": { "role": "primary", "displayName": "Green Ink", "canonical": "#14532d", "cssVar": "--accent-foreground", "dark": "#bbf7d0" },
+      "approved-bg": { "role": "primary", "displayName": "Approved Fill", "canonical": "#dcfce7", "cssVar": "--success-bg", "dark": "#10291b" },
+      "sidebar-green-wash": { "role": "primary", "displayName": "Sidebar Green Wash", "canonical": "#e8f5ec", "cssVar": "--sidebar-accent", "dark": "#10291b" },
+      "waiting-amber": { "role": "secondary", "displayName": "Waiting Amber", "canonical": "#b45309", "cssVar": "--warning", "dark": "#fbbf24", "tonalRamp": ["#451a03", "#78350f", "#92400e", "#b45309", "#d97706", "#fbbf24", "#fde68a", "#fffbeb"] },
+      "waiting-bg": { "role": "secondary", "displayName": "Waiting Fill", "canonical": "#fef3c7", "cssVar": "--warning-bg", "dark": "#3a2a0a" },
+      "error-red": { "role": "tertiary", "displayName": "Error Red", "canonical": "#dc2626", "cssVar": "--destructive", "dark": "#f87171", "tonalRamp": ["#450a0a", "#7f1d1d", "#991b1b", "#dc2626", "#ef4444", "#f87171", "#fecaca", "#fef2f2"] },
+      "page-white": { "role": "neutral", "displayName": "Page White", "canonical": "#ffffff", "cssVar": "--background / --card", "dark": "#0c0c0e (page), #141417 (card)" },
+      "ink": { "role": "neutral", "displayName": "Ink", "canonical": "#09090b", "cssVar": "--foreground", "dark": "#fafafa" },
+      "sidebar-zinc": { "role": "neutral", "displayName": "Sidebar Zinc", "canonical": "#fafafa", "cssVar": "--sidebar", "dark": "#111113" },
+      "soft-zinc": { "role": "neutral", "displayName": "Soft Zinc", "canonical": "#f4f4f5", "cssVar": "--muted / --secondary / --track", "dark": "#27272a" },
+      "muted-ink": { "role": "neutral", "displayName": "Muted Ink", "canonical": "#52525b", "cssVar": "--muted-foreground", "dark": "#a1a1aa", "tonalRamp": ["#09090b", "#18181b", "#27272a", "#3f3f46", "#52525b", "#a1a1aa", "#e4e4e7", "#fafafa"] },
+      "line-zinc": { "role": "neutral", "displayName": "Line Zinc", "canonical": "#e4e4e7", "cssVar": "--border", "dark": "#27272a" },
+      "input-zinc": { "role": "neutral", "displayName": "Input Zinc", "canonical": "#d4d4d8", "cssVar": "--input", "dark": "#3f3f46" }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "The one big hours number on the volunteer dashboard." },
+      "headline": { "displayName": "Headline", "purpose": "The page title in every page header. One per screen." },
+      "stat": { "displayName": "Stat", "purpose": "Numbers in stat cards (Impact, Reports, volunteer record)." },
+      "title": { "displayName": "Title", "purpose": "Panel titles, card titles, shift names." },
+      "body": { "displayName": "Body", "purpose": "Almost all text: subtitles, nav, tables, descriptions, buttons." },
+      "label": { "displayName": "Label", "purpose": "Pills, capacity labels, dates on cards, helper lines." }
+    },
+    "shadows": [
+      { "name": "card-hover-lift", "value": "0 2px 4px rgb(0 0 0 / 0.04), 0 12px 28px -16px rgb(0 0 0 / 0.18)", "purpose": "Activity cards on hover, to show they can be opened." },
+      { "name": "floating-card", "value": "0 1px 2px rgb(0 0 0 / 0.04), 0 8px 24px -12px rgb(0 0 0 / 0.12)", "purpose": "The login and sign-up card." },
+      { "name": "button-hairline", "value": "0 1px 2px 0 rgb(0 0 0 / 0.05)", "purpose": "Outline buttons and inputs." },
+      { "name": "focus-ring", "value": "0 0 0 3px color-mix(in srgb, var(--ring) 50%, transparent)", "purpose": "Soft green ring on focused buttons and inputs, on top of the global 2px green outline (offset 2px)." }
+    ],
+    "motion": [
+      { "name": "capacity-fill", "value": "width 500ms ease-out", "purpose": "Capacity bar fill when a shift's count changes." },
+      { "name": "meter-fill", "value": "width 700ms ease-out", "purpose": "Goal and ranked-list meters." },
+      { "name": "reduced-motion", "value": "0.01ms", "purpose": "All animations and transitions collapse when the user asks for reduced motion." }
+    ],
+    "breakpoints": [
+      { "name": "window-min", "value": "960px" },
+      { "name": "design-width", "value": "1280px" },
+      { "name": "card-column-min", "value": "280px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The one main action on a screen (Sign up, Log hours, Create report).",
+      "html": "<button class=\"ds-btn-primary\">Log hours</button>",
+      "css": ".ds-btn-primary { display: inline-flex; align-items: center; gap: 8px; height: 36px; padding: 8px 16px; border: none; border-radius: 6px; background: var(--primary, #15803d); color: var(--primary-foreground, #fff); font: 500 14px/20px 'Geist Variable', ui-sans-serif, system-ui, sans-serif; cursor: pointer; transition: background 150ms; } .ds-btn-primary:hover { background: color-mix(in srgb, var(--primary, #15803d) 90%, transparent); } .ds-btn-primary:focus-visible { outline: 2px solid var(--ring, #15803d); outline-offset: 2px; box-shadow: 0 0 0 3px color-mix(in srgb, var(--ring, #15803d) 50%, transparent); }"
+    },
+    {
+      "name": "Outline Button",
+      "kind": "button",
+      "refersTo": "button-outline",
+      "description": "The second action, and Join waitlist when a shift is full.",
+      "html": "<button class=\"ds-btn-outline\">Join waitlist</button>",
+      "css": ".ds-btn-outline { display: inline-flex; align-items: center; gap: 8px; height: 36px; padding: 8px 16px; border: 1px solid var(--border, #e4e4e7); border-radius: 6px; background: var(--background, #fff); color: var(--foreground, #09090b); box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05); font: 500 14px/20px 'Geist Variable', ui-sans-serif, system-ui, sans-serif; cursor: pointer; transition: background 150ms, color 150ms; } .ds-btn-outline:hover { background: var(--accent, #ecfdf5); color: var(--accent-foreground, #14532d); } .ds-btn-outline:focus-visible { outline: 2px solid var(--ring, #15803d); outline-offset: 2px; }"
+    },
+    {
+      "name": "Text Input",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Labeled text field; green focus ring, red border when invalid.",
+      "html": "<label class=\"ds-field\"><span>Hours worked</span><input class=\"ds-input\" placeholder=\"e.g. 3.5\" /></label>",
+      "css": ".ds-field { display: grid; gap: 6px; font: 500 14px/20px 'Geist Variable', ui-sans-serif, system-ui, sans-serif; color: var(--foreground, #09090b); max-width: 280px; } .ds-input { height: 36px; padding: 4px 12px; border: 1px solid var(--input, #d4d4d8); border-radius: 6px; background: transparent; color: inherit; font: 400 14px/20px inherit; box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05); caret-color: var(--primary, #15803d); outline: none; transition: box-shadow 150ms, border-color 150ms; } .ds-input::placeholder { color: var(--muted-foreground, #52525b); } .ds-input:focus-visible { border-color: var(--ring, #15803d); box-shadow: 0 0 0 3px color-mix(in srgb, var(--ring, #15803d) 50%, transparent); } .ds-input[aria-invalid='true'] { border-color: var(--destructive, #dc2626); }"
+    },
+    {
+      "name": "Sidebar Navigation",
+      "kind": "nav",
+      "refersTo": "nav-item-active",
+      "description": "Role-specific links with a green-washed active item and a green count badge.",
+      "html": "<nav class=\"ds-nav\"><p class=\"ds-nav-label\">Menu</p><a class=\"ds-nav-item\" aria-current=\"page\" href=\"#\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8\"/><path d=\"M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z\"/></svg>Dashboard</a><a class=\"ds-nav-item\" href=\"#\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M10.268 21a2 2 0 0 0 3.464 0\"/><path d=\"M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326\"/></svg>Notifications<span class=\"ds-nav-badge\">3</span></a></nav>",
+      "css": ".ds-nav { width: 240px; padding: 8px; background: var(--sidebar, #fafafa); border-right: 1px solid var(--sidebar-border, #e4e4e7); font: 400 14px/20px 'Geist Variable', ui-sans-serif, system-ui, sans-serif; } .ds-nav-label { margin: 0 8px 4px; font-size: 12px; font-weight: 500; color: color-mix(in srgb, var(--sidebar-foreground, #09090b) 70%, transparent); } .ds-nav-item { display: flex; align-items: center; gap: 10px; height: 36px; padding: 0 8px; border-radius: 6px; color: var(--sidebar-foreground, #09090b); text-decoration: none; } .ds-nav-item:hover, .ds-nav-item[aria-current='page'] { background: var(--sidebar-accent, #e8f5ec); color: var(--sidebar-accent-foreground, #14532d); } .ds-nav-item[aria-current='page'] { font-weight: 500; } .ds-nav-item:focus-visible { outline: 2px solid var(--ring, #15803d); outline-offset: 2px; } .ds-nav-badge { margin-left: auto; min-width: 20px; height: 20px; padding: 0 6px; display: grid; place-items: center; border-radius: 9999px; background: var(--primary, #15803d); color: var(--primary-foreground, #fff); font-size: 12px; font-weight: 500; }"
+    },
+    {
+      "name": "Status Pills",
+      "kind": "chip",
+      "refersTo": "pill-approved",
+      "description": "Status words in green (done), amber (waiting), red (rejected), gray (neutral), or outline (activity type).",
+      "html": "<div class=\"ds-pills\"><span class=\"ds-pill ds-pill-green\">Confirmed</span><span class=\"ds-pill ds-pill-amber\">Waitlist #2</span><span class=\"ds-pill ds-pill-red\">Not approved</span><span class=\"ds-pill ds-pill-gray\">Cooking</span><span class=\"ds-pill ds-pill-outline\">Food Bank</span></div>",
+      "css": ".ds-pills { display: flex; flex-wrap: wrap; gap: 6px; } .ds-pill { display: inline-flex; align-items: center; height: 24px; padding: 0 8px; border-radius: 6px; font: 500 12px/16px 'Geist Variable', ui-sans-serif, system-ui, sans-serif; white-space: nowrap; } .ds-pill-green { background: var(--success-bg, #dcfce7); color: var(--accent-foreground, #14532d); } .ds-pill-amber { background: var(--warning-bg, #fef3c7); color: var(--warning, #b45309); } .ds-pill-red { background: color-mix(in srgb, var(--destructive, #dc2626) 10%, transparent); color: var(--destructive, #dc2626); } .ds-pill-gray { background: var(--muted, #f4f4f5); color: var(--muted-foreground, #52525b); } .ds-pill-outline { border: 1px solid var(--border, #e4e4e7); background: var(--background, #fff); color: var(--foreground, #09090b); }"
+    },
+    {
+      "name": "Activity Card",
+      "kind": "card",
+      "refersTo": "activity-card",
+      "description": "Catalog card: type pill, date, title, when/where, skills, and the capacity bar with the sign-up action.",
+      "html": "<article class=\"ds-card\"><div class=\"ds-card-top\"><span class=\"ds-card-type\">Food Bank</span><span class=\"ds-card-date\">Thu, Nov 12</span></div><h3 class=\"ds-card-title\">Thanksgiving Meal Prep</h3><p class=\"ds-card-meta\">9:00 AM – 1:00 PM · St. Mark's Kitchen</p><div class=\"ds-card-foot\"><div class=\"ds-cap\"><p class=\"ds-cap-label\">4 of 6 spots left</p><div class=\"ds-cap-track\"><div class=\"ds-cap-fill\" style=\"width:33%\"></div></div></div><button class=\"ds-card-btn\">Sign up</button></div></article>",
+      "css": ".ds-card { display: flex; flex-direction: column; width: 300px; padding: 16px; border: 1px solid var(--border, #e4e4e7); border-radius: 12px; background: var(--card, #fff); color: var(--card-foreground, #09090b); font-family: 'Geist Variable', ui-sans-serif, system-ui, sans-serif; transition: box-shadow 150ms; } .ds-card:hover { box-shadow: 0 2px 4px rgb(0 0 0 / 0.04), 0 12px 28px -16px rgb(0 0 0 / 0.18); } .ds-card-top { display: flex; justify-content: space-between; align-items: center; } .ds-card-type { height: 24px; display: inline-flex; align-items: center; padding: 0 8px; border: 1px solid var(--border, #e4e4e7); border-radius: 6px; font-size: 12px; font-weight: 500; } .ds-card-date { font-size: 12px; color: var(--muted-foreground, #52525b); } .ds-card-title { margin: 12px 0 0; font-size: 16px; font-weight: 600; } .ds-card-meta { margin: 8px 0 0; font-size: 14px; color: var(--muted-foreground, #52525b); font-variant-numeric: tabular-nums; } .ds-card-foot { display: flex; align-items: flex-end; gap: 16px; padding-top: 16px; } .ds-cap { flex: 1; } .ds-cap-label { margin: 0; font-size: 12px; font-weight: 500; font-variant-numeric: tabular-nums; } .ds-cap-track { margin-top: 6px; height: 6px; border-radius: 9999px; background: var(--track, #f4f4f5); overflow: hidden; } .ds-cap-fill { height: 100%; border-radius: 9999px; background: var(--primary, #15803d); transition: width 500ms ease-out; } .ds-card-btn { height: 36px; padding: 8px 16px; border: none; border-radius: 6px; background: var(--primary, #15803d); color: var(--primary-foreground, #fff); font: 500 14px/20px inherit; cursor: pointer; } .ds-card-btn:hover { background: color-mix(in srgb, var(--primary, #15803d) 90%, transparent); } .ds-card-btn:focus-visible { outline: 2px solid var(--ring, #15803d); outline-offset: 2px; }"
+    },
+    {
+      "name": "Capacity Bar (full)",
+      "kind": "custom",
+      "refersTo": "capacity-bar",
+      "description": "Signature element: a full shift turns the bar and label amber and names the waitlist count.",
+      "html": "<div class=\"ds-capf\"><p class=\"ds-capf-label\">Full · 2 on waitlist</p><div class=\"ds-capf-track\" role=\"meter\" aria-valuemin=\"0\" aria-valuemax=\"6\" aria-valuenow=\"6\" aria-valuetext=\"Full · 2 on waitlist\"><div class=\"ds-capf-fill\"></div></div></div>",
+      "css": ".ds-capf { width: 220px; font-family: 'Geist Variable', ui-sans-serif, system-ui, sans-serif; } .ds-capf-label { margin: 0; font-size: 12px; font-weight: 500; color: var(--warning, #b45309); font-variant-numeric: tabular-nums; } .ds-capf-track { margin-top: 6px; height: 6px; border-radius: 9999px; background: var(--track, #f4f4f5); overflow: hidden; } .ds-capf-fill { width: 100%; height: 100%; border-radius: 9999px; background: var(--warning, #b45309); }"
+    },
+    {
+      "name": "Panel",
+      "kind": "card",
+      "refersTo": "panel",
+      "description": "Titled white dashboard section with an optional action. Never nested.",
+      "html": "<section class=\"ds-panel\"><div class=\"ds-panel-head\"><div><h2>Your service hours</h2><p>Your goal: 40 hours</p></div></div><p class=\"ds-panel-num\"><strong>10</strong> of 40 hours approved</p></section>",
+      "css": ".ds-panel { width: 360px; padding: 20px; border: 1px solid var(--border, #e4e4e7); border-radius: 12px; background: var(--card, #fff); color: var(--card-foreground, #09090b); font-family: 'Geist Variable', ui-sans-serif, system-ui, sans-serif; } .ds-panel-head { margin-bottom: 16px; } .ds-panel-head h2 { margin: 0; font-size: 16px; font-weight: 600; } .ds-panel-head p { margin: 2px 0 0; font-size: 14px; color: var(--muted-foreground, #52525b); } .ds-panel-num { margin: 0; font-size: 14px; color: var(--muted-foreground, #52525b); } .ds-panel-num strong { font-size: 36px; font-weight: 600; letter-spacing: -0.025em; color: var(--foreground, #09090b); font-variant-numeric: tabular-nums; margin-right: 6px; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Volunteer Desk",
+    "overview": "ServeHub looks like a clean front desk at a community center. White work areas sit next to a light gray sidebar. Thin gray borders split things up instead of heavy shadows. Green means \"go\" or \"done\". Amber means \"waiting\". Red means \"something is wrong\". Nothing else gets a color.\n\nThe point of the look is to show the rule right where it applies. A shift card shows how full it is with a bar. A full shift turns the bar amber and says how many people are waiting. A recommendation says why it matched. Hours and dates use numbers that line up in columns, so they are easy to read in a table or a stat.\n\nThe screens are calm and fairly dense, built for a 1280x800 laptop window. Every screen has one clear main action at the top right. Light and dark mode use the same layout and the same color meanings.",
+    "keyCharacteristics": [
+      "White cards with 1px zinc borders and 12px corners, flat at rest.",
+      "One green for actions, selection, approved states, and charts.",
+      "Amber only for waiting (waitlist, pending, \"needs review\").",
+      "Red only for errors and rejections.",
+      "Geist sans everywhere, semibold for titles, tabular numbers for hours and dates.",
+      "Every status has a word, not just a color."
+    ],
+    "rules": [
+      { "name": "The Three Signals Rule", "body": "Green means go or done, amber means waiting, red means wrong. If a color does not mean one of these, it is zinc.", "section": "colors" },
+      { "name": "The Word-Not-Just-Color Rule", "body": "Every colored status also says its meaning in words (\"Waitlist #2\", \"Not approved\"). Color alone never carries meaning.", "section": "colors" },
+      { "name": "The Lined-Up Numbers Rule", "body": "Hours, dates, times, counts, and stats always use tabular numbers (the `tabular` class, and every table gets it automatically) so digits line up.", "section": "typography" },
+      { "name": "The One Title Rule", "body": "Each screen has exactly one headline, in the page header. Sections below use the 1rem title size.", "section": "typography" },
+      { "name": "The Flat Desk Rule", "body": "Panels and cards have no shadow at rest. Use a 1px border. A shadow means \"this floats\" or \"you can click this\".", "section": "elevation" }
+    ],
+    "dos": [
+      "Do use the color tokens by name (primary, warning, warning-bg, success-bg, destructive, muted) so dark mode works.",
+      "Do put one main green button at the top right of each page header, and at most one more outline button next to it.",
+      "Do give every status a word as well as a color (pills, capacity labels).",
+      "Do use tabular numbers for hours, dates, times, and stats.",
+      "Do use 1px borders and 12px corners for cards and panels, with no shadow at rest.",
+      "Do use Lucide line icons at 16px next to text, marked `aria-hidden`.",
+      "Do keep the 2px green focus outline on every control."
+    ],
+    "donts": [
+      "Don't use amber for anything but waiting, or red for anything but errors and rejections.",
+      "Don't add shadows to panels or cards at rest.",
+      "Don't nest a panel inside another panel.",
+      "Don't add a second accent color. The chart uses Riverside Green only.",
+      "Don't add small uppercase labels above titles; the page title and subtitle are enough.",
+      "Don't show color as the only sign of a state."
+    ]
+  }
+}
