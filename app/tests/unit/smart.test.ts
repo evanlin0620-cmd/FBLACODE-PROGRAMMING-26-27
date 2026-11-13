@@ -115,4 +115,10 @@ describe('demo data and reports', () => {
     expect(csv[0]).toBe('"Volunteer","Email","Activity","Type","Date","Hours"')
     expect(csv).toHaveLength(food.rows.length + 2)
   })
+
+  it('stops CSV cells from running as spreadsheet formulas', () => {
+    const row = { volunteerName: '=HYPERLINK("http://x")', volunteerEmail: '@a', activityTitle: 'Plain', activityType: 'Health' as const, date: '2026-11-01', hours: 2 }
+    const line = reportToCsv({ ...hoursReport(ctxFor(DEMO_ADMIN.email, DEMO_ADMIN.password), {}), rows: [row] }).split('\r\n')[1]
+    expect(line).toBe(`"'=HYPERLINK(""http://x"")","'@a","Plain","Health","2026-11-01","2"`)
+  })
 })

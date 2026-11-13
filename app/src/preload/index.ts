@@ -10,5 +10,3 @@ const api = {
 }
 
 contextBridge.exposeInMainWorld('api', api)
-
-export type PreloadApi = typeof api

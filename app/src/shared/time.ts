@@ -16,11 +16,6 @@ export function hoursBetween(start: string, end: string): number {
   return (new Date(end).getTime() - new Date(start).getTime()) / 3_600_000
 }
 
-/** True when two time ranges share any minute. Touching end-to-start does not count. */
-export function overlaps(aStart: string, aEnd: string, bStart: string, bEnd: string): boolean {
-  return aStart < bEnd && bStart < aEnd
-}
-
 /** Weekday (0 = Sunday) of a stamp. */
 export function weekdayOf(stamp: string): number {
   return new Date(stamp).getDay()
@@ -37,9 +32,4 @@ export function prettyStamp(stamp: string): string {
   const day = d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })
   const time = d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })
   return `${day} at ${time}`
-}
-
-/** "YYYY-MM-DD" part of a stamp. */
-export function dateOf(stamp: string): string {
-  return stamp.slice(0, 10)
 }

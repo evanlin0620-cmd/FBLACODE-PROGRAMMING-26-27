@@ -7,7 +7,7 @@ import { ChartTable, Loader, PageBody, PageHeader, Panel } from '@/components/pa
 import { Meter, Pill } from '@/components/status'
 import { useQuery } from '@/lib/hooks'
 import { fmtDay, fmtHours, fmtMonth } from '@/lib/format'
-import { ORG_NAME } from '@/lib/org'
+import { ORGANIZATION } from '@shared/types'
 
 const chartConfig = { hours: { label: 'Approved hours', color: 'var(--chart-1)' } } satisfies ChartConfig
 
@@ -30,7 +30,7 @@ export function ImpactDashboard(): React.JSX.Element {
     <>
       <PageHeader
         title="Impact dashboard"
-        subtitle={ORG_NAME}
+        subtitle={ORGANIZATION}
         actions={
           <Button asChild>
             <Link to="/admin/reports">Create report</Link>
