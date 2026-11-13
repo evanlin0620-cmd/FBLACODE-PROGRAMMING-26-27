@@ -18,8 +18,7 @@ import { FormField } from '@/components/form'
 import { CertificateView } from '@/components/certificate-view'
 import { useMutation, useQuery } from '@/lib/hooks'
 import { fmtDate, fmtHours, fmtMonth, today } from '@/lib/format'
-import { ORG_NAME } from '@/lib/org'
-import { ACTIVITY_TYPES, type ActivityType, type ReportFilter } from '@shared/types'
+import { ACTIVITY_TYPES, ORGANIZATION, type ActivityType, type ReportFilter } from '@shared/types'
 
 const chartConfig = { hours: { label: 'Hours', color: 'var(--chart-1)' } } satisfies ChartConfig
 
@@ -162,7 +161,7 @@ export function Reports(): React.JSX.Element {
                 <div className="hidden print:block">
                   <h1 className="text-2xl font-semibold">Volunteer hours report</h1>
                   <p className="text-sm text-zinc-600">
-                    {ORG_NAME} · {r.filter.from ? fmtDate(r.filter.from) : 'All time'} to {r.filter.to ? fmtDate(r.filter.to) : 'today'}
+                    {ORGANIZATION} · {r.filter.from ? fmtDate(r.filter.from) : 'All time'} to {r.filter.to ? fmtDate(r.filter.to) : 'today'}
                     {r.filter.type ? ` · ${r.filter.type}` : ''}
                   </p>
                 </div>

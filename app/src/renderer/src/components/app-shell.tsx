@@ -54,7 +54,7 @@ import { toast } from 'sonner'
 import { useSession, useUser } from '@/lib/session'
 import { api } from '@/lib/api'
 import { initials } from '@/lib/format'
-import { ORG_NAME } from '@/lib/org'
+import { ORGANIZATION } from '@shared/types'
 
 interface NavItem {
   to: string
@@ -159,7 +159,7 @@ export function AppShell(): React.JSX.Element {
             </span>
             <div className="leading-tight">
               <p className="font-semibold">ServeHub</p>
-              <p className="text-xs text-muted-foreground">{user.role === 'admin' ? ORG_NAME : 'Volunteer'}</p>
+              <p className="text-xs text-muted-foreground">{user.role === 'admin' ? ORGANIZATION : 'Volunteer'}</p>
             </div>
           </div>
         </SidebarHeader>

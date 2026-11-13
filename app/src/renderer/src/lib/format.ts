@@ -34,7 +34,4 @@ export const initials = (name: string): string =>
 export const nowStamp = (): string => toStamp(new Date())
 
 /** Today's date as "YYYY-MM-DD" in local time. */
-export const today = (): string => {
-  const d = new Date()
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
-}
+export const today = (): string => nowStamp().slice(0, 10)
