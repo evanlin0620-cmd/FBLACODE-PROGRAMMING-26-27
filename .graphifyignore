@@ -1,0 +1,9 @@
+# Keep the knowledge graph about ServeHub itself.
+# Third-party skill files (duplicated in both folders) and slash commands
+.agents/
+.claude/
+# Screenshots and image assets: vision extraction is costly and adds nothing the code doesn't say
+*.png
+# Generated / scratch output
+.playwright-mcp/
+floorplan/
