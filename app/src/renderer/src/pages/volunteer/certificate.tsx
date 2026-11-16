@@ -13,6 +13,7 @@ export function CertificatePage(): React.JSX.Element {
   const issue = useMutation('certificates.issue')
   const save = useMutation('reports.savePdf')
   const [cert, setCert] = useState<Certificate | null>(null)
+  const [justIssued, setJustIssued] = useState(false)
 
   const savePdf = async (): Promise<void> => {
     if (!cert) return
@@ -42,7 +43,8 @@ export function CertificatePage(): React.JSX.Element {
       />
       <PageBody>
         {cert ? (
-          <CertificateView cert={cert} />
+          // The one celebration in the app: the certificate prints top to bottom the moment it's created.
+          <CertificateView cert={cert} className={justIssued ? 'animate-reveal' : undefined} />
         ) : (
           <EmptyState
             icon={<Award />}
@@ -52,7 +54,10 @@ export function CertificatePage(): React.JSX.Element {
               <Button
                 onClick={async () => {
                   const c = await issue.run(undefined)
-                  if (c) setCert(c)
+                  if (c) {
+                    setCert(c)
+                    setJustIssued(true)
+                  }
                 }}
                 disabled={issue.pending}
               >

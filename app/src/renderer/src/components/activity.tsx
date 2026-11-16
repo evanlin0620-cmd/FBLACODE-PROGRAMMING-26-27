@@ -20,6 +20,7 @@ import {
 import { CapacityBar, Pill, SignupPill } from '@/components/status'
 import { useMutation } from '@/lib/hooks'
 import { fmtDay, fmtRange } from '@/lib/format'
+import { withViewTransition } from '@/lib/utils'
 import type { Activity } from '@shared/types'
 
 export function WhenWhere({ activity, withDate = false }: { activity: Activity; withDate?: boolean }): React.JSX.Element {
@@ -44,7 +45,16 @@ export function WhenWhere({ activity, withDate = false }: { activity: Activity; 
 }
 
 /** Sign up, join the waitlist, or cancel, depending on where the volunteer stands. */
-export function SignupButton({ activity, onChange, size = 'default' }: { activity: Activity; onChange: () => void; size?: 'default' | 'sm' }): React.JSX.Element {
+export function SignupButton({
+  activity,
+  onChange,
+  size = 'default'
+}: {
+  activity: Activity
+  /** Reloads the list; passed to withViewTransition so the button-to-pill swap and moved rows animate. */
+  onChange: () => Promise<unknown>
+  size?: 'default' | 'sm'
+}): React.JSX.Element {
   const join = useMutation('signups.join')
   const cancel = useMutation('signups.cancel')
   const [confirming, setConfirming] = useState(false)
@@ -55,7 +65,7 @@ export function SignupButton({ activity, onChange, size = 'default' }: { activit
     if (!r) return
     if (r.status === 'confirmed') toast.success(`You’re signed up for ${activity.title}.`, { description: 'A confirmation is in your notifications.' })
     else toast.success(`You’re #${r.position} on the waitlist.`, { description: 'We’ll notify you if a spot opens.' })
-    onChange()
+    withViewTransition(onChange)
   }
 
   if (activity.mySignup) {
@@ -86,7 +96,7 @@ export function SignupButton({ activity, onChange, size = 'default' }: { activit
                 onClick={async () => {
                   if (await cancel.run(activity.id).then((r) => r !== undefined)) {
                     toast.success('Cancelled.')
-                    onChange()
+                    withViewTransition(onChange)
                   }
                 }}
               >
@@ -108,9 +118,13 @@ export function SignupButton({ activity, onChange, size = 'default' }: { activit
 }
 
 /** The catalog card from the Browse mockup. */
-export function ActivityCard({ activity, onChange }: { activity: Activity; onChange: () => void }): React.JSX.Element {
+export function ActivityCard({ activity, onChange }: { activity: Activity; onChange: () => Promise<unknown> }): React.JSX.Element {
   return (
-    <article className="flex flex-col rounded-xl border bg-card p-4 transition-shadow hover:shadow-[0_2px_4px_rgb(0_0_0/0.04),0_12px_28px_-16px_rgb(0_0_0/0.18)]">
+    // Named so signing up crossfades this card (button to pill, bar growing) in place.
+    <article
+      className="flex flex-col rounded-xl border bg-card p-4 transition-shadow hover:shadow-[0_2px_4px_rgb(0_0_0/0.04),0_12px_28px_-16px_rgb(0_0_0/0.18)]"
+      style={{ viewTransitionName: `card-${activity.id}` }}
+    >
       <div className="flex items-center justify-between gap-2">
         <Pill tone="outline">{activity.type}</Pill>
         <span className="text-xs text-muted-foreground">{fmtDay(activity.startAt)}</span>
@@ -125,11 +139,20 @@ export function ActivityCard({ activity, onChange }: { activity: Activity; onCha
       </div>
       {activity.skills.length > 0 && (
         <ul className="mt-3 flex flex-wrap gap-1.5" aria-label="Skills needed">
-          {activity.skills.map((s) => (
+          {/* Capped so one skill-heavy card doesn't stretch its whole grid row; the detail page lists them all. */}
+          {activity.skills.slice(0, 3).map((s) => (
             <li key={s.id}>
               <Pill>{s.name}</Pill>
             </li>
           ))}
+          {activity.skills.length > 3 && (
+            <li>
+              <Pill tone="outline">
+                +{activity.skills.length - 3}
+                <span className="sr-only"> more skills: {activity.skills.slice(3).map((s) => s.name).join(', ')}</span>
+              </Pill>
+            </li>
+          )}
         </ul>
       )}
       <div className="mt-auto flex items-end gap-4 pt-4">

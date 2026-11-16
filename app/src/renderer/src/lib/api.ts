@@ -4,6 +4,7 @@
  */
 import type { ApiMap, ApiName } from '@shared/api'
 import type { Result } from '@shared/types'
+import { applyDataMode } from '@/dev/worst-case'
 
 export class ApiError extends Error {
   constructor(
@@ -29,5 +30,7 @@ export async function api<K extends ApiName>(
     throw new ApiError('INTERNAL', 'The app couldn’t reach its database. Try closing and reopening ServeHub.')
   }
   if (!result.ok) throw new ApiError(result.error.code, result.error.message, result.error.fields)
+  // Opt-in stress test (VITE_STRESS_TEST=1, then ?data=worst or ?data=empty); without the flag this branch is dropped from the build.
+  if (import.meta.env.VITE_STRESS_TEST === '1') return applyDataMode(name, result.data)
   return result.data
 }

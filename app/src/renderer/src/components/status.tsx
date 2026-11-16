@@ -4,6 +4,7 @@
  */
 import type { Activity, HourStatus, SignupStatus } from '@shared/types'
 import { cn } from '@/lib/utils'
+import { fmtCount, spotsLabel } from '@/lib/format'
 
 type Tone = 'green' | 'amber' | 'red' | 'gray' | 'outline'
 
@@ -25,7 +26,7 @@ export function Pill({ tone = 'gray', children, className }: { tone?: Tone; chil
 
 export function SignupPill({ status, position }: { status: SignupStatus; position?: number | null }): React.JSX.Element {
   if (status === 'confirmed') return <Pill tone="green">Confirmed</Pill>
-  if (status === 'waitlisted') return <Pill tone="amber">Waitlist{position ? ` #${position}` : ''}</Pill>
+  if (status === 'waitlisted') return <Pill tone="amber">Waitlist{position ? ` #${fmtCount(position)}` : ''}</Pill>
   return <Pill tone="gray">Cancelled</Pill>
 }
 
@@ -45,9 +46,8 @@ const FILL = 'h-full w-full rounded-full transition-transform duration-300 ease-
 export function CapacityBar({ activity, className }: { activity: Activity; className?: string }): React.JSX.Element {
   const { confirmed, capacity, waitlisted } = activity
   const full = confirmed >= capacity
-  const left = Math.max(0, capacity - confirmed)
   const pct = Math.min(100, Math.round((confirmed / capacity) * 100))
-  const label = full ? (waitlisted > 0 ? `Full · ${waitlisted} on waitlist` : 'Full · waitlist open') : `${left} of ${capacity} spots left`
+  const label = spotsLabel({ confirmed, capacity, waitlisted })
   return (
     <div className={cn('min-w-0', className)}>
       <p className={cn('text-xs font-medium tabular', full ? 'text-warning' : 'text-foreground')}>{label}</p>
@@ -66,12 +66,30 @@ export function CapacityBar({ activity, className }: { activity: Activity; class
   )
 }
 
-/** A labeled progress bar for hours toward a goal or bars in a ranked list. */
-export function Meter({ value, max, tone = 'green', label }: { value: number; max: number; tone?: 'green' | 'amber'; label: string }): React.JSX.Element {
+/**
+ * A labeled progress bar for hours toward a goal or bars in a ranked list.
+ * `introDelay` fills it from empty once (the dashboard's first view after login).
+ */
+export function Meter({
+  value,
+  max,
+  tone = 'green',
+  label,
+  introDelay
+}: {
+  value: number
+  max: number
+  tone?: 'green' | 'amber'
+  label: string
+  introDelay?: number
+}): React.JSX.Element {
   const pct = max <= 0 ? 0 : Math.min(100, (value / max) * 100)
   return (
     <div className="h-2 overflow-hidden rounded-full bg-track" role="meter" aria-label={label} aria-valuemin={0} aria-valuemax={max} aria-valuenow={value}>
-      <div className={cn(FILL, tone === 'green' ? 'bg-primary' : 'bg-warning')} style={{ transform: `translateX(${pct - 100}%)` }} />
+      <div
+        className={cn(FILL, tone === 'green' ? 'bg-primary' : 'bg-warning', introDelay !== undefined && 'animate-fill')}
+        style={{ transform: `translateX(${pct - 100}%)`, ...(introDelay !== undefined && { animationDelay: `${introDelay}ms`, animationDuration: '600ms' }) }}
+      />
     </div>
   )
 }

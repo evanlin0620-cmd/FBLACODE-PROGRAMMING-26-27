@@ -1,5 +1,6 @@
 /** Date and number formatting for display. Stored values stay "YYYY-MM-DDTHH:mm". */
 import { toStamp } from '@shared/time'
+import type { Activity } from '@shared/types'
 
 const asDate = (stamp: string): Date => new Date(stamp.length === 10 ? `${stamp}T00:00` : stamp)
 
@@ -22,6 +23,16 @@ export const fmtWhen = (s: string): string => `${fmtDate(s)}, ${fmtTime(s)}`
 /** 2 -> "2", 2.5 -> "2.5", 1284 -> "1,284" */
 export const fmtHours = (h: number): string => h.toLocaleString('en-US', { maximumFractionDigits: 2 })
 
+/** 1284 -> "1,284" */
+export const fmtCount = (n: number): string => n.toLocaleString('en-US')
+
+/** "3 of 20 spots left", "Last spot", or "Full · 12 on waitlist". */
+export function spotsLabel({ confirmed, capacity, waitlisted }: Pick<Activity, 'confirmed' | 'capacity' | 'waitlisted'>): string {
+  const left = capacity - confirmed
+  if (left <= 0) return waitlisted > 0 ? `Full · ${fmtCount(waitlisted)} on waitlist` : 'Full · waitlist open'
+  return left === 1 ? 'Last spot' : `${fmtCount(left)} of ${fmtCount(capacity)} spots left`
+}
+
 export const initials = (name: string): string =>
   name
     .split(/\s+/)
@@ -34,7 +45,4 @@ export const initials = (name: string): string =>
 export const nowStamp = (): string => toStamp(new Date())
 
 /** Today's date as "YYYY-MM-DD" in local time. */
-export const today = (): string => {
-  const d = new Date()
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
-}
+export const today = (): string => nowStamp().slice(0, 10)

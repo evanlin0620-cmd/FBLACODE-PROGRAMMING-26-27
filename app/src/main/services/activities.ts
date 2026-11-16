@@ -134,7 +134,8 @@ export function getActivity(ctx: Ctx, id: unknown): Activity {
   return activity
 }
 
-function checkSkillsExist(db: Db, skillIds: number[]): void {
+/** Shared by activity and profile saves. */
+export function checkSkillsExist(db: Db, skillIds: number[]): void {
   for (const id of skillIds) {
     if (!one(db, 'SELECT 1 FROM skills WHERE id = ?', id)) {
       throw new AppError('VALIDATION', 'One of the selected skills no longer exists.', { skillIds: 'Pick skills from the list' })

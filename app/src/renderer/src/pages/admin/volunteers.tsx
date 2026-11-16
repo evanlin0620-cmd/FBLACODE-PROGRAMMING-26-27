@@ -11,7 +11,7 @@ import { EmptyState, Loader, PageBody, PageHeader, Panel } from '@/components/pa
 import { HourPill, Meter, Pill, SignupPill } from '@/components/status'
 import { CertificateView } from '@/components/certificate-view'
 import { useMutation, useQuery } from '@/lib/hooks'
-import { fmtDate, fmtDay, fmtHours, fmtRange, initials } from '@/lib/format'
+import { fmtCount, fmtDate, fmtDay, fmtHours, fmtRange, initials } from '@/lib/format'
 import { WEEKDAYS, type Certificate } from '@shared/types'
 
 export function VolunteerDirectory(): React.JSX.Element {
@@ -62,24 +62,24 @@ export function VolunteerDirectory(): React.JSX.Element {
                   <TableBody>
                     {rows.map((v) => (
                       <TableRow key={v.userId} className="cursor-pointer" onClick={() => navigate(`/admin/volunteers/${v.userId}`)}>
-                        <TableCell className="pl-4">
+                        <TableCell className="max-w-72 min-w-48 pl-4 whitespace-normal">
                           <Link to={`/admin/volunteers/${v.userId}`} className="flex items-center gap-2.5 hover:underline" onClick={(e) => e.stopPropagation()}>
-                            <span className="grid size-8 place-items-center rounded-full bg-accent text-xs font-semibold text-accent-foreground" aria-hidden>
+                            <span className="grid size-8 shrink-0 place-items-center rounded-full bg-accent text-xs font-semibold text-accent-foreground" aria-hidden>
                               {initials(v.fullName)}
                             </span>
-                            <span>
+                            <span className="min-w-0">
                               <span className="block font-medium">{v.fullName}</span>
-                              <span className="block text-xs text-muted-foreground">{v.email}</span>
+                              <span className="block text-xs break-all text-muted-foreground">{v.email}</span>
                             </span>
                           </Link>
                         </TableCell>
-                        <TableCell className="whitespace-normal">
+                        <TableCell className="min-w-48 whitespace-normal">
                           <div className="flex flex-wrap gap-1">
                             {v.skills.length === 0 ? <span className="text-sm text-muted-foreground">None listed</span> : v.skills.map((s) => <Pill key={s}>{s}</Pill>)}
                           </div>
                         </TableCell>
                         <TableCell className="text-right font-medium">{fmtHours(v.approvedHours)}</TableCell>
-                        <TableCell className="pr-4 text-right">{v.upcomingShifts}</TableCell>
+                        <TableCell className="pr-4 text-right">{fmtCount(v.upcomingShifts)}</TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
@@ -131,7 +131,7 @@ export function VolunteerRecord(): React.JSX.Element {
                 <Panel title="Hours">
                   <p className="flex items-baseline gap-2">
                     <span className="text-3xl font-semibold tabular">{fmtHours(approvedHours)}</span>
-                    <span className="text-sm text-muted-foreground">of {profile.hourGoal} hour goal</span>
+                    <span className="text-sm text-muted-foreground">of {fmtHours(profile.hourGoal)} hour goal</span>
                   </p>
                   <div className="mt-3">
                     <Meter value={approvedHours} max={profile.hourGoal} label="Approved hours toward goal" />

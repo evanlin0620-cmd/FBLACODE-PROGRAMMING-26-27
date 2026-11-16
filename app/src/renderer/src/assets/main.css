@@ -89,6 +89,55 @@
   --font-sans: 'Geist Variable', ui-sans-serif, system-ui, sans-serif;
   /* Strong ease-out for UI motion; the CSS keyword ease-out starts too softly. */
   --ease-snappy: cubic-bezier(0.23, 1, 0.32, 1);
+  /* Strong ease-in-out for things already on screen moving to a new spot (rows closing a gap). */
+  --ease-glide: cubic-bezier(0.77, 0, 0.175, 1);
+  /* Once-per-login entrance for dashboard panels; --rise varies per panel so the group isn't uniform. */
+  --animate-enter: enter 320ms var(--ease-snappy) backwards;
+  /* Skeletons wait 150ms before showing, so a fast local load never flashes one. */
+  --animate-appear: appear 200ms var(--ease-snappy) 150ms backwards;
+  /* The certificate prints top to bottom the moment it is created. */
+  --animate-reveal: reveal 700ms var(--ease-snappy) backwards;
+  @keyframes enter {
+    from {
+      opacity: 0;
+      translate: 0 var(--rise, 8px);
+    }
+  }
+  @keyframes appear {
+    from {
+      opacity: 0;
+    }
+  }
+  @keyframes reveal {
+    from {
+      clip-path: inset(0 0 100% 0 round 12px);
+    }
+    to {
+      clip-path: inset(0 0 0 0 round 12px);
+    }
+  }
+  /* Sign-in hero entrance. `backwards` holds the hidden start only during the delay, so content is visible by default. */
+  --animate-rise: rise 0.7s var(--ease-snappy) backwards;
+  --animate-settle: settle 0.8s var(--ease-snappy) backwards;
+  --animate-fill: fill 0.9s var(--ease-snappy) backwards;
+  @keyframes rise {
+    from {
+      transform: translateY(110%);
+    }
+  }
+  @keyframes settle {
+    from {
+      opacity: 0;
+      filter: blur(6px);
+      translate: 0 16px;
+      scale: 0.96;
+    }
+  }
+  @keyframes fill {
+    from {
+      transform: translateX(-100%);
+    }
+  }
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -179,7 +228,41 @@
     *::before,
     *::after {
       animation-duration: 0.01ms !important;
+      animation-delay: 0s !important;
       transition-duration: 0.01ms !important;
+    }
+  }
+  /*
+   * List refreshes wrapped in withViewTransition(). Only named elements move: rows slide to their
+   * new spot, a row that left fades out faster than its neighbours move in, and a new row waits
+   * until the neighbours have made room before it drops in (overlapping them read as two rows
+   * passing through each other). Unnamed page content swaps instantly: crossfading it ghosted
+   * headers and panel borders that had moved.
+   */
+  ::view-transition-group(*) {
+    animation-duration: 220ms;
+    animation-timing-function: var(--ease-glide);
+  }
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none;
+  }
+  ::view-transition-old(*):only-child {
+    animation: vt-leave 150ms var(--ease-snappy) both;
+  }
+  ::view-transition-new(*):only-child {
+    animation: vt-arrive 180ms var(--ease-snappy) 100ms both;
+  }
+  @keyframes vt-leave {
+    to {
+      opacity: 0;
+      scale: 0.98;
+    }
+  }
+  @keyframes vt-arrive {
+    from {
+      opacity: 0;
+      translate: 0 -6px;
     }
   }
   /* Printing a certificate or report: hide the app chrome. */

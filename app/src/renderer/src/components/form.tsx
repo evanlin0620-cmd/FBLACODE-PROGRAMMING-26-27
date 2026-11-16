@@ -17,7 +17,7 @@ export function FormField({ label, error, hint, children, labelAction }: FieldPr
   const id = useId()
   const hintId = `${id}-hint`
   const errorId = `${id}-error`
-  const describedBy = [hint ? hintId : null, error ? errorId : null].filter(Boolean).join(' ') || undefined
+  const describedBy = [hint && !error ? hintId : null, error ? errorId : null].filter(Boolean).join(' ') || undefined
   return (
     <Field data-invalid={!!error || undefined}>
       <div className="flex items-baseline justify-between gap-2">

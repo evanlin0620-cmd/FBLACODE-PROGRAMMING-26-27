@@ -14,6 +14,7 @@ import { HourPill } from '@/components/status'
 import { FormField } from '@/components/form'
 import { useMutation, useQuery } from '@/lib/hooks'
 import { fmtDate, fmtHours, initials } from '@/lib/format'
+import { cn } from '@/lib/utils'
 import type { HourStatus } from '@shared/types'
 
 export function Approvals(): React.JSX.Element {
@@ -35,6 +36,8 @@ export function Approvals(): React.JSX.Element {
     const r = await review.run({ ids, decision, note })
     if (!r) return false
     setSelected((s) => s.filter((id) => !ids.includes(id)))
+    // No view transition here on purpose: the bordered card snaps shorter before rows can slide up,
+    // so a sliding row hung outside it. A clean instant removal beats a glitchy one.
     list.reload()
     return true
   }
@@ -105,8 +108,8 @@ export function Approvals(): React.JSX.Element {
                       <TableHead>Activity</TableHead>
                       <TableHead>Date</TableHead>
                       <TableHead className="text-right">Hours</TableHead>
-                      <TableHead>Status</TableHead>
-                      {tab === 'pending' && <TableHead className="pr-4 text-right">Actions</TableHead>}
+                      {/* Every Waiting row is "Pending", so that tab trades the status column for actions to fit 960px. */}
+                      {tab === 'pending' ? <TableHead className="pr-4 text-right">Actions</TableHead> : <TableHead>Status</TableHead>}
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -121,24 +124,26 @@ export function Approvals(): React.JSX.Element {
                             />
                           </TableCell>
                         )}
-                        <TableCell className={tab === 'pending' ? '' : 'pl-4'}>
+                        <TableCell className={cn('min-w-32 whitespace-normal', tab !== 'pending' && 'pl-4')}>
                           <Link to={`/admin/volunteers/${h.userId}`} className="flex items-center gap-2.5 font-medium hover:underline">
-                            <span className="grid size-7 place-items-center rounded-full bg-accent text-[11px] font-semibold text-accent-foreground" aria-hidden>
+                            <span className="grid size-7 shrink-0 place-items-center rounded-full bg-accent text-[11px] font-semibold text-accent-foreground" aria-hidden>
                               {initials(h.volunteerName)}
                             </span>
                             {h.volunteerName}
                           </Link>
                         </TableCell>
-                        <TableCell className="whitespace-normal">
+                        <TableCell className="min-w-36 whitespace-normal">
                           {h.activityTitle}
                           {h.note && <p className="text-xs text-muted-foreground">“{h.note}”</p>}
                           {h.status === 'rejected' && h.reviewNote && <p className="text-xs text-destructive">Reason: {h.reviewNote}</p>}
                         </TableCell>
                         <TableCell className="text-muted-foreground">{fmtDate(h.date)}</TableCell>
                         <TableCell className="text-right font-medium">{fmtHours(h.hours)}</TableCell>
-                        <TableCell>
-                          <HourPill status={h.status} />
-                        </TableCell>
+                        {tab !== 'pending' && (
+                          <TableCell>
+                            <HourPill status={h.status} />
+                          </TableCell>
+                        )}
                         {tab === 'pending' && (
                           <TableCell className="pr-4 text-right">
                             <div className="flex justify-end gap-1">

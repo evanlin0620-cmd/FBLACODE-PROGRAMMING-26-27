@@ -1,0 +1,111 @@
+/* The app's tokens and base styles, plus this folder as a Tailwind source (the app's CSS never scans it). */
+@import '../../src/assets/main.css';
+@source '.';
+
+/*
+ * Unslop direction: the paper sign-up sheet at a community hall.
+ * App surfaces stay neutral; the brand green is kept for the primary action, the selection mark and one key figure.
+ * Scoped to .unslop so the house shadcn components (Button, Input, Label) re-skin without being forked.
+ */
+.unslop {
+  --background: #fafafa;
+  --foreground: #171717;
+  --card: #ffffff;
+  --card-foreground: #171717;
+  --popover: #ffffff;
+  --popover-foreground: #171717;
+  --primary: #15803d; /* white text 5.0:1 */
+  --primary-foreground: #ffffff;
+  --secondary: #f4f4f5;
+  --secondary-foreground: #171717;
+  --muted: #f4f4f5;
+  --muted-foreground: #737373;
+  --accent: #f0f0f0;
+  --accent-foreground: #171717;
+  --border: rgb(23 23 23 / 0.08);
+  --input: rgb(23 23 23 / 0.14);
+  --ring: #15803d;
+  --track: #ededed;
+  --text-2: #525252; /* secondary text role */
+  --paper: #f7f4ee; /* warm paper, sign-in panel only */
+  --paper-ink: #1f1b16;
+  --paper-ink-2: #5e554a;
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  background: var(--background);
+  color: var(--foreground);
+}
+
+/* Browser surfaces carry the design too. */
+.unslop {
+  caret-color: var(--primary);
+  scrollbar-color: #d4d4d4 transparent;
+}
+.unslop ::selection {
+  background: #dcebe0;
+  color: #171717;
+}
+/* A solid 2px ring with an offset: the house ring is green at 50%, about 2:1, under the 3:1 non-text minimum. */
+.unslop :focus-visible {
+  outline: 2px solid var(--primary) !important;
+  outline-offset: 2px;
+  box-shadow: none !important;
+}
+
+.unslop .serif {
+  font-family: 'Sitka Heading', 'Sitka Text', Georgia, 'Times New Roman', serif;
+  font-weight: 400;
+}
+
+/* Names written on the sheet: the handwriting faces Windows ships, so it stays offline. */
+.unslop .hand {
+  font-family: 'Ink Free', 'Segoe Print', 'Bradley Hand', cursive;
+}
+
+/* Hours logged but not approved yet: hatched, so "pending" never depends on colour alone. */
+.unslop .cell-pending {
+  background: repeating-linear-gradient(135deg, #b9d9c3 0 3px, #ffffff 3px 6px);
+  box-shadow: inset 0 0 0 1px #9cc8aa;
+}
+
+/* The comparison switcher: plain chrome, not part of either design. */
+.compare-bar {
+  position: fixed;
+  bottom: 12px;
+  left: 50%;
+  translate: -50% 0;
+  z-index: 100;
+  display: flex;
+  gap: 8px;
+  padding: 4px;
+  border-radius: 12px;
+  background: #18181b;
+  color: #a1a1aa;
+  font: 500 12px/1 system-ui, sans-serif;
+  box-shadow: 0 8px 24px rgb(0 0 0 / 0.18);
+}
+.compare-group {
+  display: flex;
+  gap: 2px;
+}
+.compare-group + .compare-group {
+  padding-left: 8px;
+  border-left: 1px solid #3f3f46;
+}
+.compare-bar button {
+  height: 28px;
+  padding: 0 10px;
+  border-radius: 8px;
+  white-space: nowrap;
+  transition: background-color 150ms, color 150ms;
+}
+.compare-bar button:hover {
+  color: #fafafa;
+}
+.compare-bar button[aria-pressed='true'] {
+  background: #3f3f46;
+  color: #fafafa;
+}
+.compare-bar button:focus-visible {
+  outline: 2px solid #fafafa;
+  outline-offset: 1px;
+}

@@ -17,9 +17,8 @@ import { Meter } from '@/components/status'
 import { FormField } from '@/components/form'
 import { CertificateView } from '@/components/certificate-view'
 import { useMutation, useQuery } from '@/lib/hooks'
-import { fmtDate, fmtHours, fmtMonth, today } from '@/lib/format'
-import { ORG_NAME } from '@/lib/org'
-import { ACTIVITY_TYPES, type ActivityType, type ReportFilter } from '@shared/types'
+import { fmtCount, fmtDate, fmtHours, fmtMonth, today } from '@/lib/format'
+import { ACTIVITY_TYPES, ORGANIZATION, type ActivityType, type ReportFilter } from '@shared/types'
 
 const chartConfig = { hours: { label: 'Hours', color: 'var(--chart-1)' } } satisfies ChartConfig
 
@@ -162,15 +161,15 @@ export function Reports(): React.JSX.Element {
                 <div className="hidden print:block">
                   <h1 className="text-2xl font-semibold">Volunteer hours report</h1>
                   <p className="text-sm text-zinc-600">
-                    {ORG_NAME} · {r.filter.from ? fmtDate(r.filter.from) : 'All time'} to {r.filter.to ? fmtDate(r.filter.to) : 'today'}
+                    {ORGANIZATION} · {r.filter.from ? fmtDate(r.filter.from) : 'All time'} to {r.filter.to ? fmtDate(r.filter.to) : 'today'}
                     {r.filter.type ? ` · ${r.filter.type}` : ''}
                   </p>
                 </div>
                 <div className="grid grid-cols-3 gap-4">
                   {[
                     ['Approved hours', fmtHours(r.totalHours)],
-                    ['Volunteers', String(r.volunteerCount)],
-                    ['Entries', String(r.rows.length)]
+                    ['Volunteers', fmtCount(r.volunteerCount)],
+                    ['Entries', fmtCount(r.rows.length)]
                   ].map(([label, value]) => (
                     <div key={label} className="rounded-xl border bg-card p-5">
                       <p className="text-sm text-muted-foreground">{label}</p>

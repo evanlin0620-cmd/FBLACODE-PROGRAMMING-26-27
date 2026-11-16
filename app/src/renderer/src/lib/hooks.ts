@@ -4,6 +4,8 @@
  * screen handles them the same way.
  */
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { flushSync } from 'react-dom'
+import { useLocation } from 'react-router'
 import { toast } from 'sonner'
 import type { ApiMap, ApiName } from '@shared/api'
 import { api, ApiError } from './api'
@@ -14,7 +16,8 @@ export interface Query<T> {
   data: T | undefined
   error: ApiError | null
   loading: boolean
-  reload: () => void
+  /** Loads again. Resolves once the new data is on screen, so a view transition can wrap it. */
+  reload: () => Promise<void>
 }
 
 /** Loads data when the screen opens, and again whenever `input` changes. */
@@ -23,25 +26,56 @@ export function useQuery<K extends ApiName>(name: K, ...args: Args<K>): Query<Ap
   const [error, setError] = useState<ApiError | null>(null)
   const [loading, setLoading] = useState(true)
   const [tick, setTick] = useState(0)
+  const waiting = useRef<(() => void)[]>([])
   const key = JSON.stringify(args[0] ?? null)
 
   useEffect(() => {
     let alive = true // ignore answers that arrive after the input changed
     setLoading(true)
     api(name, ...(JSON.parse(key) === null ? [] : [JSON.parse(key)]) as Args<K>)
-      .then((d) => {
-        if (!alive) return
-        setData(d)
-        setError(null)
-      })
-      .catch((e: ApiError) => alive && setError(e))
-      .finally(() => alive && setLoading(false))
+      // flushSync commits to the DOM right away, so the reload promise below resolves after the screen updated.
+      .then(
+        (d) => {
+          if (!alive) return
+          flushSync(() => {
+            setData(d)
+            setError(null)
+            setLoading(false)
+          })
+        },
+        (e: ApiError) => {
+          if (alive) flushSync(() => {
+            setError(e)
+            setLoading(false)
+          })
+        }
+      )
+      .finally(() => alive && waiting.current.splice(0).forEach((done) => done()))
     return () => {
       alive = false
     }
   }, [name, key, tick])
 
-  return { data, error, loading, reload: useCallback(() => setTick((t) => t + 1), []) }
+  const reload = useCallback(
+    () =>
+      new Promise<void>((done) => {
+        waiting.current.push(done)
+        setTick((t) => t + 1)
+      }),
+    []
+  )
+  return { data, error, loading, reload }
+}
+
+/** True when this page was opened straight from signing in (the login screen sets it). */
+export function useWelcome(): boolean {
+  const welcome = (useLocation().state as { welcome?: boolean } | null)?.welcome === true
+  useEffect(() => {
+    // Wipe the flag from this history entry so pressing Back later doesn't replay the entrance.
+    // shortcut: writes React Router's internal `usr` slot directly; switch to navigate(replace) if the router changes it.
+    if (welcome) window.history.replaceState({ ...window.history.state, usr: null }, '')
+  }, [welcome])
+  return welcome
 }
 
 export interface Mutation<I, O> {

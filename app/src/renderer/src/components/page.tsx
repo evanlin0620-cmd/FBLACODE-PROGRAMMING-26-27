@@ -2,7 +2,7 @@
  * Page layout pieces shared by every screen: the header with title and actions,
  * the scrollable body, and the loading / error / empty states.
  */
-import type { ReactNode } from 'react'
+import type { CSSProperties, ReactNode } from 'react'
 import { AlertTriangle, RotateCw } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -11,9 +11,10 @@ import { cn } from '@/lib/utils'
 import type { ApiError } from '@/lib/api'
 
 export function PageHeader({ title, subtitle, actions }: { title: string; subtitle?: ReactNode; actions?: ReactNode }): React.JSX.Element {
+  // No wrap: a long title wraps its own text instead of pushing the actions onto a new line.
   return (
-    <header className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3 border-b px-8 pt-6 pb-5" data-print-hide>
-      <div className="min-w-0">
+    <header className="flex items-center justify-between gap-6 border-b px-8 pt-6 pb-5" data-print-hide>
+      <div className="min-w-0 flex-1">
         <h1 className="text-[1.75rem] leading-tight font-semibold tracking-tight">{title}</h1>
         {subtitle && <p className="mt-1 text-sm text-muted-foreground">{subtitle}</p>}
       </div>
@@ -43,7 +44,7 @@ export function Loader<T>({
 
 export function LoadingSkeleton({ kind }: { kind: 'cards' | 'table' | 'form' }): React.JSX.Element {
   return (
-    <div role="status" aria-label="Loading" className="space-y-4">
+    <div role="status" aria-label="Loading" className="animate-appear space-y-4">
       {kind === 'cards' && (
         <div className="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-4">
           {[0, 1, 2].map((i) => (
@@ -124,16 +125,18 @@ export function Panel({
   description,
   action,
   children,
-  className
+  className,
+  style
 }: {
   title?: string
   description?: ReactNode
   action?: ReactNode
   children: ReactNode
   className?: string
+  style?: CSSProperties
 }): React.JSX.Element {
   return (
-    <section className={cn('rounded-xl border bg-card p-5', className)}>
+    <section className={cn('rounded-xl border bg-card p-5', className)} style={style}>
       {(title || action) && (
         <div className="mb-4 flex items-start justify-between gap-4">
           <div>

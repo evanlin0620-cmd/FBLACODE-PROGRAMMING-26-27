@@ -5,9 +5,8 @@
  */
 import { all, run, type Db } from '../db'
 import type { AuditEntry, Notification } from '@shared/types'
-import { type Ctx, requireAdmin, requireUser } from './context'
+import { type Ctx, parse, requireAdmin, requireUser } from './context'
 import { idsSchema } from '@shared/schemas'
-import { parse } from './context'
 
 export function notify(db: Db, now: string, userId: number, type: string, subject: string, body: string): void {
   run(

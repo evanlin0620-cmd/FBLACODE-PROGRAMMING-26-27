@@ -128,10 +128,19 @@ export interface VolunteerDetail {
   approvedHours: number
 }
 
+/** One part of a match score: skills (out of 50), availability (30) or interest (20). */
+export interface Factor {
+  label: 'Skills' | 'Availability' | 'Interest'
+  points: number
+  max: number
+  note: string
+}
+
 export interface Recommendation {
   activity: Activity
   score: number // 0-100
   reasons: string[]
+  factors: Factor[]
 }
 
 export interface VolunteerDashboard {

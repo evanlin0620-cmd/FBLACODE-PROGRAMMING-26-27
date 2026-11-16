@@ -231,6 +231,18 @@ The app is flat. Depth comes from borders and from the sidebar being a touch gra
 ### Named Rules
 **The Flat Desk Rule.** Panels and cards have no shadow at rest. Use a 1px border. A shadow means "this floats" or "you can click this".
 
+## Motion
+
+Motion explains a change; it never decorates. The working screens are a tool people use many times a session, so most things change instantly. Curves are tokens in `main.css`: `ease-snappy` (strong ease-out, for anything entering or responding) and `ease-glide` (strong ease-in-out, for things already on screen moving to a new spot).
+
+- **Never animated:** page navigation, the sidebar highlight, keyboard actions (`/`, `?`), search results while typing, dark mode. They happen too often for motion to be anything but a delay.
+- **Press feedback:** buttons scale to 0.97 for 150ms.
+- **List refreshes** (`withViewTransition` in `lib/utils.ts`): after signing up, cancelling or logging hours, rows with a `viewTransitionName` slide to their new place in 220ms, a new row fades in after its neighbours make room, and everything else swaps instantly. Removing a row from inside a bordered card (approvals, My shifts) is not animated, because the card snaps shorter before the row can slide.
+- **Once per login:** the dashboard panels rise in a wave (0, 50 and 90ms delays, 12/8/6px rises, 320ms) and the goal bar fills. Arriving through the sidebar or Back never replays it (`useWelcome`).
+- **The one celebration:** a new certificate prints top to bottom (700ms clip-path reveal).
+- **Skeletons** wait 150ms before showing, so a fast local load never flashes one.
+- **Reduced motion:** every animation and delay drops to near zero, and view transitions are skipped.
+
 ## Shapes
 
 Corners are small and friendly, never sharp and never pill-shaped (except bars and count badges). Cards, panels, the empty state, and the error panel use 12px corners. Buttons, inputs, and status pills use 6px. The date tile and brand tile use 8px. Bars and nav count badges are fully round. Borders are 1px zinc; the empty state uses a dashed border. The certificate is the only thing with a thick (2px) green border.
@@ -273,6 +285,9 @@ The bar that shows how full a shift is. A 12px label above ("4 of 6 spots left")
 
 ### Date Tile
 A 48px-wide Soft Zinc tile with 8px corners: short month on top (11px, semibold, uppercase, muted), day number below (18px semibold, tabular). Used at the start of shift rows.
+
+### Sign-in Hero
+The one screen with an authored entrance (login and sign-up, left half, hidden under 768px). A soft green wash made from the primary token, a three-line headline whose words rise out of a mask 60ms apart, then a tilted sample shift card and certificate card that settle in, followed by three floating status pills (match, waitlist, approved) and the capacity bar filling. A pale "serve" sits behind the bottom edge. The whole sequence finishes in about 2 seconds and never blocks the form. With reduced motion everything is simply shown. The sample card is a picture, so it is `aria-hidden`. Inside the app, motion stays limited to feedback.
 
 ### Empty and Error States
 Empty: dashed-border 12px box with a line icon, a title, one sentence, and an optional button. Error: a light red panel with a warning icon, "We couldn't load this page.", the reason, and a "Try again" outline button.

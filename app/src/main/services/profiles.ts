@@ -7,7 +7,7 @@ import { AppError } from '@shared/errors'
 import { idSchema, profileSchema, volunteerSearchSchema } from '@shared/schemas'
 import type { ActivityType, Profile, Skill, VolunteerDetail, VolunteerSummary } from '@shared/types'
 import { type Ctx, parse, requireAdmin, requireUser, requireVolunteer } from './context'
-import { loadActivities } from './activities'
+import { checkSkillsExist, loadActivities } from './activities'
 import { approvedTotal, hourLogsFor } from './hours'
 
 export function listSkills(ctx: Ctx): Skill[] {
@@ -51,11 +51,7 @@ export function getMyProfile(ctx: Ctx): Profile {
 export function updateMyProfile(ctx: Ctx, input: unknown): Profile {
   const user = requireVolunteer(ctx)
   const p = parse(profileSchema, input)
-  for (const id of p.skillIds) {
-    if (!one(ctx.db, 'SELECT 1 FROM skills WHERE id = ?', id)) {
-      throw new AppError('VALIDATION', 'One of the selected skills no longer exists.', { skillIds: 'Pick skills from the list' })
-    }
-  }
+  checkSkillsExist(ctx.db, p.skillIds)
   tx(ctx.db, () => {
     run(ctx.db, 'UPDATE users SET full_name = ? WHERE id = ?', p.fullName, user.id)
     run(

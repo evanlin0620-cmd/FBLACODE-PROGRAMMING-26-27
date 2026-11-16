@@ -1,6 +1,6 @@
 /** Recommendations, the Help assistant, reports, and the demo seed. */
 import { describe, expect, it } from 'vitest'
-import { scoreActivity } from '../../src/main/services/recommendations'
+import { recommend, scoreActivity } from '../../src/main/services/recommendations'
 import { answer } from '../../src/shared/help'
 import type { Activity, Profile } from '../../src/shared/types'
 import { openDb } from '../../src/main/db'
@@ -54,7 +54,21 @@ describe('recommendation score', () => {
 
   it('gives partial credit for half the skills and half the time', () => {
     const p = profile({ skills: [{ id: 1, name: 'Spanish translator' }], availability: [{ weekday: 6, start: '10:30', end: '15:00' }] })
-    expect(scoreActivity(activity(), p).score).toBe(25 + 15)
+    const r = scoreActivity(activity(), p)
+    expect(r.score).toBe(25 + 15)
+    expect(r.factors.map((f) => [f.label, f.points, f.max])).toEqual([
+      ['Skills', 25, 50],
+      ['Availability', 15, 30],
+      ['Interest', 0, 20]
+    ])
+    expect(r.reasons).not.toContain(r.factors[2]!.note) // a factor that earned nothing isn't listed as a reason
+  })
+
+  it('only recommends matches of 50% or better', () => {
+    const weak = profile({ skills: [{ id: 1, name: 'Spanish translator' }], availability: [{ weekday: 6, start: '10:30', end: '15:00' }] }) // scores 40
+    const strong = profile({ skills: [{ id: 1, name: 'Spanish translator' }, { id: 2, name: 'First aid / CPR' }], availability: [{ weekday: 6, start: '08:00', end: '13:00' }] })
+    expect(recommend([activity()], weak)).toEqual([])
+    expect(recommend([activity()], strong)).toHaveLength(1)
   })
 
   it('moves full activities down', () => {
@@ -114,5 +128,11 @@ describe('demo data and reports', () => {
     const csv = reportToCsv(food).split('\r\n')
     expect(csv[0]).toBe('"Volunteer","Email","Activity","Type","Date","Hours"')
     expect(csv).toHaveLength(food.rows.length + 2)
+  })
+
+  it('stops CSV cells from running as spreadsheet formulas', () => {
+    const row = { volunteerName: '=HYPERLINK("http://x")', volunteerEmail: '@a', activityTitle: 'Plain', activityType: 'Health' as const, date: '2026-11-01', hours: 2 }
+    const line = reportToCsv({ ...hoursReport(ctxFor(DEMO_ADMIN.email, DEMO_ADMIN.password), {}), rows: [row] }).split('\r\n')[1]
+    expect(line).toBe(`"'=HYPERLINK(""http://x"")","'@a","Plain","Health","2026-11-01","2"`)
   })
 })

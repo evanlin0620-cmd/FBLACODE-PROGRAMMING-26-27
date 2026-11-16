@@ -13,6 +13,7 @@ import { HourPill } from '@/components/status'
 import { FormField, numberValue } from '@/components/form'
 import { useMutation, useQuery } from '@/lib/hooks'
 import { fmtDate, fmtDay, fmtHours } from '@/lib/format'
+import { withViewTransition } from '@/lib/utils'
 
 function LogHoursForm({ onLogged }: { onLogged: () => void }): React.JSX.Element {
   const shifts = useQuery('hours.loggable')
@@ -120,7 +121,7 @@ export function MyHours(): React.JSX.Element {
       <PageBody>
         <div className="grid gap-5 lg:grid-cols-[360px_1fr]">
           <Panel title="Log hours" description="For shifts you were confirmed for.">
-            <LogHoursForm onLogged={q.reload} />
+            <LogHoursForm onLogged={() => withViewTransition(q.reload)} />
           </Panel>
           <Panel title="History" description={q.data ? `${fmtHours(approved)} approved hours in total` : undefined}>
             <Loader query={q} skeleton="table">
@@ -128,18 +129,19 @@ export function MyHours(): React.JSX.Element {
                 rows.length === 0 ? (
                   <EmptyState icon={<ClipboardList />} title="No hours logged yet" description="Your logged hours and their status will appear here." />
                 ) : (
-                  <Table>
+                  // Fixed columns: a newly logged row can't re-flow the others, so rows slide without their text jumping.
+                  <Table className="table-fixed">
                     <TableHeader>
                       <TableRow>
                         <TableHead>Activity</TableHead>
-                        <TableHead>Date</TableHead>
-                        <TableHead className="text-right">Hours</TableHead>
-                        <TableHead>Status</TableHead>
+                        <TableHead className="w-32">Date</TableHead>
+                        <TableHead className="w-16 text-right">Hours</TableHead>
+                        <TableHead className="w-32">Status</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {rows.map((h) => (
-                        <TableRow key={h.id}>
+                        <TableRow key={h.id} style={{ viewTransitionName: `log-${h.id}` }}>
                           <TableCell className="whitespace-normal">
                             <p className="font-medium">{h.activityTitle}</p>
                             {h.status === 'rejected' && h.reviewNote && <p className="mt-0.5 text-sm text-destructive">Reason: {h.reviewNote}</p>}

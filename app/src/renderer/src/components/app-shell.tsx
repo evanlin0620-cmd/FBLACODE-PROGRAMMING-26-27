@@ -54,7 +54,7 @@ import { toast } from 'sonner'
 import { useSession, useUser } from '@/lib/session'
 import { api } from '@/lib/api'
 import { initials } from '@/lib/format'
-import { ORG_NAME } from '@/lib/org'
+import { ORGANIZATION } from '@shared/types'
 
 interface NavItem {
   to: string
@@ -159,7 +159,7 @@ export function AppShell(): React.JSX.Element {
             </span>
             <div className="leading-tight">
               <p className="font-semibold">ServeHub</p>
-              <p className="text-xs text-muted-foreground">{user.role === 'admin' ? ORG_NAME : 'Volunteer'}</p>
+              <p className="text-xs text-muted-foreground">{user.role === 'admin' ? ORGANIZATION : 'Volunteer'}</p>
             </div>
           </div>
         </SidebarHeader>
@@ -176,7 +176,7 @@ export function AppShell(): React.JSX.Element {
                       <NavItemLink item={item} />
                       {count > 0 && (
                         <SidebarMenuBadge className="rounded-full bg-primary px-1.5 text-primary-foreground peer-hover/menu-button:text-primary-foreground peer-data-[active=true]/menu-button:text-primary-foreground">
-                          {count}
+                          {count > 99 ? '99+' : count}
                           <span className="sr-only">{item.badge === 'pending' ? ' entries waiting' : ' unread'}</span>
                         </SidebarMenuBadge>
                       )}

@@ -26,8 +26,6 @@ interface ActivityTimes {
   status: string
 }
 
-const pretty = prettyStamp
-
 export function signUp(ctx: Ctx, id: unknown): { status: SignupStatus; position: number | null } {
   const user = requireVolunteer(ctx)
   const activityId = parse(idSchema, id)
@@ -59,7 +57,7 @@ export function signUp(ctx: Ctx, id: unknown): { status: SignupStatus; position:
       a.start_at
     )
     if (clash) {
-      throw new AppError('CONFLICT', `This overlaps with "${clash.title}" (${pretty(clash.start_at)}). Cancel that one first if you want this shift.`)
+      throw new AppError('CONFLICT', `This overlaps with "${clash.title}" (${prettyStamp(clash.start_at)}). Cancel that one first if you want this shift.`)
     }
 
     const confirmed = one<{ n: number }>(
@@ -84,7 +82,7 @@ export function signUp(ctx: Ctx, id: unknown): { status: SignupStatus; position:
       status === 'confirmed' ? 'signup_confirmed' : 'signup_waitlisted',
       status === 'confirmed' ? `You’re signed up: ${a.title}` : `You’re on the waitlist: ${a.title}`,
       status === 'confirmed'
-        ? `Hi ${user.fullName},\n\nYou’re confirmed for "${a.title}" on ${pretty(a.start_at)}. Thank you for helping out!`
+        ? `Hi ${user.fullName},\n\nYou’re confirmed for "${a.title}" on ${prettyStamp(a.start_at)}. Thank you for helping out!`
         : `Hi ${user.fullName},\n\n"${a.title}" is full right now. You’re #${position} on the waitlist, and we’ll email you if a spot opens.`
     )
     return { status, position }
@@ -106,7 +104,7 @@ export function cancelSignup(ctx: Ctx, id: unknown): void {
     if (a.start_at <= ctx.now()) throw new AppError('CONFLICT', 'This shift has already started, so it can’t be cancelled here.')
 
     run(ctx.db, "UPDATE signups SET status = 'cancelled' WHERE id = ?", s.id)
-    notify(ctx.db, ctx.now(), user.id, 'signup_cancelled', `Cancelled: ${a.title}`, `You’ve been removed from "${a.title}" on ${pretty(a.start_at)}.`)
+    notify(ctx.db, ctx.now(), user.id, 'signup_cancelled', `Cancelled: ${a.title}`, `You’ve been removed from "${a.title}" on ${prettyStamp(a.start_at)}.`)
     if (s.status === 'confirmed') promoteFromWaitlist(ctx.db, ctx.now(), activityId)
   })
 }
@@ -134,7 +132,7 @@ export function promoteFromWaitlist(db: Db, now: string, activityId: number): vo
       p.user_id,
       'waitlist_promoted',
       `A spot opened up: ${a.title}`,
-      `Good news, ${p.full_name}! A spot opened for "${a.title}" on ${pretty(a.start_at)}, and you’re now confirmed.`
+      `Good news, ${p.full_name}! A spot opened for "${a.title}" on ${prettyStamp(a.start_at)}, and you’re now confirmed.`
     )
   }
 }

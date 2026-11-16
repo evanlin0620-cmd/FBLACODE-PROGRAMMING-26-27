@@ -5,10 +5,14 @@
 import { Heart } from 'lucide-react'
 import type { Certificate } from '@shared/types'
 import { fmtDate, fmtHours } from '@/lib/format'
+import { cn } from '@/lib/utils'
 
-export function CertificateView({ cert }: { cert: Certificate }): React.JSX.Element {
+export function CertificateView({ cert, className }: { cert: Certificate; className?: string }): React.JSX.Element {
   return (
-    <article className="mx-auto max-w-[760px] rounded-xl border-2 border-primary/70 bg-white p-10 text-zinc-950 print:border-primary" aria-label="Community service certificate">
+    <article
+      className={cn('mx-auto max-w-[760px] rounded-xl border-2 border-primary/70 bg-white p-10 text-zinc-950 print:border-primary', className)}
+      aria-label="Community service certificate"
+    >
       <div className="flex items-center gap-2.5">
         <span className="grid size-9 place-items-center rounded-lg bg-[#15803d] text-white">
           <Heart className="size-[18px]" strokeWidth={2.4} aria-hidden />

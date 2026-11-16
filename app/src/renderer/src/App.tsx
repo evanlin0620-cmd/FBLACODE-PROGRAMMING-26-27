@@ -28,15 +28,16 @@ import { VolunteerDirectory, VolunteerRecord } from '@/pages/admin/volunteers'
 import { Reports, VerifiedCertificate } from '@/pages/admin/reports'
 import { AuditLog, Outbox, Settings } from '@/pages/admin/system'
 import type { Role } from '@shared/types'
+import { DataToggle } from '@/dev/data-toggle'
 
 function home(role: Role | undefined): string {
   return role === 'admin' ? '/admin' : role === 'volunteer' ? '/dashboard' : '/login'
 }
 
-/** Only logged-out visitors see login/sign-up. */
+/** Only logged-out visitors see login/sign-up. Signing in lands here first, so it carries the dashboard's welcome entrance. */
 function PublicOnly(): React.JSX.Element {
   const { user } = useSession()
-  return user ? <Navigate to={home(user.role)} replace /> : <Outlet />
+  return user ? <Navigate to={home(user.role)} replace state={{ welcome: true }} /> : <Outlet />
 }
 
 /** Logged-in users with an allowed role see the app shell; everyone else is redirected. */
@@ -173,6 +174,7 @@ export default function App(): React.JSX.Element {
         <TooltipProvider>
           <RouterProvider router={router} />
           <ThemedToaster />
+          {import.meta.env.VITE_STRESS_TEST === '1' && <DataToggle />}
         </TooltipProvider>
       </SessionProvider>
     </ErrorBoundary>

@@ -24,7 +24,7 @@ import { EmptyState, Loader, PageBody, PageHeader, Panel } from '@/components/pa
 import { CapacityBar, Pill } from '@/components/status'
 import { FormField, numberValue } from '@/components/form'
 import { useMutation, useQuery } from '@/lib/hooks'
-import { fmtDay, fmtRange, nowStamp } from '@/lib/format'
+import { fmtCount, fmtDay, fmtRange, nowStamp } from '@/lib/format'
 import { ACTIVITY_TYPES, type Activity, type ActivityType, type Skill } from '@shared/types'
 
 export function AdminActivities(): React.JSX.Element {
@@ -145,7 +145,7 @@ const toDraft = (a?: Activity): Draft => ({
   skillIds: a?.skills.map((s) => s.id) ?? []
 })
 
-function ActivityForm({ activity, skills }: { activity?: Activity; skills: Skill[] }): React.JSX.Element {
+function ActivityForm({ activity, skills, onSaved }: { activity?: Activity; skills: Skill[]; onSaved?: () => void }): React.JSX.Element {
   const navigate = useNavigate()
   const [d, setD] = useState<Draft>(() => toDraft(activity))
   const create = useMutation('activities.create', { success: 'Activity created.' })
@@ -171,6 +171,7 @@ function ActivityForm({ activity, skills }: { activity?: Activity; skills: Skill
     }
     const saved = activity ? await update.run({ id: activity.id, data }) : await create.run(data)
     if (saved && !activity) navigate(`/admin/activities/${saved.id}`, { replace: true })
+    if (saved && activity) onSaved?.()
   }
 
   return (
@@ -284,7 +285,7 @@ function DangerZone({ activity, onChanged }: { activity: Activity; onChanged: ()
             <AlertDialogHeader>
               <AlertDialogTitle>Cancel {activity.title}?</AlertDialogTitle>
               <AlertDialogDescription>
-                {activity.confirmed + activity.waitlisted} signed-up volunteers will get a cancellation email. The activity stays in your records.
+                {fmtCount(activity.confirmed + activity.waitlisted)} signed-up volunteers will get a cancellation email. The activity stays in your records.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
@@ -366,7 +367,7 @@ export function ManageActivity(): React.JSX.Element {
                       <dd>{a.description}</dd>
                     </dl>
                   ) : (
-                    <ActivityForm key={a.id + a.startAt + a.capacity} activity={a} skills={s} />
+                    <ActivityForm key={a.id + a.startAt + a.capacity} activity={a} skills={s} onSaved={reloadAll} />
                   )}
                 </Panel>
                 {!past && <DangerZone activity={a} onChanged={reloadAll} />}

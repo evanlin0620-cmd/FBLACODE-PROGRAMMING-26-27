@@ -1,0 +1,3 @@
+/* The app's tokens and base styles, plus this prototype folder as a Tailwind source (the app's CSS never scans it). */
+@import '../../src/assets/main.css';
+@source '.';

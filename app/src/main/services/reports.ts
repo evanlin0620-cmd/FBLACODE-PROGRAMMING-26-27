@@ -142,7 +142,8 @@ export function hoursReport(ctx: Ctx, input: unknown = {}): HoursReport {
 
 /** Turns report rows into CSV text. Quotes every field so commas in titles don't break columns. */
 export function reportToCsv(report: HoursReport): string {
-  const esc = (v: string | number): string => `"${String(v).replace(/"/g, '""')}"`
+  // A leading ' stops Excel from running a volunteer-typed name like =HYPERLINK(...) as a formula.
+  const esc = (v: string | number): string => `"${String(v).replace(/^[=+\-@\t\r]/, "'$&").replace(/"/g, '""')}"`
   const lines = [['Volunteer', 'Email', 'Activity', 'Type', 'Date', 'Hours'].map(esc).join(',')]
   for (const r of report.rows) lines.push([r.volunteerName, r.volunteerEmail, r.activityTitle, r.activityType, r.date, r.hours].map(esc).join(','))
   lines.push(['Total', '', '', '', '', report.totalHours].map(esc).join(','))

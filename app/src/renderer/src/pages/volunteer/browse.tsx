@@ -10,6 +10,7 @@ import { ActivityCard } from '@/components/activity'
 import { useQuery } from '@/lib/hooks'
 import { today } from '@/lib/format'
 import { ACTIVITY_TYPES, type ActivityType } from '@shared/types'
+import { toStamp } from '@shared/time'
 
 const DATE_OPTIONS = {
   any: 'Any time',
@@ -20,7 +21,7 @@ const DATE_OPTIONS = {
 function addDays(n: number): string {
   const d = new Date()
   d.setDate(d.getDate() + n)
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+  return toStamp(d).slice(0, 10)
 }
 
 export function BrowseActivities(): React.JSX.Element {

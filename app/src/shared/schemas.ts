@@ -10,6 +10,10 @@
 import { z } from 'zod'
 import { ACTIVITY_TYPES } from './types'
 
+// The renderer's CSP forbids eval, so zod's JIT could never run there and its eval probe shows up as a
+// DevTools CSP issue. jitless must be set before the first z.object() below, which is why it lives here.
+z.config({ jitless: true })
+
 const STAMP = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/
 const DATE = /^\d{4}-\d{2}-\d{2}$/
 const TIME = /^([01]\d|2[0-3]):[0-5]\d$/

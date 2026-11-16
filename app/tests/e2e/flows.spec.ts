@@ -29,7 +29,7 @@ test('volunteer and admin flows', async () => {
   // Volunteer dashboard
   await loginAs(page, 'Volunteer')
   await expect(page.getByRole('heading', { name: 'Hi, Maria' })).toBeVisible()
-  await expect(page.getByText('% match').first()).toBeVisible()
+  await expect(page.getByText('best match for you')).toBeVisible()
   await shot(page, '02-volunteer-dashboard')
 
   // Browse + filter + waitlist
