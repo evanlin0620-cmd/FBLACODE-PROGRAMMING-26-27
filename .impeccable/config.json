@@ -1,0 +1,14 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "design-system-font",
+        "value": "sitka heading",
+        "createdAt": "2026-11-16T01:55:36.932Z",
+        "reason": "user confirmed: picked 'Geist + system serif' for redesign headlines (2026-11-15)"
+      }
+    ]
+  }
+}

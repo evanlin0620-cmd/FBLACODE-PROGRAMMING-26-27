@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "servehub-dev",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "app", "run", "dev"],
+      "port": 5173
+    },
+    {
+      "name": "knowledge-graph",
+      "runtimeExecutable": "C:\\Users\\evanl\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+      "runtimeArgs": ["-m", "http.server", "8765", "--bind", "127.0.0.1", "--directory", "graphify-out"],
+      "port": 8765
+    }
+  ]
+}

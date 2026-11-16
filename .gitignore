@@ -1,3 +1,4 @@
 node_modules/
 graphify-out/cache/
 .claude/settings.local.json
+.playwright-mcp/
