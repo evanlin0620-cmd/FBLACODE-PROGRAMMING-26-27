@@ -11,12 +11,13 @@ import { cn } from '@/lib/utils'
 import type { ApiError } from '@/lib/api'
 
 export function PageHeader({ title, subtitle, actions }: { title: string; subtitle?: ReactNode; actions?: ReactNode }): React.JSX.Element {
-  // No wrap: a long title wraps its own text instead of pushing the actions onto a new line.
+  // The actions never wrap; the subtitle drops under the title instead of truncating,
+  // because many subtitles are instructions that must stay readable at 960px.
   return (
-    <header className="flex items-center justify-between gap-6 border-b px-8 pt-6 pb-5" data-print-hide>
-      <div className="min-w-0 flex-1">
-        <h1 className="text-[1.75rem] leading-tight font-semibold tracking-tight">{title}</h1>
-        {subtitle && <p className="mt-1 text-sm text-muted-foreground">{subtitle}</p>}
+    <header className="flex min-h-16 items-center justify-between gap-6 border-b px-8 py-3" data-print-hide>
+      <div className="flex min-w-0 flex-1 flex-wrap items-baseline gap-x-3">
+        <h1 className="min-w-0 text-xl font-medium">{title}</h1>
+        {subtitle && <p className="min-w-0 text-sm text-muted-foreground">{subtitle}</p>}
       </div>
       {actions && <div className="flex shrink-0 items-center gap-2">{actions}</div>}
     </header>
@@ -24,7 +25,7 @@ export function PageHeader({ title, subtitle, actions }: { title: string; subtit
 }
 
 export function PageBody({ children, className }: { children: ReactNode; className?: string }): React.JSX.Element {
-  return <div className={cn('mx-auto w-full max-w-[1200px] px-8 py-6', className)}>{children}</div>
+  return <div className={cn('mx-auto w-full max-w-[1200px] px-8 py-8', className)}>{children}</div>
 }
 
 /** Shows a skeleton while loading, a retry panel on error, otherwise the children. */
@@ -89,7 +90,7 @@ export function EmptyState({
   className?: string
 }): React.JSX.Element {
   return (
-    <Empty className={cn('rounded-xl border border-dashed py-10', className)}>
+    <Empty className={cn('rounded-2xl border border-dashed py-10', className)}>
       <EmptyHeader>
         <EmptyMedia variant="icon">{icon}</EmptyMedia>
         <EmptyTitle>{title}</EmptyTitle>
@@ -136,11 +137,11 @@ export function Panel({
   style?: CSSProperties
 }): React.JSX.Element {
   return (
-    <section className={cn('rounded-xl border bg-card p-5', className)} style={style}>
+    <section className={cn('rounded-2xl border bg-card p-6', className)} style={style}>
       {(title || action) && (
         <div className="mb-4 flex items-start justify-between gap-4">
           <div>
-            {title && <h2 className="text-base font-semibold">{title}</h2>}
+            {title && <h2 className="text-[15px] font-medium">{title}</h2>}
             {description && <p className="mt-0.5 text-sm text-muted-foreground">{description}</p>}
           </div>
           {action}

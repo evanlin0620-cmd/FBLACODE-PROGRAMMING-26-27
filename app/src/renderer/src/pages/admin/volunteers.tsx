@@ -49,7 +49,7 @@ export function VolunteerDirectory(): React.JSX.Element {
             rows.length === 0 ? (
               <EmptyState icon={<UserX />} title="No volunteers match" description="Try another name or skill." />
             ) : (
-              <div className="rounded-xl border bg-card">
+              <div className="rounded-2xl border bg-card">
                 <Table>
                   <TableHeader>
                     <TableRow>

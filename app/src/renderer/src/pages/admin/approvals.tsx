@@ -12,7 +12,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { EmptyState, Loader, PageBody, PageHeader } from '@/components/page'
 import { HourPill } from '@/components/status'
 import { FormField } from '@/components/form'
-import { useMutation, useQuery } from '@/lib/hooks'
+import { refreshNavCounts, useMutation, useQuery } from '@/lib/hooks'
 import { fmtDate, fmtHours, initials } from '@/lib/format'
 import { cn } from '@/lib/utils'
 import type { HourStatus } from '@shared/types'
@@ -39,6 +39,7 @@ export function Approvals(): React.JSX.Element {
     // No view transition here on purpose: the bordered card snaps shorter before rows can slide up,
     // so a sliding row hung outside it. A clean instant removal beats a glitchy one.
     list.reload()
+    refreshNavCounts()
     return true
   }
 
@@ -91,7 +92,7 @@ export function Approvals(): React.JSX.Element {
                 description={tab === 'pending' ? 'New hour logs will appear here for review.' : 'Reviewed entries will be listed here.'}
               />
             ) : (
-              <div className="rounded-xl border bg-card">
+              <div className="rounded-2xl border bg-card">
                 <Table>
                   <TableHeader>
                     <TableRow>

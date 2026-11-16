@@ -5,11 +5,12 @@
 import type { Activity, HourStatus, SignupStatus } from '@shared/types'
 import { cn } from '@/lib/utils'
 import { fmtCount, spotsLabel } from '@/lib/format'
+import { Slots } from './slots'
 
 type Tone = 'green' | 'amber' | 'red' | 'gray' | 'outline'
 
 const TONES: Record<Tone, string> = {
-  green: 'bg-success-bg text-accent-foreground',
+  green: 'bg-success-bg text-success-fg',
   amber: 'bg-warning-bg text-warning',
   red: 'bg-destructive/10 text-destructive',
   gray: 'bg-muted text-muted-foreground',
@@ -40,27 +41,18 @@ export function HourPill({ status }: { status: HourStatus }): React.JSX.Element 
 const FILL = 'h-full w-full rounded-full transition-transform duration-300 ease-snappy'
 
 /**
- * The signature element: how full a shift is. Green while there is room,
- * amber with the waitlist count once full.
+ * The signature element: how full a shift is, drawn as the lines of a sign-up sheet.
+ * The words turn amber with the waitlist count once it is full.
  */
 export function CapacityBar({ activity, className }: { activity: Activity; className?: string }): React.JSX.Element {
   const { confirmed, capacity, waitlisted } = activity
   const full = confirmed >= capacity
-  const pct = Math.min(100, Math.round((confirmed / capacity) * 100))
   const label = spotsLabel({ confirmed, capacity, waitlisted })
   return (
     <div className={cn('min-w-0', className)}>
-      <p className={cn('text-xs font-medium tabular', full ? 'text-warning' : 'text-foreground')}>{label}</p>
-      <div
-        className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-track"
-        role="meter"
-        aria-label={`Spots filled for ${activity.title}`}
-        aria-valuemin={0}
-        aria-valuemax={capacity}
-        aria-valuenow={confirmed}
-        aria-valuetext={label}
-      >
-        <div className={cn(FILL, full ? 'bg-warning' : 'bg-primary')} style={{ transform: `translateX(${pct - 100}%)` }} />
+      <p className={cn('font-mono text-xs tabular-nums', full ? 'text-warning' : 'text-muted-foreground')}>{label}</p>
+      <div className="mt-1.5">
+        <Slots filled={confirmed} total={capacity} label={`${activity.title}: ${label}`} />
       </div>
     </div>
   )

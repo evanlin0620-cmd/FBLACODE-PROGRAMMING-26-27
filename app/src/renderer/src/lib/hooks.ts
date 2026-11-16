@@ -67,6 +67,9 @@ export function useQuery<K extends ApiName>(name: K, ...args: Args<K>): Query<Ap
   return { data, error, loading, reload }
 }
 
+/** Tells the sidebar to reload its badge counts (after approving hours in place, say). */
+export const refreshNavCounts = (): void => void window.dispatchEvent(new Event('servehub:counts'))
+
 /** True when this page was opened straight from signing in (the login screen sets it). */
 export function useWelcome(): boolean {
   const welcome = (useLocation().state as { welcome?: boolean } | null)?.welcome === true

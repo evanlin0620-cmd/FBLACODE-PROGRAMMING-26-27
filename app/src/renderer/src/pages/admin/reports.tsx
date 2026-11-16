@@ -18,7 +18,8 @@ import { FormField } from '@/components/form'
 import { CertificateView } from '@/components/certificate-view'
 import { useMutation, useQuery } from '@/lib/hooks'
 import { fmtCount, fmtDate, fmtHours, fmtMonth, today } from '@/lib/format'
-import { ACTIVITY_TYPES, ORGANIZATION, type ActivityType, type ReportFilter } from '@shared/types'
+import { useSession } from '@/lib/session'
+import { ACTIVITY_TYPES, type ActivityType, type ReportFilter } from '@shared/types'
 
 const chartConfig = { hours: { label: 'Hours', color: 'var(--chart-1)' } } satisfies ChartConfig
 
@@ -71,6 +72,7 @@ export function Reports(): React.JSX.Element {
     type: type === 'any' ? undefined : (type as ActivityType),
     volunteerId: volunteer === 'any' ? undefined : Number(volunteer)
   }
+  const { org } = useSession()
   const report = useQuery('reports.hours', filter)
   const csv = useMutation('reports.exportCsv')
   const pdf = useMutation('reports.savePdf')
@@ -161,7 +163,7 @@ export function Reports(): React.JSX.Element {
                 <div className="hidden print:block">
                   <h1 className="text-2xl font-semibold">Volunteer hours report</h1>
                   <p className="text-sm text-zinc-600">
-                    {ORGANIZATION} · {r.filter.from ? fmtDate(r.filter.from) : 'All time'} to {r.filter.to ? fmtDate(r.filter.to) : 'today'}
+                    {org} · {r.filter.from ? fmtDate(r.filter.from) : 'All time'} to {r.filter.to ? fmtDate(r.filter.to) : 'today'}
                     {r.filter.type ? ` · ${r.filter.type}` : ''}
                   </p>
                 </div>
@@ -171,7 +173,7 @@ export function Reports(): React.JSX.Element {
                     ['Volunteers', fmtCount(r.volunteerCount)],
                     ['Entries', fmtCount(r.rows.length)]
                   ].map(([label, value]) => (
-                    <div key={label} className="rounded-xl border bg-card p-5">
+                    <div key={label} className="rounded-2xl border bg-card p-5">
                       <p className="text-sm text-muted-foreground">{label}</p>
                       <p className="mt-1 text-3xl font-semibold tabular">{value}</p>
                     </div>

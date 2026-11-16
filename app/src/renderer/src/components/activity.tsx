@@ -122,7 +122,7 @@ export function ActivityCard({ activity, onChange }: { activity: Activity; onCha
   return (
     // Named so signing up crossfades this card (button to pill, bar growing) in place.
     <article
-      className="flex flex-col rounded-xl border bg-card p-4 transition-shadow hover:shadow-[0_2px_4px_rgb(0_0_0/0.04),0_12px_28px_-16px_rgb(0_0_0/0.18)]"
+      className="flex flex-col rounded-2xl border bg-card p-4 transition-shadow hover:shadow-[0_2px_4px_rgb(0_0_0/0.04),0_12px_28px_-16px_rgb(0_0_0/0.18)]"
       style={{ viewTransitionName: `card-${activity.id}` }}
     >
       <div className="flex items-center justify-between gap-2">
@@ -167,9 +167,9 @@ export function ActivityCard({ activity, onChange }: { activity: Activity; onCha
 export function DateTile({ stamp }: { stamp: string }): React.JSX.Element {
   const d = new Date(stamp)
   return (
-    <div className="grid w-12 shrink-0 place-items-center rounded-lg bg-muted py-1.5 leading-none" aria-hidden>
-      <span className="text-[11px] font-semibold text-muted-foreground uppercase">{d.toLocaleDateString('en-US', { month: 'short' })}</span>
-      <span className="mt-1 text-lg font-semibold tabular">{d.getDate()}</span>
+    <div className="w-10 shrink-0 text-center leading-tight" aria-hidden>
+      <span className="block text-xs text-muted-foreground">{d.toLocaleDateString('en-US', { month: 'short' })}</span>
+      <span className="block text-lg font-medium tabular-nums">{d.getDate()}</span>
     </div>
   )
 }

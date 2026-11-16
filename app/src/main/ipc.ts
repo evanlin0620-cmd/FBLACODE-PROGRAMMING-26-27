@@ -23,6 +23,7 @@ import * as hours from './services/hours'
 import * as log from './services/log'
 import * as profiles from './services/profiles'
 import * as reports from './services/reports'
+import * as settings from './services/settings'
 import * as signups from './services/signups'
 
 type Handlers = { [K in ApiName]: (ctx: Ctx, input: ApiMap[K]['in']) => ApiMap[K]['out'] | Promise<ApiMap[K]['out']> }
@@ -109,6 +110,9 @@ const handlers: Handlers = {
   },
   'notifications.outbox': (ctx, q) => log.outbox(ctx, q),
   'audit.list': (ctx) => log.listAudit(ctx),
+
+  'org.get': (ctx) => settings.orgName(ctx),
+  'org.update': (ctx, input) => settings.setOrgName(ctx, input),
 
   'demo.reset': (ctx) => {
     requireAdmin(ctx)

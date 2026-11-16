@@ -57,7 +57,7 @@ export function Outbox(): React.JSX.Element {
             rows.length === 0 ? (
               <EmptyState icon={<MailX />} title="No emails found" description="Emails appear here when volunteers sign up or hours are reviewed." />
             ) : (
-              <div className="grid min-h-[480px] overflow-hidden rounded-xl border bg-card lg:grid-cols-[380px_1fr]">
+              <div className="grid min-h-[480px] overflow-hidden rounded-2xl border bg-card lg:grid-cols-[380px_1fr]">
                 <ul className="max-h-[640px] divide-y overflow-y-auto border-r" aria-label="Emails">
                   {rows.map((n) => (
                     <li key={n.id}>
@@ -124,7 +124,7 @@ export function AuditLog(): React.JSX.Element {
             rows.length === 0 ? (
               <EmptyState icon={<History />} title="No activity yet" description="Changes made in ServeHub will be recorded here." />
             ) : (
-              <div className="rounded-xl border bg-card">
+              <div className="rounded-2xl border bg-card">
                 <Table>
                   <TableHeader>
                     <TableRow>
@@ -154,6 +154,47 @@ export function AuditLog(): React.JSX.Element {
   )
 }
 
+/** The organization's name: shown on sign-in, the sidebar, reports and certificates. */
+function OrgName(): React.JSX.Element {
+  const { org, setOrg } = useSession()
+  const [name, setName] = useState(org)
+  const save = useMutation('org.update', { success: 'Organization name saved.' })
+  return (
+    <Panel title="Your organization" description="Shown on the sign-in screen, the sidebar, reports, and certificates.">
+      <form
+        noValidate
+        onSubmit={async (e) => {
+          e.preventDefault()
+          const saved = await save.run({ name })
+          if (saved !== undefined) {
+            setOrg(saved)
+            setName(saved)
+          }
+        }}
+      >
+        <FieldGroup className="gap-4">
+          <FormField label="Organization name" error={save.fieldErrors.name}>
+            {(p) => (
+              <Input
+                {...p}
+                autoComplete="organization"
+                value={name}
+                onChange={(e) => {
+                  setName(e.target.value)
+                  save.clearField('name')
+                }}
+              />
+            )}
+          </FormField>
+          <Button type="submit" className="w-fit" disabled={save.pending || name.trim() === org}>
+            Save name
+          </Button>
+        </FieldGroup>
+      </form>
+    </Panel>
+  )
+}
+
 export function Settings(): React.JSX.Element {
   const [form, setForm] = useState({ fullName: '', email: '', password: '' })
   const create = useMutation('auth.createAdmin', { success: 'Admin account created.' })
@@ -174,6 +215,7 @@ export function Settings(): React.JSX.Element {
     <>
       <PageHeader title="Settings" />
       <PageBody className="grid max-w-[1000px] gap-5 lg:grid-cols-2">
+        <OrgName />
         <Panel title="Add an admin" description="Admins can manage activities, approve hours, and see every volunteer.">
           <form onSubmit={submit} noValidate>
             <FieldGroup className="gap-4">

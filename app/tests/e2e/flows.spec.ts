@@ -13,7 +13,7 @@ async function loginAs(page: Page, role: 'Volunteer' | 'Admin'): Promise<void> {
 async function logout(page: Page): Promise<void> {
   await page.locator('[data-slot="dropdown-menu-trigger"]').click()
   await page.getByRole('menuitem', { name: 'Log out' }).click()
-  await expect(page.getByRole('heading', { name: 'Welcome back' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Sign in' })).toBeVisible()
 }
 
 test('volunteer and admin flows', async () => {
@@ -89,8 +89,17 @@ test('volunteer and admin flows', async () => {
   // Admin
   await logout(page)
   await loginAs(page, 'Admin')
-  await expect(page.getByRole('heading', { name: 'Impact dashboard' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Impact', exact: true })).toBeVisible()
   await shot(page, '12-admin-impact')
+
+  // Approve in place from "Needs you" (not Maria's entry; the approvals steps below use it).
+  const approvalsNav = page.locator('li', { has: page.getByRole('link', { name: 'Hour approvals' }) })
+  await expect(approvalsNav).toContainText('3')
+  await page.getByRole('button', { name: 'Review' }).click()
+  await page.getByRole('button', { name: /^Approve .+ for (?!Maria Lopez)/ }).first().click()
+  await expect(page.getByText(/^Approved .+ hours for /)).toBeVisible()
+  await expect(approvalsNav).toContainText('2')
+  await expect(page.getByText('2 hour logs')).toBeVisible()
 
   await page.getByRole('link', { name: 'Hour approvals' }).click()
   await expect(page.getByRole('cell', { name: 'Maria Lopez', exact: true })).toBeVisible()
@@ -131,7 +140,7 @@ test('volunteer and admin flows', async () => {
   // Dark mode
   await page.getByRole('button', { name: 'Dark mode' }).click()
   await page.getByRole('link', { name: 'Impact' }).click()
-  await expect(page.getByRole('heading', { name: 'Impact dashboard' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Impact', exact: true })).toBeVisible()
   await shot(page, '22-admin-impact-dark')
 
   await app.close()

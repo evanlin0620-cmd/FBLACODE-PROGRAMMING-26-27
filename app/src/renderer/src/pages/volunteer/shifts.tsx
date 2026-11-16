@@ -36,7 +36,7 @@ export function MyShifts(): React.JSX.Element {
                 }
               />
             ) : (
-              <ul className="divide-y rounded-xl border bg-card">
+              <ul className="divide-y rounded-2xl border bg-card">
                 {list.map((a) => (
                   <li key={a.id} className="flex flex-wrap items-center gap-4 p-4">
                     <DateTile stamp={a.startAt} />

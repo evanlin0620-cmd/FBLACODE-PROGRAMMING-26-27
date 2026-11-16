@@ -6,7 +6,7 @@
 
 export type Role = 'volunteer' | 'admin'
 
-/** The demo nonprofit's name, shown in the app and on certificates. */
+/** The organization name until an admin sets one in Settings (the demo nonprofit). */
 export const ORGANIZATION = 'Riverside Community Partners'
 
 /** Categories an activity can belong to. Also used as volunteer "interests". */

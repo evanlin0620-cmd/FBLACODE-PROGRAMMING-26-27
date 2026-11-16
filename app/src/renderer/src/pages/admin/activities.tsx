@@ -72,7 +72,7 @@ export function AdminActivities(): React.JSX.Element {
                 }
               />
             ) : (
-              <div className="rounded-xl border bg-card">
+              <div className="rounded-2xl border bg-card">
                 <Table>
                   <TableHeader>
                     <TableRow>

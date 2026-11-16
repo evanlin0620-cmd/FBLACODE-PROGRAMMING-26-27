@@ -5,7 +5,7 @@ type Bridge = { api: { call: (name: string, input?: unknown) => Promise<unknown>
 
 test('app boots to the login screen and the API enforces validation and roles', async () => {
   const { app, page } = await launch()
-  await expect(page.getByRole('heading', { name: 'Welcome back' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Sign in' })).toBeVisible()
 
   const bad = await page.evaluate(() => (window as unknown as Bridge).api.call('auth.login', { email: 'bad', password: '' }))
   expect(bad).toMatchObject({ ok: false, error: { code: 'VALIDATION' } })

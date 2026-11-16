@@ -8,6 +8,12 @@
         "value": "sitka heading",
         "createdAt": "2026-11-16T01:55:36.932Z",
         "reason": "user confirmed: picked 'Geist + system serif' for redesign headlines (2026-11-15)"
+      },
+      {
+        "rule": "design-system-font",
+        "value": "ink free",
+        "createdAt": "2026-11-16T03:27:44.301Z",
+        "reason": "user confirmed: keep Ink Free for the handwritten names on the sign-in clipboard (2026-11-15)"
       }
     ]
   }

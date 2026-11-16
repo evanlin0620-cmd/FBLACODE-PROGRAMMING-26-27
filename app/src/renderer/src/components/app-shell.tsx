@@ -6,7 +6,8 @@
 import { useEffect, useState } from 'react'
 import { NavLink, Outlet, useLocation, useMatch, useNavigate, useResolvedPath } from 'react-router'
 import {
-  BarChart3,
+  Award,
+  ChartColumn,
   Bell,
   CalendarDays,
   CircleHelp,
@@ -33,7 +34,6 @@ import {
   SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
-  SidebarGroupLabel,
   SidebarHeader,
   SidebarInset,
   SidebarMenu,
@@ -54,7 +54,6 @@ import { toast } from 'sonner'
 import { useSession, useUser } from '@/lib/session'
 import { api } from '@/lib/api'
 import { initials } from '@/lib/format'
-import { ORGANIZATION } from '@shared/types'
 
 interface NavItem {
   to: string
@@ -69,12 +68,13 @@ const VOLUNTEER_NAV: NavItem[] = [
   { to: '/activities', label: 'Find activities', icon: Search },
   { to: '/shifts', label: 'My shifts', icon: CalendarDays },
   { to: '/hours', label: 'My hours', icon: Clock },
+  { to: '/certificate', label: 'Certificates', icon: Award },
   { to: '/profile', label: 'My profile', icon: User },
   { to: '/notifications', label: 'Notifications', icon: Bell, badge: 'unread' }
 ]
 
 const ADMIN_NAV: NavItem[] = [
-  { to: '/admin', label: 'Impact', icon: BarChart3, end: true },
+  { to: '/admin', label: 'Impact', icon: ChartColumn, end: true },
   { to: '/admin/activities', label: 'Activities', icon: CalendarDays },
   { to: '/admin/approvals', label: 'Hour approvals', icon: ClipboardCheck, badge: 'pending' },
   { to: '/admin/volunteers', label: 'Volunteers', icon: Users },
@@ -89,9 +89,13 @@ function NavItemLink({ item }: { item: NavItem }): React.JSX.Element {
   const resolved = useResolvedPath(item.to)
   const isActive = !!useMatch({ path: resolved.pathname, end: item.end ?? false })
   return (
-    <SidebarMenuButton asChild isActive={isActive} className="h-9 gap-2.5 data-[active=true]:font-medium">
+    <SidebarMenuButton
+      asChild
+      isActive={isActive}
+      className="h-9 gap-2.5 text-text-2 hover:bg-black/[0.04] data-[active=true]:font-medium data-[active=true]:shadow-[0_0_0_1px_var(--border),0_1px_2px_rgb(0_0_0/0.04)] dark:hover:bg-white/[0.06] [&>svg]:text-muted-foreground"
+    >
       <NavLink to={item.to} end={item.end}>
-        <item.icon aria-hidden />
+        <item.icon strokeWidth={1.5} aria-hidden />
         <span>{item.label}</span>
       </NavLink>
     </SidebarMenuButton>
@@ -102,6 +106,12 @@ function NavItemLink({ item }: { item: NavItem }): React.JSX.Element {
 function useNavCounts(role: 'volunteer' | 'admin'): { unread: number; pending: number } {
   const location = useLocation()
   const [counts, setCounts] = useState({ unread: 0, pending: 0 })
+  const [tick, setTick] = useState(0)
+  useEffect(() => {
+    const bump = (): void => setTick((t) => t + 1)
+    window.addEventListener('servehub:counts', bump)
+    return () => window.removeEventListener('servehub:counts', bump)
+  }, [])
   useEffect(() => {
     let alive = true
     const load =
@@ -112,13 +122,13 @@ function useNavCounts(role: 'volunteer' | 'admin'): { unread: number; pending: n
     return () => {
       alive = false
     }
-  }, [role, location.pathname])
+  }, [role, location.pathname, tick])
   return counts
 }
 
 export function AppShell(): React.JSX.Element {
   const user = useUser()
-  const { logout, theme, toggleTheme } = useSession()
+  const { logout, theme, toggleTheme, org } = useSession()
   const navigate = useNavigate()
   const counts = useNavCounts(user.role)
   const nav = user.role === 'admin' ? ADMIN_NAV : VOLUNTEER_NAV
@@ -152,21 +162,20 @@ export function AppShell(): React.JSX.Element {
   return (
     <SidebarProvider className="h-svh" style={{ '--sidebar-width': '15rem' } as React.CSSProperties}>
       <Sidebar collapsible="none" className="h-svh border-r" data-print-hide>
-        <SidebarHeader className="px-4 pt-5 pb-3">
-          <div className="flex items-center gap-2.5">
-            <span className="grid size-9 place-items-center rounded-lg bg-primary text-primary-foreground">
-              <Heart className="size-[18px]" strokeWidth={2.4} aria-hidden />
+        <SidebarHeader className="px-3 pt-4 pb-0">
+          <p className="flex h-9 items-center gap-2 px-2 text-[15px] font-medium">
+            <span className="grid size-6 place-items-center rounded-md bg-primary text-primary-foreground">
+              <Heart className="size-3.5" strokeWidth={2} aria-hidden />
             </span>
-            <div className="leading-tight">
-              <p className="font-semibold">ServeHub</p>
-              <p className="text-xs text-muted-foreground">{user.role === 'admin' ? ORGANIZATION : 'Volunteer'}</p>
-            </div>
-          </div>
+            ServeHub
+          </p>
         </SidebarHeader>
 
         <SidebarContent>
-          <SidebarGroup role="navigation" aria-label="Main menu">
-            <SidebarGroupLabel>Menu</SidebarGroupLabel>
+          <SidebarGroup role="navigation" aria-label="Main menu" className="px-3">
+            <p className="mt-4 mb-2 truncate px-2 text-xs text-text-2" title={org}>
+              {user.role === 'admin' ? org : `Volunteer at ${org}`}
+            </p>
             <SidebarGroupContent>
               <SidebarMenu>
                 {nav.map((item) => {
@@ -175,7 +184,7 @@ export function AppShell(): React.JSX.Element {
                     <SidebarMenuItem key={item.to}>
                       <NavItemLink item={item} />
                       {count > 0 && (
-                        <SidebarMenuBadge className="rounded-full bg-primary px-1.5 text-primary-foreground peer-hover/menu-button:text-primary-foreground peer-data-[active=true]/menu-button:text-primary-foreground">
+                        <SidebarMenuBadge className="text-xs font-normal text-text-2 tabular-nums peer-hover/menu-button:text-text-2 peer-data-[active=true]/menu-button:text-text-2">
                           {count > 99 ? '99+' : count}
                           <span className="sr-only">{item.badge === 'pending' ? ' entries waiting' : ' unread'}</span>
                         </SidebarMenuBadge>
@@ -188,27 +197,27 @@ export function AppShell(): React.JSX.Element {
           </SidebarGroup>
         </SidebarContent>
 
-        <SidebarFooter className="gap-1 px-2 pb-3">
+        <SidebarFooter className="gap-1 px-3 pb-3">
           <SidebarMenu>
             <SidebarMenuItem>
               <NavItemLink item={{ to: '/help', label: 'Help & questions', icon: CircleHelp }} />
             </SidebarMenuItem>
             <SidebarMenuItem>
-              <SidebarMenuButton onClick={toggleTheme} className="h-9 gap-2.5">
-                {theme === 'dark' ? <Sun aria-hidden /> : <Moon aria-hidden />}
+              <SidebarMenuButton onClick={toggleTheme} className="h-9 gap-2.5 text-text-2 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] [&>svg]:text-muted-foreground">
+                {theme === 'dark' ? <Sun strokeWidth={1.5} aria-hidden /> : <Moon strokeWidth={1.5} aria-hidden />}
                 <span>{theme === 'dark' ? 'Light mode' : 'Dark mode'}</span>
               </SidebarMenuButton>
             </SidebarMenuItem>
           </SidebarMenu>
 
           <DropdownMenu>
-            <DropdownMenuTrigger className="mt-1 flex w-full items-center gap-2.5 rounded-lg p-2 text-left hover:bg-sidebar-accent">
-              <span className="grid size-8 shrink-0 place-items-center rounded-full bg-accent text-xs font-semibold text-accent-foreground" aria-hidden>
+            <DropdownMenuTrigger className="mt-1 flex w-full items-center gap-2.5 rounded-lg border-t p-2 pt-3 text-left hover:bg-black/[0.04] dark:hover:bg-white/[0.06]">
+              <span className="grid size-8 shrink-0 place-items-center rounded-full bg-card text-xs font-medium shadow-[0_0_0_1px_var(--border)]" aria-hidden>
                 {initials(user.fullName)}
               </span>
               <span className="min-w-0 flex-1 leading-tight">
                 <span className="block truncate text-sm font-medium">{user.fullName}</span>
-                <span className="block truncate text-xs text-muted-foreground">{user.email}</span>
+                <span className="block truncate text-xs text-text-2">{user.email}</span>
               </span>
               <ChevronsUpDown className="size-4 text-muted-foreground" aria-hidden />
             </DropdownMenuTrigger>

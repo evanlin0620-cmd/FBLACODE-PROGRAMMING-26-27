@@ -46,7 +46,7 @@ export function NotificationsPage(): React.JSX.Element {
             list.length === 0 ? (
               <EmptyState icon={<BellOff />} title="No notifications" description="Sign up for a shift and your confirmation will show up here." />
             ) : (
-              <ul className="divide-y rounded-xl border bg-card">
+              <ul className="divide-y rounded-2xl border bg-card">
                 {list.map((n) => (
                   <li key={n.id}>
                     <button

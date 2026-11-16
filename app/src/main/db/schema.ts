@@ -104,6 +104,12 @@ CREATE TABLE IF NOT EXISTS certificates (
   issued_by   INTEGER REFERENCES users(id)
 );
 
+-- Install-wide settings (the organization's name). Not demo data, so a demo reset keeps them.
+CREATE TABLE IF NOT EXISTS settings (
+  key   TEXT PRIMARY KEY,
+  value TEXT NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS audit_log (
   id        INTEGER PRIMARY KEY,
   actor_id  INTEGER REFERENCES users(id),

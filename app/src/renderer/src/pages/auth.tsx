@@ -2,12 +2,10 @@
  * Log in and sign up. Public sign-up always creates a volunteer account;
  * admins are added by another admin in Settings.
  */
-import { useEffect, useState, type FormEvent, type ReactNode } from 'react'
+import { useState, type FormEvent, type ReactNode } from 'react'
 import { Link, useNavigate } from 'react-router'
-import { Award, Check, Clock, Heart, Lock, Sparkles } from 'lucide-react'
-import { Pill } from '@/components/status'
+import { Check, Heart, Lock } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { ORGANIZATION } from '@shared/types'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { FieldGroup } from '@/components/ui/field'
@@ -23,111 +21,88 @@ const DEMO = {
 
 function Brand({ className }: { className?: string }): React.JSX.Element {
   return (
-    <div className={cn('flex items-center gap-2.5', className)}>
-      <span className="grid size-9 place-items-center rounded-lg bg-primary text-primary-foreground">
-        <Heart className="size-[18px]" strokeWidth={2.4} aria-hidden />
+    <p className={cn('flex items-center gap-2 text-[17px] font-medium', className)}>
+      <span className="grid size-7 place-items-center rounded-md bg-primary text-primary-foreground">
+        <Heart className="size-4" strokeWidth={2} aria-hidden />
       </span>
-      <span className="text-xl font-semibold">ServeHub</span>
-    </div>
+      ServeHub
+    </p>
   )
 }
 
-const FLOAT = 'shadow-[0_2px_4px_rgb(0_0_0/0.04),0_16px_32px_-16px_rgb(0_0_0/0.25)]'
-const HEADLINE = ['Find a shift.', 'Log your hours.', 'See the good it did.']
-const LAST_WORD = HEADLINE.join(' ').split(' ').length - 1
-// Gaps shrink word by word (88ms down to ~8ms, 420ms total) so the headline reads as one wave, not a metronome.
-const wordDelay = (i: number): number => Math.round(420 * (1 - (1 - i / LAST_WORD) ** 2))
+const SHEET = ['Maria Lopez', 'James Carter', 'Aisha Rahman', 'Tom Nguyen', '', '']
 
-/**
- * The left half of the sign-in screen. The headline rises word by word, then a sample
- * shift card settles in with the three states the app tracks: match, waitlist, approved.
- * The card is a picture of the product, so it is hidden from screen readers.
- */
-// The entrance plays once per app session. Switching between Sign in and Sign up remounts the hero,
-// and replaying a 1.2 s entrance each time left the panel half-empty for a beat, which read as broken.
-let heroPlayed = false
-
-function Hero(): React.JSX.Element {
-  const [intro] = useState(() => !heroPlayed)
-  useEffect(() => {
-    heroPlayed = true
-  }, [])
-  // Without the intro, drop the animation classes so everything renders in place.
-  const a = (cls: string): string | false => intro && cls
-  let word = 0
+/** The one moment on the screen: a clipboard and sign-up sheet, built in code so it stays sharp and offline. */
+function Clipboard({ org }: { org: string }): React.JSX.Element {
+  const filled = SHEET.filter(Boolean).length
   return (
-    <div className="relative hidden overflow-hidden bg-[radial-gradient(ellipse_at_30%_35%,color-mix(in_srgb,var(--primary)_16%,var(--background)),color-mix(in_srgb,var(--primary)_4%,var(--background))_70%)] p-10 md:flex md:flex-col lg:p-12">
-      <Brand />
-      <p className="mt-10 text-[2.75rem] leading-[1.08] font-semibold tracking-tight lg:text-5xl">
-        {HEADLINE.map((line, i) => (
-          <span key={line} className={cn('block', i === 2 && 'text-primary')}>
-            {line.split(' ').map((w) => (
-              // The outer span is the mask each word rises out of; the padding keeps descenders from being clipped.
-              <span key={w} className="-mb-[0.15em] inline-block overflow-hidden pb-[0.15em] align-bottom">
-                <span className={cn('inline-block', a('animate-rise'))} style={{ animationDelay: `${wordDelay(word++)}ms` }}>
-                  {w}&nbsp;
-                </span>
-              </span>
+    // A picture of the product: one short description for screen readers instead of every line of the sheet.
+    <div
+      role="img"
+      aria-label={`Example sign-up sheet for Creek Cleanup with ${filled} of ${SHEET.length} spots filled`}
+      className="relative mx-auto w-full max-w-[400px] -rotate-1 rounded-2xl bg-[linear-gradient(180deg,#c9a57b,#bb9568)] p-5 pt-10 shadow-[0_1px_2px_rgb(0_0_0/0.08),0_16px_40px_-12px_rgb(60_40_20/0.35)]"
+    >
+      <div className="absolute top-[-14px] left-1/2 h-11 w-32 -translate-x-1/2 rounded-lg bg-[linear-gradient(180deg,#e4e4e4,#a9a9a9)] shadow-[inset_0_1px_0_rgb(255_255_255/0.7),0_2px_4px_rgb(0_0_0/0.25)]">
+        <div className="mx-auto mt-3 h-2 w-16 rounded-full bg-[#8f8f8f] shadow-[inset_0_1px_1px_rgb(0_0_0/0.35)]" />
+      </div>
+      {/* The sheet is paper in both themes. */}
+      <div className="rounded-[4px] bg-[#fffdf8] px-6 pt-6 pb-4 text-[#1f1b16] shadow-[0_1px_2px_rgb(0_0_0/0.1)]">
+        <p className="truncate font-mono text-[11px] text-[#5e554a]">{org} · volunteer sign-up</p>
+        <p className="mt-1 font-serif text-2xl leading-tight">Creek Cleanup</p>
+        <p className="mt-1 text-xs text-[#5e554a]">Sat, Dec 5 · 8:00 AM – 12:00 PM</p>
+        <ol className="mt-4">
+          {SHEET.map((name, i) => (
+            <li key={i} className="flex h-8 items-end gap-3 border-b border-[#ddd5c6] pb-1">
+              <span className="w-4 font-mono text-[11px] text-[#5e554a] tabular-nums">{i + 1}</span>
+              <span className="font-hand text-lg leading-none text-[#26387a]">{name}</span>
+            </li>
+          ))}
+        </ol>
+        <div className="mt-4 flex items-center justify-between">
+          <span className="flex gap-[3px]">
+            {SHEET.map((n, i) => (
+              <span key={i} className={cn('h-3 w-1.5 rounded-[2px]', n ? 'bg-[#404040]' : 'bg-[#e2e2e2]')} />
             ))}
           </span>
-        ))}
-      </p>
-      <p className="mt-4 max-w-[38ch] text-sm text-accent-foreground">{ORGANIZATION} runs its volunteer program here, from the first sign-up to the certificate.</p>
-
-      <div aria-hidden className="relative z-10 my-auto h-60 w-[440px] tabular">
-        <div className={cn('absolute top-10 left-44 h-40 w-64 rotate-6 rounded-xl bg-primary p-4 text-primary-foreground', a('animate-settle'), FLOAT)} style={{ animationDelay: '500ms' }}>
-          <Award className="ml-auto size-5" />
-          <p className="absolute right-4 bottom-3 text-xs font-medium">Certificate of service</p>
+          <span className="font-mono text-[11px] text-[#5e554a] tabular-nums">{SHEET.length - filled} spots left</span>
         </div>
-        <div className={cn('absolute top-4 left-0 w-72 -rotate-3 rounded-xl border bg-card p-5', a('animate-settle'), FLOAT)} style={{ animationDelay: '600ms' }}>
-          <Pill tone="outline">Environmental</Pill>
-          <p className="mt-2 font-semibold">Creek Cleanup</p>
-          <p className="text-xs text-muted-foreground">Saturday · 8:00 AM – 12:00 PM</p>
-          <p className="mt-3 text-xs font-medium">2 of 20 spots left</p>
-          <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-track">
-            <div className={cn('h-full w-[90%] rounded-full bg-primary', a('animate-fill'))} style={{ animationDelay: '900ms' }} />
-          </div>
-        </div>
-        {(
-          [
-            ['green', '-top-2 left-56', <Sparkles key="i" className="size-3.5" />, '92% match · fits your skills'],
-            ['amber', 'top-24 left-[21rem]', <Clock key="i" className="size-3.5" />, 'Waitlist #2'],
-            ['green', 'top-[13rem] left-36', <Check key="i" className="size-3.5" />, '4 hours approved']
-          ] as const
-        ).map(([tone, pos, icon, text], i) => (
-          <span key={text} className={cn('absolute', a('animate-settle'), pos)} style={{ animationDelay: `${[1000, 1100, 1170][i]}ms` }}>
-            <Pill tone={tone} className={cn('h-7 border border-border/60', FLOAT)}>
-              {icon}
-              {text}
-            </Pill>
-          </span>
-        ))}
       </div>
-      <span aria-hidden className="pointer-events-none absolute -bottom-12 left-6 text-[11rem] leading-none font-semibold tracking-tighter text-primary/[0.07] select-none">
-        serve
-      </span>
     </div>
   )
 }
 
-function AuthFrame({ title, subtitle, children, footer }: { title: string; subtitle: string; children: ReactNode; footer: ReactNode }): React.JSX.Element {
+function AuthFrame({ title, subtitle, children, footer }: { title: string; subtitle: ReactNode; children: ReactNode; footer: ReactNode }): React.JSX.Element {
+  const { org } = useSession()
   return (
-    <main className="grid min-h-svh md:grid-cols-2">
-      <Hero />
-      <div className="m-auto w-full max-w-[448px] px-6 py-10">
-        <Brand className="mb-6 justify-center md:hidden" />
-        <div className="rounded-xl border bg-card p-6 shadow-[0_1px_2px_rgb(0_0_0/0.04),0_8px_24px_-12px_rgb(0_0_0/0.12)]">
-          <h1 className="text-2xl font-semibold tracking-tight">{title}</h1>
-          <p className="mt-1 mb-5 text-sm text-muted-foreground">{subtitle}</p>
-          {children}
-          <p className="mt-5 text-center text-sm text-muted-foreground">{footer}</p>
-        </div>
-        <p className="mt-4 flex items-center justify-center gap-1.5 text-xs text-muted-foreground">
-          <Lock className="size-3.5" aria-hidden /> Works offline. Your data stays on this computer.
+    <main className="grid min-h-svh md:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)]">
+      <section className="relative hidden flex-col overflow-hidden bg-paper px-12 pt-10 text-paper-ink md:flex" aria-label="About ServeHub">
+        <Brand />
+        <p className="mt-10 max-w-[30rem] font-serif text-[44px] leading-[1.04] tracking-[-0.02em] lg:text-[52px]">Every shift’s sign-up sheet, in one place</p>
+        <p className="mt-5 max-w-[28rem] text-[17px] leading-7 text-paper-ink-2">
+          Volunteers pick shifts and log their hours. Coordinators approve them and see what the hours added up to.
         </p>
-      </div>
+        <div className="mt-auto pt-6 pb-12">
+          <Clipboard org={org} />
+        </div>
+      </section>
+      <section className="flex flex-col justify-center bg-card px-6 py-10 md:px-16">
+        <div className="mx-auto w-full max-w-[360px]">
+          <Brand className="mb-8 md:hidden" />
+          <h1 className="text-2xl font-medium">{title}</h1>
+          <p className="mt-1 mb-8 text-sm text-text-2">{subtitle}</p>
+          {children}
+          <p className="mt-4 text-center text-sm text-text-2">{footer}</p>
+        </div>
+        <p className="mx-auto mt-16 flex items-center gap-2 text-xs text-muted-foreground">
+          <Lock className="size-3.5" strokeWidth={1.5} aria-hidden /> Works offline. Your data stays on this computer
+        </p>
+      </section>
     </main>
   )
+}
+
+function Org(): React.JSX.Element {
+  return <span className="font-medium text-foreground">{useSession().org}</span>
 }
 
 function useLanding(): (u: SessionUser) => void {
@@ -141,6 +116,7 @@ function useLanding(): (u: SessionUser) => void {
 }
 
 export function LoginPage(): React.JSX.Element {
+  const [demo, setDemo] = useState<'volunteer' | 'admin' | null>(null)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const login = useMutation('auth.login')
@@ -154,32 +130,44 @@ export function LoginPage(): React.JSX.Element {
 
   return (
     <AuthFrame
-      title="Welcome back"
-      subtitle="Sign in to find shifts and track your hours."
+      title="Sign in"
+      subtitle={
+        <>
+          to <Org />. Volunteers and staff use the same sign-in.
+        </>
+      }
       footer={
         <>
           New here?{' '}
-          <Link to="/signup" className="font-medium text-primary underline-offset-4 hover:underline">
+          <Link to="/signup" className="font-medium text-foreground underline-offset-4 hover:underline">
             Create an account
           </Link>
         </>
       }
     >
-      <div className="mb-5">
-        <p className="mb-2 text-sm font-medium">Try a demo account</p>
-        <div className="grid grid-cols-2 gap-1 rounded-lg bg-muted p-1">
+      <div className="mb-6">
+        <p className="mb-2 text-sm font-medium" id="demo-label">
+          Try a demo account
+        </p>
+        <div className="grid grid-cols-2 gap-2" role="group" aria-labelledby="demo-label">
           {(['volunteer', 'admin'] as const).map((role) => (
-            <button
+            <Button
               key={role}
               type="button"
-              className="h-8 rounded-md text-sm text-muted-foreground transition-colors hover:bg-background hover:text-foreground"
+              variant="outline"
+              aria-pressed={demo === role}
+              className="aria-pressed:border-foreground aria-pressed:shadow-[inset_0_0_0_1px_var(--foreground)]"
               onClick={() => {
+                setDemo(role)
                 setEmail(DEMO[role].email)
                 setPassword(DEMO[role].password)
+                login.clearField('email')
+                login.clearField('password')
               }}
             >
+              {demo === role && <Check className="size-4" strokeWidth={1.75} aria-hidden />}
               {role === 'volunteer' ? 'Volunteer' : 'Admin'}
-            </button>
+            </Button>
           ))}
         </div>
       </div>
@@ -190,11 +178,12 @@ export function LoginPage(): React.JSX.Element {
               <Input
                 {...p}
                 type="email"
-                autoComplete="email"
+                autoComplete="username"
                 autoFocus
                 value={email}
                 placeholder="you@example.com"
                 onChange={(e) => {
+                  setDemo(null)
                   setEmail(e.target.value)
                   login.clearField('email')
                 }}
@@ -210,6 +199,7 @@ export function LoginPage(): React.JSX.Element {
                 value={password}
                 placeholder="Enter your password"
                 onChange={(e) => {
+                  setDemo(null)
                   setPassword(e.target.value)
                   login.clearField('password')
                 }}
@@ -243,11 +233,15 @@ export function SignupPage(): React.JSX.Element {
   return (
     <AuthFrame
       title="Create your account"
-      subtitle="Sign up as a volunteer. It takes a minute."
+      subtitle={
+        <>
+          Volunteer with <Org />. Coordinators add staff accounts in Settings.
+        </>
+      }
       footer={
         <>
           Already have an account?{' '}
-          <Link to="/login" className="font-medium text-primary underline-offset-4 hover:underline">
+          <Link to="/login" className="font-medium text-foreground underline-offset-4 hover:underline">
             Sign in
           </Link>
         </>

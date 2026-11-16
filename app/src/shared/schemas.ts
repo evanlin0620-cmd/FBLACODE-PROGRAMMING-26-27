@@ -40,6 +40,7 @@ export const signupSchema = z
   })
 
 export const createAdminSchema = z.object({ fullName: name, email, password })
+export const orgNameSchema = z.object({ name })
 
 export const availabilitySchema = z
   .object({

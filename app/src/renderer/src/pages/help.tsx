@@ -22,7 +22,7 @@ const SHORTCUTS = [
 function AnswerCard({ faq, best }: { faq: Faq; best?: boolean }): React.JSX.Element {
   return (
     // Asking is often an Enter press, so the new answer only fades (no slide) and stays quick.
-    <article className="animate-in rounded-xl border bg-card p-5 duration-150 ease-snappy fade-in-0">
+    <article className="animate-in rounded-2xl border bg-card p-5 duration-150 ease-snappy fade-in-0">
       {best && <Pill tone="green">Best answer</Pill>}
       <h2 className="mt-3 text-lg font-semibold">{faq.question}</h2>
       <p className="mt-2 max-w-[65ch] leading-relaxed">{faq.answer}</p>

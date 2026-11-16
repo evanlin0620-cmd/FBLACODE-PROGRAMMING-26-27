@@ -10,6 +10,7 @@ import * as profiles from '../../src/main/services/profiles'
 import * as reports from '../../src/main/services/reports'
 import * as log from '../../src/main/services/log'
 import * as signups from '../../src/main/services/signups'
+import * as settings from '../../src/main/services/settings'
 import { createAdmin, login, signup } from '../../src/main/services/auth'
 
 describe('role-based access', () => {
@@ -32,6 +33,7 @@ describe('role-based access', () => {
       ['verifyCertificate', () => reports.verifyCertificate(v, 'ABCD-1234')],
       ['outbox', () => log.outbox(v)],
       ['listAudit', () => log.listAudit(v)],
+      ['setOrgName', () => settings.setOrgName(v, { name: 'Hijacked' })],
       ['createAdmin', () => createAdmin(v, { fullName: 'Sneaky', email: 'x@y.test', password: 'Password1' })]
     ]
     for (const [name, call] of adminOnly) {
@@ -45,6 +47,14 @@ describe('role-based access', () => {
     expect(() => signups.signUp(a, w.activity())).toThrow(/Only volunteers/)
     expect(() => hours.logHours(a, { activityId: 1, hours: 1, note: '' })).toThrow(/Only volunteers/)
     expect(() => profiles.getMyProfile(a)).toThrow(/Only volunteers/)
+  })
+
+  it('stores the organization name an admin sets, for everyone', () => {
+    const w = makeWorld()
+    expect(settings.orgName(w.as(null))).toBe('Riverside Community Partners')
+    expect(settings.setOrgName(w.as(w.admin), { name: '  Hope Street Food Bank ' })).toBe('Hope Street Food Bank')
+    expect(settings.orgName(w.as(null))).toBe('Hope Street Food Bank')
+    expect(() => settings.setOrgName(w.as(w.admin), { name: 'x' })).toThrow(/fix the highlighted/)
   })
 
   it('blocks logged-out callers', () => {

@@ -22,7 +22,7 @@ export function CertificateView({ cert, className }: { cert: Certificate; classN
           <p className="text-xs text-zinc-600">via ServeHub</p>
         </div>
       </div>
-      <h2 className="mt-8 text-3xl font-semibold tracking-tight">Community Service Certificate</h2>
+      <h2 className="mt-8 font-serif text-4xl">Community Service Certificate</h2>
       <p className="mt-4 text-zinc-600">This certifies that</p>
       <p className="mt-1 text-2xl font-semibold">{cert.volunteerName}</p>
       <p className="mt-3 text-zinc-700">

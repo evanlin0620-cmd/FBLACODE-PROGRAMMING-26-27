@@ -85,6 +85,10 @@ export interface ApiMap {
   'notifications.outbox': { in: string; out: Notification[] }
   'audit.list': { in: void; out: AuditEntry[] }
 
+  // Organization
+  'org.get': { in: void; out: string }
+  'org.update': { in: { name: string }; out: string }
+
   // Demo
   'demo.reset': { in: void; out: null }
 }

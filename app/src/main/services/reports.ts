@@ -6,7 +6,8 @@ import { randomBytes } from 'node:crypto'
 import { all, one, run } from '../db'
 import { AppError } from '@shared/errors'
 import { certificateCodeSchema, idSchema, reportFilterSchema } from '@shared/schemas'
-import { ORGANIZATION, type ActivityType, type Certificate, type HoursReport, type ImpactStats, type ReportRow, type VolunteerDashboard } from '@shared/types'
+import { orgName } from './settings'
+import { type ActivityType, type Certificate, type HoursReport, type ImpactStats, type ReportRow, type VolunteerDashboard } from '@shared/types'
 import { type Ctx, parse, requireAdmin, requireUser, requireVolunteer } from './context'
 import { audit } from './log'
 import { loadActivities } from './activities'
@@ -173,7 +174,7 @@ function buildCertificate(ctx: Ctx, code: string, userId: number, issuedAt: stri
     totalHours: activities.reduce((s, a) => s + a.hours, 0),
     issuedAt,
     activities,
-    organization: ORGANIZATION
+    organization: orgName(ctx)
   }
 }
 
