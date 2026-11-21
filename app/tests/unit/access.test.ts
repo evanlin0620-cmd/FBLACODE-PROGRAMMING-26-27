@@ -57,6 +57,23 @@ describe('role-based access', () => {
     expect(() => settings.setOrgName(w.as(w.admin), { name: 'x' })).toThrow(/fix the highlighted/)
   })
 
+  it('keeps the sign-up answers as the starting profile', () => {
+    const w = makeWorld()
+    const u = signup(w.as(null), { fullName: 'New Person', email: 'deck@test.test', password: 'abcdefg1', confirmPassword: 'abcdefg1', interests: ['Tutoring', 'Tutoring'], freeDays: [3, 6] })
+    const p = profiles.getMyProfile(w.as(u))
+    expect(p.interests).toEqual(['Tutoring'])
+    expect(p.availability.map((b) => [b.weekday, b.start, b.end])).toEqual([[3, '08:00', '20:00'], [6, '08:00', '20:00']])
+  })
+
+  it('shows the sign-up deck to logged-out visitors without anyone’s sign-up status', () => {
+    const w = makeWorld()
+    const id = w.activity()
+    signups.signUp(w.as(w.volunteer()), id)
+    const deck = activities.previewActivities(w.as(null))
+    expect(deck.map((a) => a.id)).toContain(id)
+    expect(deck.every((a) => a.mySignup === null)).toBe(true)
+  })
+
   it('blocks logged-out callers', () => {
     const w = makeWorld()
     expect(() => activities.listActivities(w.as(null))).toThrow(/log in/)

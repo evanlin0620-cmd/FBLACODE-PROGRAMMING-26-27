@@ -11,7 +11,7 @@ You need Node.js 22 or newer.
 ```bash
 npm install
 npm run dev          # start the app with live reload
-npm test             # 43 unit tests for the business rules
+npm test             # unit tests for the business rules
 npm run test:e2e     # builds the app and clicks through both roles with Playwright
 npm run build:win    # makes a Windows installer in dist/
 ```

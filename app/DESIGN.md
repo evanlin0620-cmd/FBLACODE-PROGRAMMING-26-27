@@ -1,6 +1,6 @@
 ---
 name: ServeHub
-description: The paper sign-up sheet at a community hall, for any nonprofit's volunteer program.
+description: The paper sign-up sheet at a community hall, for any nonprofit's volunteer program; every shift is a card you handle.
 colors:
   brand-green: "#15803d"
   on-green: "#ffffff"
@@ -129,17 +129,19 @@ components:
 
 **Creative North Star: "The sign-up sheet at the community hall"**
 
-ServeHub is for any nonprofit's volunteer program, not one organization. The look borrows from the paper sheet pinned up at a community hall: neighborly, steady, plainspoken. App surfaces stay neutral (near-white page, white cards, a light gray sidebar). Brand green is kept for three things only: the primary action, the selection mark, and one key figure per screen. Amber means waiting. Red means something is wrong.
+ServeHub is for any nonprofit's volunteer program, not one organization. The look borrows from the paper sheet pinned up at a community hall: neighborly, steady, plainspoken. App surfaces stay neutral. Graphite dark is the default theme (2026-11-19): #111 canvas and sidebar, #181818 panels, hairline borders, no glows; light mode is the same layout on near-white. Brand green is kept for the primary action and one key figure per screen. Amber means waiting. Red means something is wrong.
 
 The signature is **slot marks**: a shift's capacity drawn as the lines of a sign-up sheet, filled or open. They appear wherever spots appear and nowhere else.
 
-The organization's name is a setting (admin Settings → Your organization), stored in SQLite and shown on sign-in, the sidebar, reports and certificates. A demo reset keeps it.
+The second idea (direction "The deck", chosen 2026-11-17): **every shift is a card you handle**. Each activity type has its own colour band, so a shift is recognisable from the corner of a card. Sign-up deals a fanned deck of real shifts, the volunteer's next shift is a ticket, and hour logs are reviewed as a stack.
+
+The organization's name is a setting (admin Settings → Your organization), stored in SQLite and shown on sign-in, under the brand in the sidebar, reports and certificates. A demo reset keeps it.
 
 The screens are calm and fairly dense, built for a 1280x800 laptop window, with 960x640 as the smallest size.
 
 **Key Characteristics:**
-- White cards with hairline borders (8% ink) and 16px corners, flat at rest.
-- Green only for the main button, the selection, approved hour cells and the current chart bar.
+- Panels one surface step above the canvas, with hairline borders (7-8% ink) and 16px corners, flat at rest.
+- Green for the main button, approved hours and the Impact chart line. Activity types carry their own tint, only on card bands and the ticket.
 - Headlines on the sign-in screen and the certificate in a system serif (Sitka, falling back to Georgia). No font packages beyond Geist.
 - Medium (500) weight for titles and big numbers; no semibold headlines.
 - Every status has a word, not just a color.
@@ -147,11 +149,14 @@ The screens are calm and fairly dense, built for a 1280x800 laptop window, with 
 ## Colors
 
 ### Primary
-- **Brand Green** (brand-green): primary buttons, the brand tile, approved hour cells, the month in progress on the Impact chart, focus rings. Never a page wash or a nav highlight.
+- **Brand Green** (brand-green): primary buttons, the brand tile, approved hours in the ring, count badges, the month in progress on the Impact chart, focus rings. Never a page wash.
 - **Approved Fill / Success ink** (approved-bg, success-fg): "Confirmed" and "Approved" pills, and the goal-reached note.
 
 ### Secondary
-- **Waiting Amber** (waiting-amber, waiting-bg): waitlist, pending, "Full · waitlist open". The hatched "waiting" hour cell uses a pale green hatch so pending never depends on color alone.
+- **Waiting Amber** (waiting-amber, waiting-bg): waitlist, pending, "Full · waitlist open". Hours waiting for approval are a pale green arc in the ring, with the number in words beside it.
+
+### Activity tints
+One per activity type, in `lib/activity-style.ts` (`TYPE_STYLE`, `typeGradient`), each with a Lucide mark: Food Bank #b4532a, Tutoring #4a55b8, Environmental #2f7d4f, Animal Care #8a5a14, Senior Care #8a4f9e, Fundraising #a8364f, Event Support #3d6680, Health #12737c. Every tint keeps white text at 4.5:1 or better. Used only for the band at the top of a shift card and the next-shift ticket; they look the same in light and dark. The type is always written next to the band, so colour never carries the meaning alone.
 
 ### Tertiary
 - **Error Red** (error-red): error messages, invalid fields, "Not approved", destructive buttons. Nothing else.
@@ -167,18 +172,18 @@ The screens are calm and fairly dense, built for a 1280x800 laptop window, with 
 Dark mode swaps each token in the `.dark` block of `src/renderer/src/assets/main.css`. Use the token names (`text-text-2`, `bg-paper`, `bg-[var(--slot-filled)]`), never hex, except for the clipboard illustration, which stays paper-colored in both themes.
 
 ### Named Rules
-**The Three Signals Rule.** Green means go or done, amber means waiting, red means wrong. Everything else is neutral.
+**The Three Signals Rule.** Green means go or done, amber means waiting, red means wrong. Activity tints name a type, never a status. Everything else is neutral.
 
-**The Selection Is a Surface Rule.** The current page in the sidebar is a white surface with a hairline, not a green wash.
+**The Selection Is a Step Rule.** The current sidebar row is one surface step up with a hairline, not a green wash or an ink pill.
 
 ## Typography
 
-**Body and UI:** Geist Variable, stylistic set 1. **Serif:** `font-serif` (Sitka Heading → Georgia), only for the sign-in headline, the clipboard title and the certificate title. **Hand:** `font-hand` (Ink Free → Segoe Print), only for the names written on the clipboard sheet; Windows ships it, so it stays offline. **Mono:** system mono for slot-mark counts ("18 of 20 spots left") and codes.
+**Body and UI:** Geist Variable, stylistic set 1. **Serif:** `font-serif` (Sitka Heading → Georgia), only for the sign-in and sign-up headlines, the clipboard title, the next-shift ticket title and the certificate title. **Hand:** `font-hand` (Ink Free → Segoe Print), only for the names written on the clipboard sheet; Windows ships it, so it stays offline. **Mono:** system mono for slot-mark counts ("18 of 20 spots left") and codes.
 
 ### Hierarchy
-- **Display** (500, 56px, -0.03em): the hours-approved number on the volunteer dashboard.
+- **Display** (500, 44px, -0.02em): the all-time approved hours on Impact, and the hours on a review card.
 - **Headline** (500, 1.25rem): the page title in every page header, with the subtitle beside it on the same baseline.
-- **Stat** (500, 32px): stat cards and the featured match score (48px).
+- **Stat** (500, 32px): stat cards and the number inside the hours ring.
 - **Title** (500, 15px): panel and section titles.
 - **Body** (400, 0.875rem) and **Label** (400, 0.75rem).
 
@@ -189,60 +194,73 @@ Dark mode swaps each token in the `.dark` block of `src/renderer/src/assets/main
 
 ## Layout
 
-A 240px sidebar (brand row, the organization line "Volunteer at {org}" or the org name for admins, role links, then Help, the theme switch and the account menu) and a scrolling work area.
+A 240px sidebar on the canvas colour: the brand with the organization name under it; "Menu" with the everyday pages (volunteers also get Notifications, with an unread count in mono); "Coming up" (the volunteer's next four shifts) or "Open shifts" (a coordinator's next four), each with its activity-type dot and a mono date; then, pinned to the bottom, Help (with a ? keycap) and the account row. The account menu opens upward and holds the occasional pages (My profile; Email outbox, Audit log, Settings for admins), the theme switch and Log out. To the right, a scrolling work area.
 
 Every screen starts with a 64px page header: title and subtitle on one baseline at left, one or two buttons at right, a bottom border. The body is centered, at most 1200px wide, with 32px padding.
 
-Dashboards use a two-column grid (1.2fr / 1fr on the volunteer side, 2fr / 1fr for the Impact chart and Top activities) with 16px gaps. Stat cards sit four across on wide windows, two at 960px.
+The volunteer home's page title is the month ("November 2026"), never a greeting. The ticket and the hours card sit side by side (1.3fr / 1fr) from 1024px and stack below it; dealt cards run two across, three from 1280px. Impact puts the review stack beside the month chart (1fr / 1.15fr), then three stat cards, then Skill gaps beside Top activities. 16px gaps throughout.
 
 ## Elevation & Depth
 
-Flat. Depth comes from the page/card step and hairlines. Shadows only for: the active nav item (hairline ring + 1px drop), activity cards on hover, the clipboard on sign-in, and floating menus and dialogs.
+Flat. Depth comes from the page/card step and hairlines. Shadows only for: the cards in the sign-up deck and the review stack (they are physical objects), the clipboard on sign-in, and floating menus and dialogs.
 
 ## Motion
 
 Motion explains a change; it never decorates. Curves: `ease-snappy` and `ease-glide` in `main.css`.
 
-- **Never animated:** navigation, the sidebar highlight, keyboard actions, search results, theme switch, chart bar heights.
+- **Never animated:** the sidebar selection, keyboard actions, search results, theme switch. Card hover is a border colour change only (150ms), never a lift.
+- **Page change:** the work area fades in and rises 4px (200ms, `animate-page`), keyed by path.
+- **Handled objects:** the sign-up deck fans out on hover or focus and a picked card lifts out and tucks in on top (300ms, transforms only). A reviewed hour log flies off left or right with a stamp (260ms). The next-shift ticket tilts up to 6° toward the pointer with a soft glare. All three stay still with reduced motion.
 - **Press feedback:** buttons scale to 0.97 for 150ms.
 - **List refreshes** (`withViewTransition`): rows with a `viewTransitionName` slide to their new place in 220ms.
-- **Once per login:** dashboard panels rise in a wave (0, 50, 90ms; 12/8/6px).
+- **Once per login:** dashboard panels rise in a wave (0, 50, 90ms; 12/8/6px); the hours ring fills from zero (900ms, `animate-ring`); the Impact line draws left to right (900ms clip-path, `animate-draw`) and its value label appears after.
+- **Sign-in:** the clipboard settles in once (600ms, 4px blur to sharp, 12px rise).
+- **Tooltips:** the first waits 250ms; neighbours open instantly.
 - **The one celebration:** a new certificate prints top to bottom (700ms clip-path).
 - **Reduced motion:** everything drops to near zero.
 
 ## Shapes
 
-Cards, panels, empty states: 16px. The featured-match factor rows and inline lists inside a card: 12px. Buttons, inputs, pills: 6px. Hour cells 4px, slot marks 2px. Bars are fully round.
+Cards, panels, empty states, the ticket: 16px. Inline lists inside a card: 12px. Buttons, inputs: 6px. Sidebar rows: 8px. Sign-up toggles and badges: fully round. Slot marks 2px.
 
 ## Components
 
 ### Buttons
-- **Primary:** Brand Green, white text. One per screen, top right (Sign up on the featured match is the exception).
-- **Outline:** white, 1px input line. Second actions, Review, Find volunteers.
-- **Ghost:** no fill. Send back, Add free times.
+- **Primary:** Brand Green, white text. One per screen, top right (Sign up on dealt cards and Approve on the review stack are the exceptions).
+- **Outline:** white, 1px input line. Second actions, Send back, Find volunteers.
+- **Ghost:** no fill. Add free times.
 - **Destructive:** red, only inside confirm dialogs.
 - **Demo account buttons** on sign-in are outline toggles with `aria-pressed`; the picked one gets an ink ring and a check.
 
 ### Slot marks (signature)
 `components/slots.tsx`. `Slots` draws one 6x12px mark per spot (filled = slot-filled, open = slot-open), up to 20 marks; bigger shifts scale and never look full or empty unless they are. `SpotsRow` adds the mono words. `CapacityBar` (status.tsx) wraps them with the words above, amber when full.
 
-### Hour cells
-The volunteer's goal as one 20px cell per hour in a 20-column grid: approved = green, waiting = hatched (`.cell-pending`), rest = track. Goals over 60 hours scale (`cellCounts` in `lib/format.ts`). At the goal, a green note offers the certificate.
+### Shift card band
+`TypeBand` (components/activity.tsx): an 80px (64px in Browse) band in the type's tint with its mark, and an optional white badge in the corner for a match score. Sits at the top of every catalog card, dealt card and deck card.
 
-### Spotlight recommendations
-The best match is a large card: type, title, when/where with line icons, a 48px score, then one row per factor (label, note, a neutral 4px bar, points). Runners-up are compact cards with the strongest factor's note. If only one shift clears 50%, the second column says "Nothing else fits you well right now" with links to browse and to add free times. An info tooltip explains the 100-point score.
+### Next-shift ticket (volunteer home)
+The first upcoming shift: a stub with month, day and weekday behind a dashed tear line, then "Your next shift · in N days", the title in the serif, time and place, and Spot confirmed / Waitlist #n. "+N more shifts" links to My shifts. No upcoming shift: an empty state instead.
 
-### Needs you (admin Impact)
-A card at the top of Impact: hour logs waiting (Review expands up to 5 with in-place Approve and Send back; Send back asks for a 5+ character reason), then skill gaps with Find volunteers. Approving refreshes the stats, the chart and the sidebar count.
+### Hours ring
+A 112px SVG ring (10px stroke, round caps): approved in green, waiting in pale green, the rest track. The number sits in the middle; the words beside it say how many are approved, how many to go, and how many are waiting. At the goal, a button offers the certificate.
+
+### Dealt for you (recommendations)
+Up to three cards: the band with "N% match", "Best match for you" on the first, title and time, the strongest factor's note, then all three factor scores (Skills, Availability, Interest), slot marks and Sign up. Under three matches, a dashed "Nothing else fits you well right now" card fills the gap. An info tooltip explains the 100-point score.
+
+### Review stack (admin Impact)
+Pending hour logs, oldest first, as up to three stacked cards (volunteer, activity, date, note, hours in 40px). Approve (or the right arrow while the stack has focus) throws the top card right with an "Approved" stamp; Send back (or the left arrow) asks for a 5+ character reason, then throws it left. A "Just reviewed" list keeps the last five decisions. Approving refreshes the chart, the stats and the tab badge. No undo: the backend can't reverse a review.
 
 ### Month chart
-Neutral bars, the month in progress in green, dashed gridlines, a scale rounded up to a multiple of 4. Bars are focusable buttons with tooltips; a hidden table carries the numbers for screen readers.
+One smooth green line (`smoothPath` in `lib/chart.ts`, clamped so it never dips below zero) over a faint green fill, solid hairline gridlines, mono axis labels, a scale rounded up to a multiple of 4 with 20% headroom. Only the month in progress gets a point and a value label. Each month is a focusable column with a tooltip and a hairline on hover; a hidden table carries the numbers for screen readers.
+
+### Sign-up
+Left: the paper panel with "Pick a shift. We'll hold your spot." and a fanned deck of up to eight real upcoming shifts (`activities.preview`, public). Right: two questions as round toggles (what you like doing, which days you're free), then name, email, password (with a three-part strength bar and a show/hide button) and confirm. Answering scores every card with the real recommendation rules and brings the best fit (50% or better) to the top. "Hold my spot at …" (on by default) signs the new volunteer up for the top card right after the account is created; the answers become their starting interests and availability (free day = 08:00-20:00). The panel stays in view while the form scrolls.
 
 ### Sign-in
-Left: the paper panel with the brand, the serif headline "Every shift's sign-up sheet, in one place", one line of explanation, and a clipboard holding a sample sign-up sheet (one labelled image). Hidden under 768px. Right: the form on white, with the org name in the subtitle. No entrance animation.
+Left: the paper panel with the brand, the serif headline "Every shift's sign-up sheet, in one place", one line of explanation, and a clipboard holding a sample sign-up sheet (one labelled image). Hidden under 768px. Right: the form on the card surface, with the org name in the subtitle.
 
 ### Navigation
-Links are 36px with 16px line icons (1.5 stroke, muted) and text-2 labels. Active: white surface + hairline, ink medium text. Counts are plain text-2 numbers with a screen-reader word.
+Sidebar rows are 32px, 8px corners, 16px line icons (1.5 stroke), text-2 labels. Hover: a 4% ink fill. Active: sidebar-accent step plus an inset hairline, foreground text. Counts (Hour approvals, Notifications) are muted mono numbers at the right, with a screen-reader word.
 
 ### Empty and Error States
 Empty: dashed 16px box with a line icon, a title, one sentence, an optional button. Error: light red panel, "We couldn't load this page.", the reason, Try again.
@@ -251,13 +269,13 @@ Empty: dashed 16px box with a line icon, a title, one sentence, an optional butt
 
 ### Do:
 - **Do** use tokens by name so dark mode works.
-- **Do** keep green to the main action, the selection, and one key figure.
-- **Do** show capacity with slot marks.
+- **Do** keep green to the main action and one key figure; let activity tints name types.
+- **Do** show capacity with slot marks, and put a type band on every shift card.
 - **Do** give every status a word as well as a color.
 - **Do** read the organization's name from `useSession().org`, never a constant.
 
 ### Don't:
-- **Don't** wash the sidebar selection or page backgrounds in green.
+- **Don't** wash the sidebar selection or page backgrounds in green, or use an activity tint for a status.
 - **Don't** use amber for anything but waiting, or red for anything but errors.
 - **Don't** add shadows to cards at rest, or nest panels.
 - **Don't** use the serif or the hand face outside the places listed above.

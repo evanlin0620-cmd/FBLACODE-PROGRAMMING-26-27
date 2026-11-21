@@ -51,6 +51,7 @@ const handlers: Handlers = {
   },
   'auth.createAdmin': (ctx, input) => auth.createAdmin(ctx, input),
 
+  'activities.preview': (ctx) => activities.previewActivities(ctx),
   'activities.list': (ctx, f) => activities.listActivities(ctx, f),
   'activities.get': (ctx, id) => activities.getActivity(ctx, id),
   'activities.create': (ctx, data) => activities.createActivity(ctx, data),

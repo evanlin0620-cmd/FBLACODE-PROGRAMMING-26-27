@@ -1,163 +1,116 @@
-# ServeHub handoff (2026-11-16)
-
-> **Update after this handoff:** the user said roll out the redesign, keep Ink Free, and do the cleanup.
-> - Committed: graph refresh + `.graphifyignore`; superseded recommendations prototype removed; `servehub-redesign-and-fixes` branch deleted.
-> - **Redesign is in the real app, uncommitted:** tokens in `main.css`, slot marks (`components/slots.tsx`), sign-in, shell, volunteer dashboard, admin Impact ("Needs you" with in-place Approve / Send back), and the shared Panel/PageHeader/DateTile/CapacityBar so every other screen follows.
-> - **Org name is a setting:** `settings` table, `services/settings.ts`, `org.get` / `org.update`, `useSession().org`, editable in admin Settings. A demo reset keeps it.
-> - `app/DESIGN.md` rewritten; Ink Free added to the impeccable ignore list. 52 unit + 2 e2e pass, e2e screenshots regenerated.
-> - Not ported from the prototype: the Log hours dialog (the button still goes to My hours) and Undo after Approve (no backend undo).
+# ServeHub handoff (2026-11-17)
 
 ## 1. Goal
 
-ServeHub is the FBLA Coding & Programming entry: an offline Electron desktop app that runs a nonprofit's volunteer program, for volunteers and coordinators (admins). "Riverside Community Partners" is only the demo seed. The product is meant for **any** nonprofit.
+ServeHub is the FBLA Coding & Programming 2026-27 entry: an offline Electron desktop app that runs a nonprofit's volunteer program, for volunteers and coordinators (admins). "Riverside Community Partners" is only the demo seed; the product is meant for **any** nonprofit (the org name is an admin setting).
 
-This round of work had four aims:
-- Ship the chosen **Spotlight** recommendations layout in the real dashboard.
-- Fix every worst-case-data (break-ui) finding.
-- Design an **unslopped redesign** of the whole look as a side-by-side prototype, reviewed by the impeccable, unslop and emil-design-eng skills.
-- Find and fix anything broken across the app, the sign-up page first.
+This round of work:
+- Cleaned up the Claude setup (CLAUDE.md files, skills, rules) and ran a security scan.
+- Wrote a working-method skill, `fable-playbook`, for the next model.
+- Reviewed the sign-up page with the 21st `21st-ui-review` skill and fixed two defects.
+- Explored four whole-app directions with `21st-ui-explore`. The user picked **D, "The deck"**, and it is now built into the real app.
 
 ## 2. Current state
 
 **Git**
-- On `main`, two commits ahead of the previous handoff:
-  - `b0297f5` Spotlight recommendations, stress-test and a11y fixes, redesign prototype
-  - `54ca09a` Update design skills, dev tooling config and knowledge graph
-- Nothing is pushed.
-- The `servehub-redesign-and-fixes` branch still exists and points at `b0297f5`. It's safe to delete.
-- **Uncommitted:** the refreshed `graphify-out/*` files and a new `.graphifyignore`. The user hasn't decided whether to commit them.
+- `main` matches `origin/main` at `1e920fe` (the redesign rollout plus a merge of the GitHub "Audit fixes" PR). Everything in this round is **uncommitted**.
+- The working tree holds three groups of changes. They can be committed together or separately:
+  1. **Claude setup:** root `CLAUDE.md` rewritten, new `app/CLAUDE.md`, new `docs/claude-setup.md`, new `.claude/skills/fable-playbook/`, skills `write-swift` / `animate-expo` / `mobile-native` removed (both `.claude/skills` and `.agents/skills`, plus `skills-lock.json`), empty `.claude/commands/verify_loop.md` deleted.
+  2. **Fixes:** Electron trusts only its own `index.html`, not any `file://` page (`app/src/main/index.ts`). Focus moves to the first invalid field after a failed submit (`lib/hooks.ts`). Unused shadcn avatar / badge / card / progress were deleted. A stale test count was removed from `app/README.md`.
+  3. **Direction D** (section 4), with `DESIGN.md`, `docs/architecture.md` and the e2e screenshots updated.
+- `graphify-out/*` was refreshed after each step (`graphify update .`).
 
-**Checks (last run after the final code change)**
+**Checks (after the last code change)**
 - Typecheck is clean.
-- Lint shows 0 errors in the changed files. The `lib/hooks.ts`, `session.tsx`, `profile.tsx`, `form.tsx` and `ui/*` errors from before this round were left alone.
-- 49 unit tests and 2 e2e tests pass.
-- `out/` is a plain production build (no stress-test switch), so `npm start` is demo-safe.
+- 52 unit tests and 3 e2e tests pass. The new e2e test covers the sign-up deck end to end.
+- Lint has no new errors. The remaining ones were there before: shadcn `ui/*`, `form.tsx`, `ipc.ts`, `session.tsx`, `profile.tsx`, `hooks.ts:34`, `smart.test.ts`, `hours.test.ts`.
+- Sign-up, volunteer home, Find activities and Impact were checked in light and dark at 1280×800 and 960×640. There were no console errors and no overflow apart from the bell badge, which overhangs its button by 2px on purpose.
+- `out/` is a fresh production build.
 
-**Whole-app sweep**
-- Playwright drove the real Electron app through 32 screens at 960x640: sign-up (empty form, then a real account), all volunteer routes and all admin routes.
-- It found 0 crashes, 0 console or main-process errors, 0 overflow and 0 unlabelled inputs.
-- **Lighthouse accessibility is 100** on all three redesign screens.
-
-**Maps**
-- **graphify:** 995 nodes, 3,471 edges, 53 labelled communities. It covers code plus the project's own docs; skill files and PNGs are excluded through `.graphifyignore`.
-- **floorplan:** 18 parts, 116/116 files described, with Recent work highlighting this round's 4 tasks.
-- The floorplan server may still be running at http://127.0.0.1:4378. Stop it with `node floorplan/serve.mjs --stop`.
-- The redesign dev server was started earlier on port 5174 (`npm --prefix app run dev`). It may still be running.
-
-**Waiting on the user**
-- **Roll the redesign into the real app?** They chose "Review it first" and haven't answered yet.
-- **Ink Free font:** keep it (used for the handwritten names on the clipboard), or switch those names to the regular font. The impeccable design hook keeps flagging it.
-- **Floorplan note:** add the floorplan note to `CLAUDE.local.md`? Offered, not answered.
-- **Graph files:** commit the graph refresh and `.graphifyignore`?
-- **Old handoff decisions, still unanswered:**
-  - the rederive opening question ("Why did you build ServeHub?");
-  - the "Needs your answer" items in `docs/design-taste.md`.
+**Outside the repo (user-level, not in git)**
+- `npx @21st-dev/cli install-skill` installed **8** 21st skills into `~/.claude/skills`, `~/.cursor/skills` and `~/.codex/skills`. The user asked for only `21st-ui-explore` and `21st-ui-review`; the other six load in every project. The user has not been asked about removing them yet.
+- The 21st account is on the free tier: 2 code retrievals a day (both used on 2026-11-17, reset 2026-11-18) and no hosted AI generation.
+- One memory was loosened: `use-graphify-graph-first` is now a preference ("graph for relationships, grep for exact strings"), not a rule.
+- The dev server may still be running on port 5174 (preview `servehub-dev`).
 
 ## 3. Active files
 
-All paths are under `app/src/` unless they start with another root.
+All paths are under `app/src/` unless another root is shown.
 
 | File | Why it matters |
 |---|---|
-| `main/services/recommendations.ts` | `scoreActivity` returns a `factors` breakdown; `recommend()` keeps only matches at or above `MIN_MATCH = 50` |
-| `shared/types.ts` | `Factor` type; `Recommendation.factors`; `ORGANIZATION` is still a hard-coded constant |
-| `shared/schemas.ts` | `z.config({ jitless: true })` at the top (it must run before any `z.object`) |
-| `renderer/src/pages/volunteer/dashboard.tsx` | Spotlight layout (`Featured`, `RunnerUp`), empty state for "nothing fits well" |
-| `renderer/src/pages/auth.tsx` | Hero entrance plays once per session (module flag `heroPlayed`) |
-| `renderer/src/lib/format.ts` | `fmtCount`, `spotsLabel` ("Last spot", waitlist wording) |
-| `renderer/src/components/page.tsx` | `PageHeader` no longer wraps |
-| `renderer/src/pages/admin/approvals.tsx`, `volunteers.tsx`, `impact.tsx` | Fixes for 960px and for worst-case and empty data |
-| `renderer/prototypes/redesign/` | The redesign prototype (see section 4); open `/prototypes/redesign.html` on the dev server |
-| `renderer/prototypes/redesign/current/*.png` | Screenshots of the real app used as the "Current" side |
-| `renderer/prototypes/recommendations/` + `recommendations.html` | Superseded prototype; the user hasn't deleted it yet |
-| `app/tests/unit/smart.test.ts`, `format.test.ts` | Tests for factors, the 50% threshold, `spotsLabel` and `fmtCount` |
-| `app/tests/e2e/flows.spec.ts` | Now checks for "best match for you" |
-| `app/.impeccable/critique/2026-11-16T01-49-03Z__src-renderer-prototypes-redesign.md` | Critique snapshot (22/40 before fixes), so `/impeccable polish` can pick it up |
-| `.impeccable/config.json`, `app/.impeccable/config.json` | Detector ignore for the Sitka serif (the user confirmed it) |
-| `.graphifyignore` | Leaves `.agents/`, `.claude/`, `*.png`, `.playwright-mcp/` and `floorplan/` out of the graph |
-| `floorplan/architecture.json`, `floorplan/descriptions/*.json`, `floorplan/recent-work.json` | Floorplan sources (git-ignored); new part `ui.dev` = "Prototypes and stress-test tools" |
+| `renderer/src/pages/auth.tsx` | Sign-up with the fan deck, two questions, strength bar, show/hide, "Hold my spot". Sign-in still uses the clipboard. `AuthFrame` takes an optional `hero` and `wide`. |
+| `renderer/src/components/fan-deck.tsx` | Fan deck (logic adapted from 21st "Fan Deck Card" by ham7a311). Props: `cards`, `render`, `promote`, `onTop`. |
+| `renderer/src/lib/activity-style.ts` | `TYPE_STYLE` (tint and Lucide icon per activity type) and `typeGradient`. |
+| `renderer/src/components/activity.tsx` | `TypeBand` (tinted header band with an optional badge). `ActivityCard` now starts with a band. |
+| `renderer/src/components/app-shell.tsx` | Top bar: 5 tabs, Notifications and Help icon links, account menu with the other pages. The sidebar is gone. The welcome toast survives landing. |
+| `renderer/src/pages/volunteer/dashboard.tsx` | Next-shift `Ticket` (tilt and glare), `HoursRing`, "Dealt for you" cards (score, reason, all three factor scores). |
+| `renderer/src/pages/admin/impact.tsx` | `ReviewStack` (arrow keys, stamps, "Just reviewed"), `SkillGaps`, month chart with the all-time total, 3 stat cards. |
+| `shared/recommendations.ts` | Moved from `main/services/` so sign-up can score. `FREE_DAY` = 08:00-20:00. `scoreActivity` takes only skills, availability and interests. |
+| `main/services/activities.ts` | `previewActivities`: public, up to 8 open upcoming shifts, no sign-up status. |
+| `main/services/auth.ts`, `shared/schemas.ts` | `signupSchema` has `interests` and `freeDays` (default `[]`). Sign-up saves them as the starting profile. |
+| `shared/api.ts`, `main/ipc.ts` | New `activities.preview`. |
+| `app/tests/e2e/boot.spec.ts`, `flows.spec.ts` | Sign-up deck test. Account menu helper `menu()`. Review stack approved with the right arrow. |
+| `app/tests/unit/access.test.ts` | Tests for sign-up answers becoming the profile, and the public preview. |
+| `app/DESIGN.md` | Updated for D: activity tints, tabs, deck, ticket, ring, review stack. |
+| `app/.21st/design.json` | 21st design context, with the D decision and constraints recorded. |
+| `CLAUDE.md`, `app/CLAUDE.md`, `docs/claude-setup.md` | Short index, app conventions, and the skill/tool map grouped by department. |
+| `.claude/skills/fable-playbook/SKILL.md` | How to plan, split and verify work in this repo. |
+| `renderer/prototypes/redesign/` | The older side-by-side prototype, now superseded. Still present (see step 5). |
 
 ## 4. Changes made
 
-**Spotlight in the real app**
-- The best match gets a large card with a per-factor breakdown (Skills /50, Availability /30, Interest /20). Runners-up are compact cards.
-- Notes for factors that earned 0 points explain why ("Needs skills you haven't listed", "Outside your usual free times", "X isn't one of your interests").
-- Reasons are now built from the factors that earned points.
-- The user picked **a 50% minimum match**. Weaker matches aren't recommended, and the empty state says so.
+**Direction D, "The deck"** (every shift is a card you handle)
+- **Activity colors:** 8 activity-type tints, all with white text at 4.5:1 or better, used only on card bands and the ticket. The type is always written next to the band.
+- **Sign-up:**
+  - The left side is a fanned deck of real shifts.
+  - Answering "what do you like" and "which days" scores each card with the real recommendation rules. The best fit at 50% or better lifts to the top; below that, a "nothing fits yet" line shows instead.
+  - "Hold my spot" (on by default) calls `signups.join` right after the account is created.
+  - The answers become the volunteer's interests and availability.
+  - The left panel stays fixed while the form scrolls at 960×640.
+- **Navigation:** top tabs replace the sidebar (Dashboard, Find activities, My shifts, My hours, Certificates / Impact, Activities, Hour approvals, Volunteers, Reports). The other pages are in the account menu.
+- **Volunteer home:** a tilting next-shift ticket, a ring for approved and waiting hours, and three "Dealt for you" cards. A dashed card fills the gap when there are fewer than 3 matches.
+- **Impact:** hour logs in a review stack. Approve or the right arrow throws the card right; Send back (with a reason) or the left arrow throws it left. There is no undo, because the backend can't reverse a review.
+- **Removed:** the shadcn sidebar, sheet and `use-mobile` hook, and the hour-cells grid with its `cellCounts` helper and tests.
 
-**Break-test fixes (all 8 findings, plus a dashboard overflow the test missed)**
-- **Approvals at 960px:** cells wrap, and the Waiting tab replaces its Status column with Actions.
-- **Volunteers at 960px:** names wrap and emails break.
-- **Counts:** `fmtCount` everywhere; the sidebar badge caps at "99+".
-- **Small fixes:** MapPin `shrink-0`, skill chips capped at 3 + "+N" (the rest read to screen readers), `PageHeader` no wrap, "Last spot".
-- **Impact empty states:** a chart empty state, and skill-gap copy that depends on whether there are upcoming shifts.
-- **Dashboard overflow:** the single-column grid was sized by long truncated text; fixed with `grid-cols-1`.
+**Review fixes (21st-ui-review)**
+- Keyboard focus was dropped to the page after a failed submit. It now lands on the first invalid field, and an e2e test checks it.
+- The clipboard on sign-in was cut off at 960×640. It now fits.
 
-**Redesign prototype (unslop direction, approved)**
-- **Direction:** "neighborly, steady, plainspoken", built around the world of a paper sign-up sheet at a community hall.
-  - Neutral app surfaces; brand green only for the primary action, the selection and one key figure.
-  - **Signature:** capacity drawn as slot marks (`slots.tsx`).
-  - Headlines in a system serif (Sitka/Georgia). No new font packages were added.
-- **Harness** (`main.tsx`): Current/Unslopped switch, screen tabs, an organization switcher (3 example nonprofits, one deliberately long name) and a "Goal reached" toggle. Keys 1-3 and C; state kept in the URL.
-- **Sign-in** (`signin.tsx` + `auth-forms.tsx`):
-  - Org-neutral headline "Every shift's sign-up sheet, in one place".
-  - The clipboard is one labelled image.
-  - Sign in and **Create account** forms are validated with the real `loginSchema`/`signupSchema` + `fieldErrors`, and focus moves to the first error.
-  - The page sits in a `main` landmark.
-- **Volunteer dashboard** (`volunteer.tsx`):
-  - One cell per goal hour (approved green, waiting hatched).
-  - Log hours dialog, capped at the shift length with the reason shown.
-  - Sign up fills a slot, with Undo in the toast.
-  - Match-explainer tooltip, the 50% "nothing else fits" note, and a goal-reached state.
-- **Admin impact** (`impact.tsx`):
-  - A "Needs you" strip with in-place Approve (updates the nav count, the stat and the month bar; Undo available) and Send back (5+ character reason, the real message).
-  - Skill gap with Find volunteers; shifts that need people shown as slot marks.
-  - Keyboard-focusable chart bars with tooltips; the scale follows the data.
-- **Review fixes** (impeccable dual-agent critique, unslop, emil):
-  - Help, Certificates and Audit log added to the nav.
-  - Green toned down, and the featured Sign up button now sits above the fold.
-  - A solid 2px focus ring (the old one was about 2:1).
-  - Sidebar text at 4.5:1 or better.
-  - The email field no longer locks after picking a demo account.
-  - `autocomplete` attributes added.
-  - No `height` animation.
-
-**Sign-up "broken" + sweep**
-- **Real app:** the hero's 1.2s entrance replayed on every Sign in ↔ Sign up switch and blanked the panel. It now plays once per session.
-- **Prototype:** "Create an account" was a dead `href="#"`. The screen is now built and wired.
-- **zod:** its eval probe caused a CSP "issue" in DevTools. Fixed with `jitless`.
-
-**Maps**
-- graphify incremental update. The 58 stale skill sources were pruned with `force=True`.
-- floorplan refresh, the new `ui.dev` part, and recent-work notes.
+**Setup and security**
+- The CLAUDE.md files use progressive disclosure: a short root index, with app detail that loads only inside `app/`.
+- Security scan: no secrets in the files or git history, and 0 vulnerabilities in shipped dependencies. There are 12 moderate advisories in dev tooling (`minimatch`) whose fix is a breaking upgrade, so they were left.
+- The real risk is that every install seeds a demo admin whose password is public. A first-run setup was offered but not built.
 
 ## 5. Failed attempts
 
 | Tried | What went wrong | What replaced it |
 |---|---|---|
-| `Remove-Item` / `rm` on `prototypes/recommendations/` | Blocked by the auto-mode classifier as destructive | Left in place; the user was given the `rm` command |
-| `z.config({ jitless: true })` in `renderer/src/main.tsx` | Imports run first, so `z.object()` had already probed for eval | Moved to the top of `shared/schemas.ts` |
-| Prototype Toaster at bottom-right | It overlaps the comparison bar (harness chrome only) | Left as is; not a product issue |
-| Chart bars with `transition: height` | Breaks the Emil rule against animating layout | Instant height + `transition-colors` |
-| Fixed 12-hour chart scale | An approval pushed November to 13.5 and overflowed | Scale rounds the max up to a multiple of 4 |
-| Clipboard placed with `translate-y` | The sheet's slot marks sat under the comparison bar | Shorter sheet (6 lines, `h-8` rows), tighter panel spacing |
-| Sweep check counting `<label>`-wrapped Radix checkboxes as unnamed | False positive (the accessibility tree names them) | Checked with `ariaSnapshot`; no fix needed |
-| DevTools MCP on the Electron window | The plugin starts its own Chrome; attaching needs `--browser-url`, a settings change | Playwright `_electron` for the app; the DevTools MCP for the browser-runnable prototype |
-| graphify `--update` keeping old skill nodes | An incremental merge never removes files newly excluded by `.graphifyignore` | Re-merged from the backup with `prune_sources` = the 58 stale sources, then `to_json(force=True)` |
-| Inline `node -e` with escaped quotes in bash | The shell quoting broke | Wrote scripts to the scratchpad and ran them as files |
+| `npx @21st-dev/cli install-skill --help` | It ignored `--help` and installed all 8 skills for 3 editors | Left installed; the user still needs to choose which to keep |
+| Pulling 21st "Card Stack" code into the app | It needs the `motion` library, which this project doesn't have | Its decide and keyboard model was rebuilt with CSS transitions (no drag-to-throw) |
+| Hosted 21st generation | Free tier, `aiGenerationEnabled: false` | Previews written by hand, grounded in 21st search results |
+| Deck limited to 6 soonest shifts | All 6 needed skills, so a new volunteer's best fit showed "0% match" | Up to 8 shifts, plus a 50% bar before anything is called a fit |
+| `export const TYPE_STYLE` in `activity.tsx` | Broke the react-refresh lint rule | Moved to `lib/activity-style.ts` |
+| Inline `node -e` / bash heredocs with backticks and `\d` | Shell quoting stripped the escapes | Scripts written to the scratchpad and run as files |
+| String replaces after `prettier --write` | Prettier had re-wrapped the imports | Edited by hand after reading the file |
+| Built-in browser screenshots of the preview | Timed out repeatedly | Playwright (`chromium` / `_electron`) scripts |
+| One blank "home dark 960" screenshot | A timing flake: re-capturing at 300, 900 and 2000 ms showed full content | No change needed |
 
 ## 6. Specific next steps
 
-1. **Ask the user about the redesign.** It needs their go-ahead before anything else in the redesign moves. If they say roll it out:
-   - Port the `.unslop` tokens and screens into `renderer/src/` (sign-in + create account, volunteer dashboard, admin impact first, then the other screens in the same language).
-   - Make the org name editable in admin Settings (the user chose this). It feeds sign-in, the sidebar, certificates, reports and impact. Replace the `ORGANIZATION` constant with a setting stored in SQLite.
-   - Update `app/DESIGN.md` (or run `/impeccable document`), re-run e2e, and regenerate the screenshots.
-2. **Decide Ink Free:** keep it (add the impeccable `ignore-value`) or switch the clipboard names to the regular font.
-3. **Delete the superseded prototype:**
-   ```bash
-   rm -r app/src/renderer/prototypes/recommendations app/src/renderer/prototypes/recommendations.html
-   ```
-4. **Commit or drop the graph refresh** (`graphify-out/*`, `.graphifyignore`).
-5. **Optional:** clear the pre-existing lint errors listed in section 2. The demo passwords in `seed.ts` and `auth.tsx` are flagged by the floorplan Health check; they're intentional for the demo.
-6. **Continue `/rederive`** for FBLA prep, and fill in `docs/design-taste.md` → "Needs your answer".
-7. **After any code edit:** run `graphify update .` (memory rule). After larger changes, ask to "update the floorplan".
+1. **Commit** the three groups in section 2, either as one commit or three. Then push if the user asks.
+2. **Try D by hand** with `npm --prefix app run dev`: fan the sign-up deck with the mouse, tilt the ticket, and review hours with the arrow keys. Only Playwright clicks have exercised these.
+3. **First-run setup:** offered, not answered. On a fresh database, ask for the org name and the first admin instead of seeding a public demo admin, and keep "Reset demo data" for the demo.
+4. **21st skills:** ask whether to remove the 6 unrequested ones from `~/.claude/skills`, `~/.cursor/skills` and `~/.codex/skills`. `21st-ui-build` may be worth keeping.
+5. **Delete the old prototype** (`app/src/renderer/prototypes/redesign/` and `redesign.html`). It has been superseded twice.
+6. **Setup-era files:** ask whether to delete `install.ps1` (a third-party installer), `test-env/`, `scripts/verify-setup.ps1` and `shadcn-registry.md`, and whether to stop tracking the dated `graphify-out/<date>/` snapshots (9 MB).
+7. **Optional:**
+   - Sign-up skills question (skills are worth 50 of 100 match points, and new volunteers have none).
+   - Drag-to-throw on the review stack (needs `motion`).
+   - A backend "undo review" endpoint.
+   - A screen-reader pass on the deck and the stack.
+8. **Still open from earlier:**
+   - the rederive FBLA prep ("Why did you build ServeHub?");
+   - the "Needs your answer" items in `docs/design-taste.md`;
+   - adding the floorplan note to `CLAUDE.local.md`.
+9. **After code edits:** run `graphify update .`. After larger changes, offer to "update the floorplan".

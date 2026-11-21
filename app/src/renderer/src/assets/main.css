@@ -56,51 +56,55 @@
   --pending-b: #ffffff;
 }
 
+/*
+ * Graphite: the default theme. Pure neutral greys, depth from surface steps and hairlines, not shadows.
+ * The canvas and sidebar share the darkest step; panels sit one step up. Green stays the one accent.
+ */
 .dark {
-  --background: #0c0c0e;
-  --foreground: #fafafa;
-  --card: #141417;
-  --card-foreground: #fafafa;
-  --popover: #18181b;
-  --popover-foreground: #fafafa;
-  --primary: #22c55e;
-  --primary-foreground: #052e16;
-  --secondary: #27272a;
-  --secondary-foreground: #fafafa;
-  --muted: #1f1f23;
-  --muted-foreground: #a1a1aa;
-  --accent: #1f1f23;
-  --accent-foreground: #fafafa;
-  --destructive: #f87171;
-  --warning: #fbbf24;
-  --warning-bg: #3a2a0a;
-  --success-bg: #10291b;
-  --success-fg: #bbf7d0;
-  --border: #27272a;
-  --input: #3f3f46;
-  --ring: #22c55e;
-  --chart-1: #22c55e;
-  --chart-2: #38bdf8;
-  --chart-3: #f59e0b;
-  --chart-4: #c084fc;
-  --chart-5: #94a3b8;
-  --sidebar: #111113;
-  --sidebar-foreground: #fafafa;
-  --sidebar-primary: #22c55e;
-  --sidebar-primary-foreground: #052e16;
-  --sidebar-accent: #1f1f23;
-  --sidebar-accent-foreground: #fafafa;
-  --sidebar-border: #27272a;
-  --sidebar-ring: #22c55e;
-  --track: #27272a;
-  --text-2: #c4c4c8;
+  --background: #111111;
+  --foreground: #ededed;
+  --card: #181818;
+  --card-foreground: #ededed;
+  --popover: #1c1c1c;
+  --popover-foreground: #ededed;
+  --primary: #3fbf74; /* dark text on it 8:1 */
+  --primary-foreground: #08170e;
+  --secondary: #222222;
+  --secondary-foreground: #ededed;
+  --muted: #1e1e1e;
+  --muted-foreground: #8c8c8c; /* 5.6:1 on the canvas */
+  --accent: #232323;
+  --accent-foreground: #ededed;
+  --destructive: #ef6b6b;
+  --warning: #e0a83e;
+  --warning-bg: #2e2412;
+  --success-bg: #12261a;
+  --success-fg: #a9e5bf;
+  --border: rgb(255 255 255 / 0.07);
+  --input: rgb(255 255 255 / 0.12);
+  --ring: #3fbf74;
+  --chart-1: #3fbf74;
+  --chart-2: #6aa7d8;
+  --chart-3: #d9a24a;
+  --chart-4: #b48ad6;
+  --chart-5: #8c8c8c;
+  --sidebar: #111111;
+  --sidebar-foreground: #ededed;
+  --sidebar-primary: #3fbf74;
+  --sidebar-primary-foreground: #08170e;
+  --sidebar-accent: #1f1f1f;
+  --sidebar-accent-foreground: #ededed;
+  --sidebar-border: rgb(255 255 255 / 0.07);
+  --sidebar-ring: #3fbf74;
+  --track: #262626;
+  --text-2: #b3b3b3;
   --paper: #1a1816;
   --paper-ink: #f2ede4;
   --paper-ink-2: #b5ab9c;
-  --slot-filled: #d4d4d8;
-  --slot-open: #3f3f46;
-  --pending-a: #1f5132;
-  --pending-b: #141417;
+  --slot-filled: #d4d4d4;
+  --slot-open: #333333;
+  --pending-a: #24563a;
+  --pending-b: #181818;
 }
 
 @theme inline {
@@ -115,6 +119,31 @@
   --animate-appear: appear 200ms var(--ease-snappy) 150ms backwards;
   /* The certificate prints top to bottom the moment it is created. */
   --animate-reveal: reveal 700ms var(--ease-snappy) backwards;
+  /* Every page change: a quick fade and a 4px rise, short enough to never feel like waiting. */
+  --animate-page: page 200ms var(--ease-snappy) both;
+  /* A chart line drawing itself left to right, once per login. */
+  --animate-draw: draw 900ms var(--ease-glide) 120ms backwards;
+  /* The hours ring filling from zero, once per login. */
+  --animate-ring: ring 900ms var(--ease-snappy) 200ms backwards;
+  @keyframes ring {
+    from {
+      stroke-dasharray: 0 100;
+    }
+  }
+  @keyframes page {
+    from {
+      opacity: 0;
+      translate: 0 4px;
+    }
+  }
+  @keyframes draw {
+    from {
+      clip-path: inset(0 100% 0 0);
+    }
+    to {
+      clip-path: inset(0 0 0 0);
+    }
+  }
   @keyframes enter {
     from {
       opacity: 0;
@@ -134,21 +163,15 @@
       clip-path: inset(0 0 0 0 round 12px);
     }
   }
-  /* Sign-in hero entrance. `backwards` holds the hidden start only during the delay, so content is visible by default. */
-  --animate-rise: rise 0.7s var(--ease-snappy) backwards;
-  --animate-settle: settle 0.8s var(--ease-snappy) backwards;
+  /* The sign-in clipboard settling onto the desk, once per visit. `backwards` keeps content visible by default. */
+  --animate-settle: settle 600ms var(--ease-snappy) 80ms backwards;
   --animate-fill: fill 0.9s var(--ease-snappy) backwards;
-  @keyframes rise {
-    from {
-      transform: translateY(110%);
-    }
-  }
   @keyframes settle {
     from {
       opacity: 0;
-      filter: blur(6px);
-      translate: 0 16px;
-      scale: 0.96;
+      filter: blur(4px);
+      translate: 0 12px;
+      scale: 0.98;
     }
   }
   @keyframes fill {
@@ -308,8 +331,7 @@
       color: #09090b;
     }
     /* The app scrolls inside a fixed-height frame; print needs the full length. */
-    [data-slot='sidebar-wrapper'],
-    [data-slot='sidebar-inset'],
+    [data-app-frame],
     #main {
       display: block !important;
       height: auto !important;

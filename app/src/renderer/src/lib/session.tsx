@@ -21,9 +21,11 @@ const SessionContext = createContext<SessionValue | null>(null)
 
 function readTheme(): 'light' | 'dark' {
   try {
-    return localStorage.getItem('servehub-theme') === 'dark' ? 'dark' : 'light'
+    // Graphite is the default; light only when someone chose it. A new key, because the old one was
+    // auto-saved as 'light' on every launch back when light was the default.
+    return localStorage.getItem('servehub-theme-v2') === 'light' ? 'light' : 'dark'
   } catch {
-    return 'light'
+    return 'dark'
   }
 }
 
@@ -43,7 +45,7 @@ export function SessionProvider({ children }: { children: ReactNode }): React.JS
   useEffect(() => {
     document.documentElement.classList.toggle('dark', theme === 'dark')
     try {
-      localStorage.setItem('servehub-theme', theme)
+      localStorage.setItem('servehub-theme-v2', theme)
     } catch {
       /* storage can be blocked; the theme just won't be remembered */
     }

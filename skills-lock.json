@@ -7,12 +7,6 @@
       "skillPath": "skills/animate/SKILL.md",
       "computedHash": "c622e29fa956aea703dc4e2b8726d9a017d438beb284a60bc3fdb2540c602102"
     },
-    "animate-expo": {
-      "source": "emilkowalski/skills",
-      "sourceType": "github",
-      "skillPath": "skills/animate-expo/SKILL.md",
-      "computedHash": "f221c9cfe03d9255ac3e2383bfb8b1481036142fe2fe9567403eb071d21092bb"
-    },
     "animation-performance": {
       "source": "emilkowalski/skills",
       "sourceType": "github",
@@ -85,12 +79,6 @@
       "skillPath": "skills/learn-taste/SKILL.md",
       "computedHash": "edaec540d02abdad48727b7d769574d0ee42e79304826c899a7aba90ef0197c1"
     },
-    "mobile-native": {
-      "source": "emilkowalski/skills",
-      "sourceType": "github",
-      "skillPath": "skills/mobile-native/SKILL.md",
-      "computedHash": "2f55a258f185314d585cb6a3514a66c15e9cfc8cd45c936284c4fb7374603d7e"
-    },
     "pick-ui-library": {
       "source": "emilkowalski/skills",
       "sourceType": "github",
@@ -120,12 +108,6 @@
       "sourceType": "github",
       "skillPath": "skills/review-animations/SKILL.md",
       "computedHash": "50f1de2394b88bb3433eca1e30da6866a4e310963d872a66af20ca77fd77f07d"
-    },
-    "write-swift": {
-      "source": "emilkowalski/skills",
-      "sourceType": "github",
-      "skillPath": "skills/write-swift/SKILL.md",
-      "computedHash": "8e4baab8638930f60e44545f9cc2ec61b0ee18b1b9b18aafe29ebc0bdd6972b8"
     }
   }
 }

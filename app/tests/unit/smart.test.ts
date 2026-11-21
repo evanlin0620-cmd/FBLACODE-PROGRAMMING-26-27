@@ -1,6 +1,6 @@
 /** Recommendations, the Help assistant, reports, and the demo seed. */
 import { describe, expect, it } from 'vitest'
-import { recommend, scoreActivity } from '../../src/main/services/recommendations'
+import { recommend, scoreActivity } from '../../src/shared/recommendations'
 import { answer } from '../../src/shared/help'
 import type { Activity, Profile } from '../../src/shared/types'
 import { openDb } from '../../src/main/db'

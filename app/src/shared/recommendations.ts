@@ -10,13 +10,16 @@
  * Full activities are moved down by 25 points, because the volunteer would only
  * join a waitlist. Each match also adds a plain-English reason to show on the card.
  */
-import type { Activity, Factor, Profile, Recommendation } from '@shared/types'
-import { WEEKDAYS } from '@shared/types'
-import { timeOf, weekdayOf } from '@shared/time'
+import type { Activity, Factor, Profile, Recommendation } from './types'
+import { WEEKDAYS } from './types'
+import { timeOf, weekdayOf } from './time'
+
+/** A day ticked as "free" on the sign-up screen becomes this availability block. */
+export const FREE_DAY = { start: '08:00', end: '20:00' } as const
 
 const minutes = (hhmm: string): number => Number(hhmm.slice(0, 2)) * 60 + Number(hhmm.slice(3, 5))
 
-export function scoreActivity(activity: Activity, profile: Profile): Recommendation {
+export function scoreActivity(activity: Activity, profile: Pick<Profile, 'skills' | 'availability' | 'interests'>): Recommendation {
   // Skills
   const mySkills = new Set(profile.skills.map((s) => s.id))
   const matched = activity.skills.filter((s) => mySkills.has(s.id))

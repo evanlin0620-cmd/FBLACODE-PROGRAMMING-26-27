@@ -5,6 +5,7 @@
  */
 import { app, BrowserWindow, dialog, shell } from 'electron'
 import { join } from 'path'
+import { pathToFileURL } from 'url'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 import { openDb } from './db'
@@ -22,6 +23,7 @@ function createWindow(): void {
     minHeight: 640,
     show: false,
     autoHideMenuBar: true,
+    backgroundColor: '#111111', // graphite canvas, so the window never flashes white before the first paint
     title: 'ServeHub',
     ...(process.platform === 'linux' ? { icon } : {}),
     webPreferences: {
@@ -54,8 +56,17 @@ function createWindow(): void {
 function isAppUrl(url: string): boolean {
   const devUrl = process.env['ELECTRON_RENDERER_URL']
   if (is.dev && devUrl && url.startsWith(devUrl)) return true
-  return url.startsWith('file://')
+  // Only the bundled page itself, not any file:// page: a stray local HTML file must not get the API.
+  // Decoded and lower-cased so drive-letter case or percent-encoding (spaces, accents in the install path) can't lock the app out.
+  // A malformed %-sequence makes decodeURI throw; treat that as "not ours" so will-navigate still blocks it.
+  try {
+    return norm(url.split(/[?#]/)[0]!) === APP_PAGE
+  } catch {
+    return false
+  }
 }
+const norm = (u: string): string => decodeURI(u).toLowerCase()
+const APP_PAGE = norm(pathToFileURL(join(__dirname, '../renderer/index.html')).href)
 
 process.on('uncaughtException', (err) => {
   console.error('Unexpected error:', err)

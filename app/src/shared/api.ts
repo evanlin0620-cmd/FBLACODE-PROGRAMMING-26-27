@@ -43,6 +43,7 @@ export interface ApiMap {
   'auth.createAdmin': { in: CreateAdminInput; out: SessionUser }
 
   // Activities
+  'activities.preview': { in: void; out: Activity[] }
   'activities.list': { in: ActivityFilter; out: Activity[] }
   'activities.get': { in: number; out: Activity }
   'activities.create': { in: ActivityInput; out: Activity }

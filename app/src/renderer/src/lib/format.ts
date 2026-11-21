@@ -46,15 +46,3 @@ export const nowStamp = (): string => toStamp(new Date())
 
 /** Today's date as "YYYY-MM-DD" in local time. */
 export const today = (): string => nowStamp().slice(0, 10)
-
-/**
- * The dashboard draws one cell per goal hour. Big goals scale so the grid stays at most 3 rows; part-hours round down so a cell is never green early.
- */
-export function cellCounts(approved: number, pending: number, goal: number): { cells: number; approved: number; pending: number } {
-  const cells = Math.max(1, Math.min(Math.ceil(goal), 60))
-  const per = goal / cells
-  const a = Math.min(cells, Math.floor(approved / per + 1e-9))
-  const p = Math.min(cells, Math.floor((approved + pending) / per + 1e-9)) - a
-  return { cells, approved: a, pending: p }
-}
-

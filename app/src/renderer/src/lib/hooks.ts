@@ -113,6 +113,9 @@ export function useMutation<K extends ApiName>(name: K, opts: { success?: string
         setFieldErrors(fields)
         // Field errors already show under each input, so only other problems get a toast.
         if (Object.keys(fields).length === 0) toast.error(err.message)
+        // The submit button is disabled while pending, which drops keyboard focus to the page.
+        // Once the errors have rendered, put it on the first field that needs fixing.
+        else requestAnimationFrame(() => document.querySelector<HTMLElement>('[aria-invalid="true"]')?.focus())
         return undefined
       } finally {
         busy.current = false

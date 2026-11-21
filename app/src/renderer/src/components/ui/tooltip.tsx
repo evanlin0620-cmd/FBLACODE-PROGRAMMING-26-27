@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils"
 import { Tooltip as TooltipPrimitive } from "radix-ui"
 
 function TooltipProvider({
-  delayDuration = 0,
+  delayDuration = 250, // first tooltip waits; neighbours open instantly (skipDelayDuration)
   ...props
 }: React.ComponentProps<typeof TooltipPrimitive.Provider>) {
   return (

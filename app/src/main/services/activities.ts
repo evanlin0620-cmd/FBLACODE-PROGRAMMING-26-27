@@ -88,6 +88,11 @@ export function loadActivities(
   }))
 }
 
+/** Public: the next few open shifts for the sign-up screen's deck. Counts only, nothing about who signed up. */
+export function previewActivities(ctx: Ctx): Activity[] {
+  return loadActivities(ctx.db, 0, "a.status = 'open' AND a.end_at >= ?", [ctx.now()]).slice(0, 8)
+}
+
 /** Search and filter the catalog. Volunteers only ever see open activities. */
 export function listActivities(ctx: Ctx, filter: unknown = {}): Activity[] {
   const user = requireUser(ctx)

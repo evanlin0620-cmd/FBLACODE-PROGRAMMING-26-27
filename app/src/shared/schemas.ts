@@ -33,7 +33,15 @@ export const loginSchema = z.object({
 })
 
 export const signupSchema = z
-  .object({ fullName: name, email, password, confirmPassword: z.string() })
+  .object({
+    fullName: name,
+    email,
+    password,
+    confirmPassword: z.string(),
+    // The two sign-up questions. Optional, so an account never depends on them.
+    interests: z.array(z.enum(ACTIVITY_TYPES)).max(ACTIVITY_TYPES.length).default([]),
+    freeDays: z.array(z.number().int().min(0).max(6)).max(7).default([])
+  })
   .refine((v) => v.password === v.confirmPassword, {
     message: 'Passwords do not match',
     path: ['confirmPassword']

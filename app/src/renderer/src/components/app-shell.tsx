@@ -1,15 +1,16 @@
 /**
- * The app frame after login: a sidebar with the navigation for the user's role,
- * Help, theme switch, and account menu, plus keyboard shortcuts
- * ("/" jumps to the page's search box, "?" opens Help).
+ * The app frame after login: a graphite sidebar with the everyday pages, the next few shifts
+ * (each marked with its activity-type dot), and the account menu at the bottom. Keyboard shortcuts:
+ * "/" jumps to the page's search box, "?" opens Help.
  */
-import { useEffect, useState } from 'react'
-import { NavLink, Outlet, useLocation, useMatch, useNavigate, useResolvedPath } from 'react-router'
+import { useEffect, useRef, useState } from 'react'
+import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router'
 import {
   Award,
-  ChartColumn,
   Bell,
   CalendarDays,
+  ChartColumn,
+  ChevronsUpDown,
   CircleHelp,
   ClipboardCheck,
   Clock,
@@ -25,87 +26,64 @@ import {
   Sun,
   User,
   Users,
-  ChevronsUpDown,
   type LucideIcon
 } from 'lucide-react'
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarFooter,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarHeader,
-  SidebarInset,
-  SidebarMenu,
-  SidebarMenuBadge,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarProvider
-} from '@/components/ui/sidebar'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger
-} from '@/components/ui/dropdown-menu'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { toast } from 'sonner'
 import { useSession, useUser } from '@/lib/session'
 import { api } from '@/lib/api'
-import { initials } from '@/lib/format'
+import { fmtDay, initials, today } from '@/lib/format'
+import { TYPE_STYLE } from '@/lib/activity-style'
+import { cn } from '@/lib/utils'
+import type { Activity } from '@shared/types'
 
 interface NavItem {
   to: string
   label: string
   icon: LucideIcon
-  badge?: 'unread' | 'pending'
   end?: boolean
 }
 
-const VOLUNTEER_NAV: NavItem[] = [
-  { to: '/dashboard', label: 'Dashboard', icon: Home },
-  { to: '/activities', label: 'Find activities', icon: Search },
-  { to: '/shifts', label: 'My shifts', icon: CalendarDays },
-  { to: '/hours', label: 'My hours', icon: Clock },
-  { to: '/certificate', label: 'Certificates', icon: Award },
-  { to: '/profile', label: 'My profile', icon: User },
-  { to: '/notifications', label: 'Notifications', icon: Bell, badge: 'unread' }
-]
-
-const ADMIN_NAV: NavItem[] = [
-  { to: '/admin', label: 'Impact', icon: ChartColumn, end: true },
-  { to: '/admin/activities', label: 'Activities', icon: CalendarDays },
-  { to: '/admin/approvals', label: 'Hour approvals', icon: ClipboardCheck, badge: 'pending' },
-  { to: '/admin/volunteers', label: 'Volunteers', icon: Users },
-  { to: '/admin/reports', label: 'Reports', icon: FileText },
-  { to: '/admin/outbox', label: 'Email outbox', icon: Mail },
-  { to: '/admin/audit', label: 'Audit log', icon: History },
-  { to: '/admin/settings', label: 'Settings', icon: Settings }
-]
-
-/** A sidebar link. NavLink adds aria-current="page" on the active one. */
-function NavItemLink({ item }: { item: NavItem }): React.JSX.Element {
-  const resolved = useResolvedPath(item.to)
-  const isActive = !!useMatch({ path: resolved.pathname, end: item.end ?? false })
-  return (
-    <SidebarMenuButton
-      asChild
-      isActive={isActive}
-      className="h-9 gap-2.5 text-text-2 hover:bg-black/[0.04] data-[active=true]:font-medium data-[active=true]:shadow-[0_0_0_1px_var(--border),0_1px_2px_rgb(0_0_0/0.04)] dark:hover:bg-white/[0.06] [&>svg]:text-muted-foreground"
-    >
-      <NavLink to={item.to} end={item.end}>
-        <item.icon strokeWidth={1.5} aria-hidden />
-        <span>{item.label}</span>
-      </NavLink>
-    </SidebarMenuButton>
-  )
+/** Everyday pages, in the sidebar. */
+const NAV: Record<'volunteer' | 'admin', NavItem[]> = {
+  volunteer: [
+    { to: '/dashboard', label: 'Dashboard', icon: Home },
+    { to: '/activities', label: 'Find activities', icon: Search },
+    { to: '/shifts', label: 'My shifts', icon: CalendarDays },
+    { to: '/hours', label: 'My hours', icon: Clock },
+    { to: '/certificate', label: 'Certificates', icon: Award },
+    { to: '/notifications', label: 'Notifications', icon: Bell }
+  ],
+  admin: [
+    { to: '/admin', label: 'Impact', icon: ChartColumn, end: true },
+    { to: '/admin/activities', label: 'Activities', icon: CalendarDays },
+    { to: '/admin/approvals', label: 'Hour approvals', icon: ClipboardCheck },
+    { to: '/admin/volunteers', label: 'Volunteers', icon: Users },
+    { to: '/admin/reports', label: 'Reports', icon: FileText }
+  ]
 }
 
-/** Badge counts for the nav, refreshed whenever the page changes. */
-function useNavCounts(role: 'volunteer' | 'admin'): { unread: number; pending: number } {
+/** Occasional pages: in the account menu. */
+const MENU: Record<'volunteer' | 'admin', NavItem[]> = {
+  volunteer: [{ to: '/profile', label: 'My profile', icon: User }],
+  admin: [
+    { to: '/admin/outbox', label: 'Email outbox', icon: Mail },
+    { to: '/admin/audit', label: 'Audit log', icon: History },
+    { to: '/admin/settings', label: 'Settings', icon: Settings }
+  ]
+}
+
+interface SidebarData {
+  unread: number
+  pending: number
+  /** The volunteer's own next shifts, or for a coordinator the next open shifts. */
+  soon: Activity[]
+}
+
+/** Counts and the "coming up" list, refreshed whenever the page changes or a screen asks (refreshNavCounts). */
+function useSidebarData(role: 'volunteer' | 'admin'): SidebarData {
   const location = useLocation()
-  const [counts, setCounts] = useState({ unread: 0, pending: 0 })
+  const [data, setData] = useState<SidebarData>({ unread: 0, pending: 0, soon: [] })
   const [tick, setTick] = useState(0)
   useEffect(() => {
     const bump = (): void => setTick((t) => t + 1)
@@ -114,29 +92,54 @@ function useNavCounts(role: 'volunteer' | 'admin'): { unread: number; pending: n
   }, [])
   useEffect(() => {
     let alive = true
-    const load =
+    const load: Promise<SidebarData> =
       role === 'admin'
-        ? api('hours.forReview', 'pending').then((h) => ({ unread: 0, pending: h.length }))
-        : api('notifications.mine').then((n) => ({ unread: n.filter((x) => !x.readAt).length, pending: 0 }))
-    load.then((c) => alive && setCounts(c)).catch(() => undefined)
+        ? Promise.all([api('hours.forReview', 'pending'), api('activities.list', { from: today() })]).then(([h, a]) => ({
+            unread: 0,
+            pending: h.length,
+            soon: a.filter((x) => x.status === 'open').slice(0, 4)
+          }))
+        : Promise.all([api('notifications.mine'), api('signups.mine')]).then(([n, mine]) => ({
+            unread: n.filter((x) => !x.readAt).length,
+            pending: 0,
+            soon: mine.slice(0, 4)
+          }))
+    load.then((d) => alive && setData(d)).catch(() => undefined)
     return () => {
       alive = false
     }
   }, [role, location.pathname, tick])
-  return counts
+  return data
+}
+
+const count = (n: number): string => (n > 99 ? '99+' : String(n))
+
+/** One sidebar row. Hover is a colour change only; the current page gets one surface step and a hairline. */
+const row =
+  'flex h-8 items-center gap-2.5 rounded-lg px-2.5 text-sm text-text-2 transition-colors duration-150 hover:bg-foreground/[0.04] hover:text-foreground aria-[current=page]:bg-sidebar-accent aria-[current=page]:text-foreground aria-[current=page]:shadow-[inset_0_0_0_1px_var(--border)]'
+
+function Section({ label, children }: { label: string; children: React.ReactNode }): React.JSX.Element {
+  return (
+    <div className="mt-6 first:mt-0">
+      <p className="mb-2 px-2.5 text-xs text-muted-foreground">{label}</p>
+      {children}
+    </div>
+  )
 }
 
 export function AppShell(): React.JSX.Element {
   const user = useUser()
   const { logout, theme, toggleTheme, org } = useSession()
   const navigate = useNavigate()
-  const counts = useNavCounts(user.role)
-  const nav = user.role === 'admin' ? ADMIN_NAV : VOLUNTEER_NAV
+  const side = useSidebarData(user.role)
   const { pathname } = useLocation()
 
   // Messages belong to the page they came from; clear them when the page changes.
+  // Not on arrival, so the "Welcome" toast from sign-up survives the landing.
+  const arrived = useRef(false)
   useEffect(() => {
-    toast.dismiss()
+    if (arrived.current) toast.dismiss()
+    arrived.current = true
   }, [pathname])
 
   // Keyboard shortcuts. Ignored while typing in a field.
@@ -159,78 +162,106 @@ export function AppShell(): React.JSX.Element {
     return () => window.removeEventListener('keydown', onKey)
   }, [navigate])
 
-  return (
-    <SidebarProvider className="h-svh" style={{ '--sidebar-width': '15rem' } as React.CSSProperties}>
-      <Sidebar collapsible="none" className="h-svh border-r" data-print-hide>
-        <SidebarHeader className="px-3 pt-4 pb-0">
-          <p className="flex h-9 items-center gap-2 px-2 text-[15px] font-medium">
-            <span className="grid size-6 place-items-center rounded-md bg-primary text-primary-foreground">
-              <Heart className="size-3.5" strokeWidth={2} aria-hidden />
-            </span>
-            ServeHub
-          </p>
-        </SidebarHeader>
+  const badgeFor = (to: string): number => (to === '/admin/approvals' ? side.pending : to === '/notifications' ? side.unread : 0)
+  const detailPath = (a: Activity): string => (user.role === 'admin' ? `/admin/activities/${a.id}` : `/activities/${a.id}`)
 
-        <SidebarContent>
-          <SidebarGroup role="navigation" aria-label="Main menu" className="px-3">
-            <p className="mt-4 mb-2 truncate px-2 text-xs text-text-2" title={org}>
-              {user.role === 'admin' ? org : `Volunteer at ${org}`}
-            </p>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                {nav.map((item) => {
-                  const count = item.badge ? counts[item.badge] : 0
+  return (
+    <div className="flex h-svh" data-app-frame>
+      <aside className="flex w-60 shrink-0 flex-col border-r bg-sidebar" data-print-hide>
+        <div className="flex h-14 shrink-0 items-center gap-2.5 px-5">
+          <span className="grid size-6 place-items-center rounded-md bg-foreground text-background">
+            <Heart className="size-3.5" strokeWidth={2} aria-hidden />
+          </span>
+          <span className="min-w-0">
+            <span className="block text-[15px] leading-tight font-medium">ServeHub</span>
+            <span className="block truncate text-xs leading-tight text-muted-foreground" title={org}>
+              {org}
+            </span>
+          </span>
+        </div>
+
+        <div className="min-h-0 flex-1 overflow-y-auto px-3 py-4">
+          <nav aria-label="Main menu">
+            <Section label="Menu">
+              <ul className="space-y-0.5">
+                {NAV[user.role].map((item) => {
+                  const badge = badgeFor(item.to)
                   return (
-                    <SidebarMenuItem key={item.to}>
-                      <NavItemLink item={item} />
-                      {count > 0 && (
-                        <SidebarMenuBadge className="text-xs font-normal text-text-2 tabular-nums peer-hover/menu-button:text-text-2 peer-data-[active=true]/menu-button:text-text-2">
-                          {count > 99 ? '99+' : count}
-                          <span className="sr-only">{item.badge === 'pending' ? ' entries waiting' : ' unread'}</span>
-                        </SidebarMenuBadge>
-                      )}
-                    </SidebarMenuItem>
+                    <li key={item.to}>
+                      <NavLink
+                        to={item.to}
+                        end={item.end}
+                        className={row}
+                        aria-label={item.to === '/notifications' && badge ? `Notifications, ${count(badge)} unread` : undefined}
+                      >
+                        <item.icon className="size-4 shrink-0" strokeWidth={1.5} aria-hidden />
+                        <span className="min-w-0 flex-1 truncate">{item.label}</span>
+                        {badge > 0 && (
+                          <span className="font-mono text-xs text-muted-foreground tabular-nums">
+                            {count(badge)}
+                            {item.to === '/admin/approvals' && <span className="sr-only"> entries waiting</span>}
+                          </span>
+                        )}
+                      </NavLink>
+                    </li>
                   )
                 })}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        </SidebarContent>
+              </ul>
+            </Section>
+          </nav>
 
-        <SidebarFooter className="gap-1 px-3 pb-3">
-          <SidebarMenu>
-            <SidebarMenuItem>
-              <NavItemLink item={{ to: '/help', label: 'Help & questions', icon: CircleHelp }} />
-            </SidebarMenuItem>
-            <SidebarMenuItem>
-              <SidebarMenuButton onClick={toggleTheme} className="h-9 gap-2.5 text-text-2 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] [&>svg]:text-muted-foreground">
-                {theme === 'dark' ? <Sun strokeWidth={1.5} aria-hidden /> : <Moon strokeWidth={1.5} aria-hidden />}
-                <span>{theme === 'dark' ? 'Light mode' : 'Dark mode'}</span>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          </SidebarMenu>
+          {side.soon.length > 0 && (
+            <Section label={user.role === 'admin' ? 'Open shifts' : 'Coming up'}>
+              <ul className="space-y-0.5">
+                {side.soon.map((a) => (
+                  <li key={a.id}>
+                    <Link to={detailPath(a)} className={cn(row, 'gap-3')} title={`${a.title}, ${a.type}`}>
+                      {/* The signature: every shift carries its activity-type dot. */}
+                      <span className="size-2 shrink-0 rounded-full" style={{ background: TYPE_STYLE[a.type].tint }} aria-hidden />
+                      <span className="min-w-0 flex-1 truncate">{a.title}</span>
+                      <span className="shrink-0 font-mono text-[11px] text-muted-foreground tabular-nums">{fmtDay(a.startAt).replace(/^\w+, /, '')}</span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </Section>
+          )}
+        </div>
 
+        <div className="shrink-0 space-y-0.5 border-t p-3">
+          <NavLink to="/help" className={row}>
+            <CircleHelp className="size-4 shrink-0" strokeWidth={1.5} aria-hidden />
+            <span className="flex-1">Help &amp; questions</span>
+            <kbd className="rounded border bg-background px-1 font-mono text-[11px] leading-4 text-muted-foreground">?</kbd>
+          </NavLink>
           <DropdownMenu>
-            <DropdownMenuTrigger className="mt-1 flex w-full items-center gap-2.5 rounded-lg border-t p-2 pt-3 text-left hover:bg-black/[0.04] dark:hover:bg-white/[0.06]">
-              <span className="grid size-8 shrink-0 place-items-center rounded-full bg-card text-xs font-medium shadow-[0_0_0_1px_var(--border)]" aria-hidden>
+            <DropdownMenuTrigger
+              className="flex w-full items-center gap-2.5 rounded-lg p-1.5 text-left transition-colors duration-150 hover:bg-foreground/[0.04] data-[state=open]:bg-foreground/[0.04]"
+              aria-label={`Account menu for ${user.fullName}`}
+            >
+              <span className="grid size-7 shrink-0 place-items-center rounded-full bg-accent text-[11px] font-medium" aria-hidden>
                 {initials(user.fullName)}
               </span>
-              <span className="min-w-0 flex-1 leading-tight">
-                <span className="block truncate text-sm font-medium">{user.fullName}</span>
-                <span className="block truncate text-xs text-text-2">{user.email}</span>
+              <span className="min-w-0 flex-1">
+                <span className="block truncate text-sm leading-tight">{user.fullName}</span>
+                <span className="block text-xs leading-tight text-muted-foreground">{user.role === 'admin' ? 'Coordinator' : 'Volunteer'}</span>
               </span>
-              <ChevronsUpDown className="size-4 text-muted-foreground" aria-hidden />
+              <ChevronsUpDown className="size-4 shrink-0 text-muted-foreground" strokeWidth={1.5} aria-hidden />
             </DropdownMenuTrigger>
-            <DropdownMenuContent side="top" align="start" className="w-56">
-              <DropdownMenuLabel className="font-normal text-muted-foreground">
-                Signed in as {user.role === 'admin' ? 'an admin' : 'a volunteer'}
+            <DropdownMenuContent side="top" align="start" className="w-[var(--radix-dropdown-menu-trigger-width)]">
+              <DropdownMenuLabel className="font-normal">
+                <span className="block truncate text-xs text-muted-foreground">{user.email}</span>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
-              {user.role === 'volunteer' && (
-                <DropdownMenuItem onSelect={() => navigate('/profile')}>
-                  <User aria-hidden /> My profile
+              {MENU[user.role].map((item) => (
+                <DropdownMenuItem key={item.to} onSelect={() => navigate(item.to)} className={cn(pathname.startsWith(item.to) && 'font-medium')}>
+                  <item.icon aria-hidden /> {item.label}
                 </DropdownMenuItem>
-              )}
+              ))}
+              <DropdownMenuItem onSelect={toggleTheme}>
+                {theme === 'dark' ? <Sun aria-hidden /> : <Moon aria-hidden />} {theme === 'dark' ? 'Light mode' : 'Dark mode'}
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
               <DropdownMenuItem
                 onSelect={async () => {
                   await logout()
@@ -241,15 +272,15 @@ export function AppShell(): React.JSX.Element {
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-        </SidebarFooter>
-      </Sidebar>
+        </div>
+      </aside>
 
-      <SidebarInset className="min-w-0 overflow-y-auto">
-        {/* SidebarInset is already the <main> landmark; a second <main> would nest landmarks. */}
-        <div id="main" className="min-h-full">
+      <main id="main" className="min-w-0 flex-1 overflow-y-auto">
+        {/* Keyed by page so each page change gets the short fade-and-rise; reduced motion turns it off. */}
+        <div key={pathname} className="animate-page">
           <Outlet />
         </div>
-      </SidebarInset>
-    </SidebarProvider>
+      </main>
+    </div>
   )
 }

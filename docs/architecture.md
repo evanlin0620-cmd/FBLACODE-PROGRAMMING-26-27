@@ -33,7 +33,7 @@ renderer (React UI)  ──api('name', input)──▶  preload  ──ipcRender
 | `services/signups.ts` | Sign up (waitlist when full, no overlapping shifts), cancel, `promoteFromWaitlist`, my shifts. All writes in one `tx`. |
 | `services/hours.ts` | Log hours (confirmed, finished, ≤ shift length, no duplicates), approval queue, bulk approve/reject, `approvedTotal`. |
 | `services/profiles.ts` | Volunteer profile (skills, interests, availability, goal), admin directory search and volunteer record. |
-| `services/recommendations.ts` | Pure scoring: skills 50 + availability 30 + interest 20, minus 25 when full. No DB access. |
+| `../shared/recommendations.ts` | Pure scoring (shared, so sign-up can score before an account exists): skills 50 + availability 30 + interest 20, minus 25 when full. No DB access. |
 | `services/reports.ts` | Volunteer dashboard, admin impact stats (incl. skill gaps), customizable hours report, CSV text, certificate issue/verify. Totals count approved hours only. |
 | `services/log.ts` | `notify` (outbox row) and `audit` (audit row) write helpers, inbox, mark-read, admin outbox and audit list. |
 

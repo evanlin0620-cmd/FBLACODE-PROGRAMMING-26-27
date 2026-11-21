@@ -1,0 +1,92 @@
+{
+  "version": 1,
+  "project": {
+    "name": "servehub",
+    "productType": null,
+    "stack": [
+      "react",
+      "shadcn",
+      "tailwind-v4",
+      "vite"
+    ]
+  },
+  "sources": {
+    "tokens": [],
+    "components": [],
+    "assets": [],
+    "instructions": [
+      "DESIGN.md",
+      "PRODUCT.md",
+      "CLAUDE.md"
+    ]
+  },
+  "design": {
+    "colorMode": "unknown",
+    "colors": {},
+    "typography": {},
+    "spacing": {},
+    "radius": {},
+    "shadows": {},
+    "motion": {},
+    "density": "unknown"
+  },
+  "components": {
+    "installed": [],
+    "preferredPrimitives": [],
+    "patterns": []
+  },
+  "constraints": {
+    "must": [
+      "Use the color tokens in src/renderer/src/assets/main.css; activity tints only from lib/activity-style.ts",
+      "Keep 960x640 working",
+      "Every status has a word, not only a color"
+    ],
+    "avoid": [
+      "A sidebar (replaced by top tabs)",
+      "Green washes on selections",
+      "Animating layout properties"
+    ]
+  },
+  "decisions": [
+    {
+      "date": "2026-11-17",
+      "decision": "Direction D \"The deck\" chosen over A (sheet sharpened), B (front desk), C (year of service). Every shift is a card: activity-type tint bands, sign-up fan deck with live match scores, next-shift ticket, hour-log review stack, top tabs instead of a sidebar.",
+      "sources": [
+        "app/DESIGN.md",
+        "https://21st.dev/@ham7a311/components/fan-deck-card",
+        "https://21st.dev/@kuratlielia/components/card-stack"
+      ]
+    }
+  ],
+  "evidence": [
+    {
+      "fact": "project.instructions",
+      "source": "CLAUDE.md"
+    },
+    {
+      "fact": "project.instructions",
+      "source": "DESIGN.md"
+    },
+    {
+      "fact": "project.instructions",
+      "source": "PRODUCT.md"
+    },
+    {
+      "fact": "project.stack:react",
+      "source": "package.json"
+    },
+    {
+      "fact": "project.stack:shadcn",
+      "source": "components.json"
+    },
+    {
+      "fact": "project.stack:tailwind-v4",
+      "source": "package.json"
+    },
+    {
+      "fact": "project.stack:vite",
+      "source": "package.json"
+    }
+  ],
+  "generatedAt": "2026-11-17T00:47:58.660Z"
+}

@@ -1,6 +1,24 @@
 {
+  "1": "cn",
   "6": "Components",
   "7": "types.ts",
-  "30": "auth.tsx",
-  "37": "devDependencies"
+  "8": "ServeHub architecture",
+  "9": "auth.tsx",
+  "10": "activity.tsx",
+  "11": "spotsLabel",
+  "12": "session.tsx",
+  "13": "ServeHub handoff (2026-11-15)",
+  "17": "ErrorBoundary",
+  "18": "eslint.config.mjs",
+  "21": "ApiError",
+  "22": "Claude setup for this repo",
+  "26": "app/ — the ServeHub Electron app",
+  "30": "src/main.tsx",
+  "31": "worst-case.ts",
+  "32": "reports.ts",
+  "37": "app/package.json",
+  "43": "ServeHub",
+  "53": "main/index.ts",
+  "56": "Project Design Context",
+  "57": "Colors"
 }

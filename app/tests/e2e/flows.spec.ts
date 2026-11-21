@@ -10,9 +10,14 @@ async function loginAs(page: Page, role: 'Volunteer' | 'Admin'): Promise<void> {
   await page.getByRole('button', { name: 'Sign in' }).click()
 }
 
+/** Occasional pages and log out live in the account menu. */
+async function menu(page: Page, item: string): Promise<void> {
+  await page.getByRole('button', { name: /^Account menu/ }).click()
+  await page.getByRole('menuitem', { name: item }).click()
+}
+
 async function logout(page: Page): Promise<void> {
-  await page.locator('[data-slot="dropdown-menu-trigger"]').click()
-  await page.getByRole('menuitem', { name: 'Log out' }).click()
+  await menu(page, 'Log out')
   await expect(page.getByRole('heading', { name: 'Sign in' })).toBeVisible()
 }
 
@@ -24,12 +29,13 @@ test('volunteer and admin flows', async () => {
   // Login validation
   await page.getByRole('button', { name: 'Sign in' }).click()
   await expect(page.getByText('Enter a valid email')).toBeVisible()
+  await expect(page.getByLabel('Email')).toBeFocused() // focus lands on the first field to fix
   await shot(page, '01-login-errors')
 
   // Volunteer dashboard
   await loginAs(page, 'Volunteer')
-  await expect(page.getByRole('heading', { name: 'Hi, Maria' })).toBeVisible()
-  await expect(page.getByText('best match for you')).toBeVisible()
+  await expect(page.getByRole('heading', { level: 1, name: /^\w+ \d{4}$/ })).toBeVisible()
+  await expect(page.getByText('Best match for you')).toBeVisible()
   await shot(page, '02-volunteer-dashboard')
 
   // Browse + filter + waitlist
@@ -46,7 +52,7 @@ test('volunteer and admin flows', async () => {
 
   // Activity detail shows waitlist position
   await page.getByLabel('Search activities').fill('website')
-  await page.getByRole('link', { name: 'Website Refresh Sprint' }).click()
+  await page.getByRole('main').getByRole('link', { name: 'Website Refresh Sprint' }).click()
   await expect(page.getByText('You’re #1 in line')).toBeVisible()
   await shot(page, '05-activity-detail-waitlist')
 
@@ -70,7 +76,7 @@ test('volunteer and admin flows', async () => {
   await shot(page, '08-certificate')
 
   // Profile, notifications, help
-  await page.getByRole('link', { name: 'My profile' }).click()
+  await menu(page, 'My profile')
   await expect(page.getByRole('heading', { name: 'When you’re free' })).toBeVisible()
   await shot(page, '09-profile')
   await page.getByRole('link', { name: 'Notifications' }).click()
@@ -84,7 +90,7 @@ test('volunteer and admin flows', async () => {
 
   // Volunteers can't open admin pages: they're sent home
   await page.evaluate(() => (window.location.hash = '#/admin/approvals'))
-  await expect(page.getByRole('heading', { name: 'Hi, Maria' })).toBeVisible()
+  await expect(page.getByRole('heading', { level: 1, name: /^\w+ \d{4}$/ })).toBeVisible()
 
   // Admin
   await logout(page)
@@ -92,11 +98,12 @@ test('volunteer and admin flows', async () => {
   await expect(page.getByRole('heading', { name: 'Impact', exact: true })).toBeVisible()
   await shot(page, '12-admin-impact')
 
-  // Approve in place from "Needs you" (not Maria's entry; the approvals steps below use it).
+  // Approve the top card of the review stack with the keyboard. Oldest first, so it isn't Maria's new entry,
+  // which the approvals steps below still need.
   const approvalsNav = page.locator('li', { has: page.getByRole('link', { name: 'Hour approvals' }) })
   await expect(approvalsNav).toContainText('3')
-  await page.getByRole('button', { name: 'Review' }).click()
-  await page.getByRole('button', { name: /^Approve .+ for (?!Maria Lopez)/ }).first().click()
+  await expect(page.getByRole('button', { name: /^Approve .+ for (?!Maria Lopez)/ })).toBeVisible()
+  await page.getByRole('group', { name: 'Hour logs to review' }).press('ArrowRight')
   await expect(page.getByText(/^Approved .+ hours for /)).toBeVisible()
   await expect(approvalsNav).toContainText('2')
   await expect(page.getByText('2 hour logs')).toBeVisible()
@@ -131,17 +138,17 @@ test('volunteer and admin flows', async () => {
   await page.getByRole('link', { name: 'Reports' }).click()
   await expect(page.getByText('All entries')).toBeVisible()
   await shot(page, '19-reports')
-  await page.getByRole('link', { name: 'Email outbox' }).click()
+  await menu(page, 'Email outbox')
   await shot(page, '20-outbox')
-  await page.getByRole('link', { name: 'Audit log' }).click()
+  await menu(page, 'Audit log')
   await expect(page.getByText('Approved hours').first()).toBeVisible()
   await shot(page, '21-audit')
 
-  // Dark mode
-  await page.getByRole('button', { name: 'Dark mode' }).click()
+  // Light mode (graphite dark is the default)
+  await menu(page, 'Light mode')
   await page.getByRole('link', { name: 'Impact' }).click()
   await expect(page.getByRole('heading', { name: 'Impact', exact: true })).toBeVisible()
-  await shot(page, '22-admin-impact-dark')
+  await shot(page, '22-admin-impact-light')
 
   await app.close()
 })

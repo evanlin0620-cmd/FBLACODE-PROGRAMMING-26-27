@@ -13,7 +13,7 @@ import { audit } from './log'
 import { loadActivities } from './activities'
 import { approvedTotal } from './hours'
 import { loadProfile } from './profiles'
-import { recommend } from './recommendations'
+import { recommend } from '@shared/recommendations'
 
 export function volunteerDashboard(ctx: Ctx): VolunteerDashboard {
   const user = requireVolunteer(ctx)

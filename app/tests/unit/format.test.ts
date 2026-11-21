@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { cellCounts, fmtCount, spotsLabel } from '../../src/renderer/src/lib/format'
+import { fmtCount, spotsLabel } from '../../src/renderer/src/lib/format'
 
 describe('spotsLabel', () => {
   it('counts open spots with separators', () => {
@@ -13,15 +13,4 @@ describe('spotsLabel', () => {
     expect(spotsLabel({ confirmed: 3, capacity: 3, waitlisted: 0 })).toBe('Full · waitlist open')
   })
   it('formats counts', () => expect(fmtCount(1284)).toBe('1,284'))
-})
-
-describe('cellCounts', () => {
-  it('draws one cell per hour and never fills a cell early', () => {
-    expect(cellCounts(10, 2.5, 40)).toEqual({ cells: 40, approved: 10, pending: 2 })
-    expect(cellCounts(9.5, 0, 40)).toEqual({ cells: 40, approved: 9, pending: 0 })
-  })
-  it('scales big goals and caps at the goal', () => {
-    expect(cellCounts(100, 0, 200)).toEqual({ cells: 60, approved: 30, pending: 0 })
-    expect(cellCounts(50, 5, 40)).toEqual({ cells: 40, approved: 40, pending: 0 })
-  })
 })

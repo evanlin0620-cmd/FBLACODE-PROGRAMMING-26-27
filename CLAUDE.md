@@ -1,11 +1,20 @@
-# fblacode26-27 — Claude setup test environment
+# ServeHub (FBLA Coding & Programming 2026-27)
 
-This folder is a sandbox for initializing and verifying skills, plugins and MCP servers.
+An offline Electron desktop app that runs a nonprofit's volunteer program: volunteers find shifts and log hours, coordinators approve them and report impact. The app is in `app/`; everything else in this repo is docs and Claude tooling.
 
-- `scripts/verify-setup.ps1` — doctor script: runtimes, installed plugins, skill frontmatter, MCP stdio handshakes.
-- `.claude/skills/env-smoke-test/` — project skill; ask "run the smoke test" to exercise every skill/plugin/MCP live.
-- `test-env/fixtures/` — inputs for the checks (AI-sounding text for humanizer, a flawed UI page for impeccable / chrome-devtools / a11y skills).
-- `test-env/settings.template.json` — project plugin config; copy to `.claude/settings.json` to enable it.
-- `.mcp.json` — add project-scoped MCP servers here, then rerun the doctor script.
+Read only what the task needs:
 
-Requirements: Node >= 20.19 (chrome-devtools-mcp), git, Chrome.
+| For | Read |
+|---|---|
+| Where work stands, open decisions | `handoff.md` |
+| Layers, data flow, what each file does | `docs/architecture.md` |
+| Commands, code conventions, checks | `app/CLAUDE.md` (loads when you work in `app/`) |
+| Colors, type, components, do's and don'ts | `app/DESIGN.md` (UI work only) |
+| Users, purpose, FBLA rating criteria | `app/PRODUCT.md` |
+| Which skill, plugin or code map to use | `docs/claude-setup.md` |
+
+Working here:
+
+- Windows, Git Bash and PowerShell. For multi-file text edits use Edit or a Node script; PowerShell 5.1 text cmdlets corrupt UTF-8 punctuation.
+- Commit and push only when asked. `main` is the only branch.
+- After code edits, `graphify update .` keeps the knowledge graph current (no LLM cost).

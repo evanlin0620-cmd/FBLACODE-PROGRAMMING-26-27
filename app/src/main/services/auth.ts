@@ -10,6 +10,7 @@ import { createAdminSchema, loginSchema, signupSchema } from '@shared/schemas'
 import type { SessionUser } from '@shared/types'
 import { type Ctx, parse, requireAdmin } from './context'
 import { audit, notify } from './log'
+import { FREE_DAY } from '@shared/recommendations'
 
 export function hashPassword(password: string): string {
   const salt = randomBytes(16)
@@ -66,6 +67,11 @@ export function createUser(
 export function signup(ctx: Ctx, input: unknown): SessionUser {
   const data = parse(signupSchema, input)
   const user = createUser(ctx, data, 'volunteer')
+  // The sign-up answers become the starting profile, so recommendations work from the first visit.
+  run(ctx.db, 'UPDATE volunteer_profiles SET interests = ? WHERE user_id = ?', JSON.stringify([...new Set(data.interests)]), user.id)
+  for (const day of new Set(data.freeDays)) {
+    run(ctx.db, 'INSERT INTO availability (user_id, weekday, start_time, end_time) VALUES (?, ?, ?, ?)', user.id, day, FREE_DAY.start, FREE_DAY.end)
+  }
   notify(
     ctx.db,
     ctx.now(),
