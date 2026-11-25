@@ -1,10 +1,11 @@
 /**
- * Who is logged in, the organization's name, plus light/dark theme. Both are app-wide, so they live in
+ * Who is logged in, the organization's name, whether this install still needs first-run setup (and whether it
+ * holds the example organization), plus light/dark theme. All are app-wide, so they live in
  * React context. The session itself is owned by the main process; this only
  * mirrors it so screens can render the right navigation.
  */
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react'
-import { ORGANIZATION, type SessionUser } from '@shared/types'
+import { DEFAULT_ORGANIZATION, type SessionUser, type SetupStatus } from '@shared/types'
 import { api } from './api'
 
 interface SessionValue {
@@ -13,6 +14,12 @@ interface SessionValue {
   logout: () => Promise<void>
   org: string
   setOrg: (name: string) => void
+  /** No account exists yet: the app opens on first-run setup. */
+  needsSetup: boolean
+  /** The made-up example organization is loaded, so its demo accounts can be offered. */
+  example: boolean
+  /** Re-reads the setup status after setup or a demo reset changed it. */
+  refreshSetup: () => Promise<void>
   theme: 'light' | 'dark'
   toggleTheme: () => void
 }
@@ -32,15 +39,28 @@ function readTheme(): 'light' | 'dark' {
 export function SessionProvider({ children }: { children: ReactNode }): React.JSX.Element | null {
   const [user, setUser] = useState<SessionUser | null | undefined>(undefined)
   const [theme, setTheme] = useState<'light' | 'dark'>(readTheme)
-  const [org, setOrg] = useState(ORGANIZATION)
+  const [org, setOrg] = useState(DEFAULT_ORGANIZATION)
+  const [setup, setSetup] = useState<Omit<SetupStatus, 'orgName'>>({
+    needed: false,
+    example: false
+  })
+
+  const applyStatus = useCallback((s: SetupStatus) => {
+    setOrg(s.orgName)
+    setSetup({ needed: s.needed, example: s.example })
+  }, [])
+  const refreshSetup = useCallback(() => api('setup.status').then(applyStatus), [applyStatus])
 
   useEffect(() => {
-    // Render only once both are known, so the demo name never flashes on a renamed install.
-    Promise.all([api('auth.me').catch(() => null), api('org.get').catch(() => ORGANIZATION)]).then(([u, o]) => {
-      setOrg(o)
-      setUser(u)
-    })
-  }, [])
+    // Render only once all are known, so no name or screen flashes before the real one.
+    const fallback: SetupStatus = { needed: false, example: false, orgName: DEFAULT_ORGANIZATION }
+    Promise.all([api('auth.me').catch(() => null), api('setup.status').catch(() => fallback)]).then(
+      ([u, s]) => {
+        applyStatus(s)
+        setUser(u)
+      }
+    )
+  }, [applyStatus])
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', theme === 'dark')
@@ -59,7 +79,24 @@ export function SessionProvider({ children }: { children: ReactNode }): React.JS
   const toggleTheme = useCallback(() => setTheme((t) => (t === 'dark' ? 'light' : 'dark')), [])
 
   if (user === undefined) return null // first instant while the session loads
-  return <SessionContext.Provider value={{ user, setUser, logout, theme, toggleTheme, org, setOrg }}>{children}</SessionContext.Provider>
+  return (
+    <SessionContext.Provider
+      value={{
+        user,
+        setUser,
+        logout,
+        theme,
+        toggleTheme,
+        org,
+        setOrg,
+        needsSetup: setup.needed,
+        example: setup.example,
+        refreshSetup
+      }}
+    >
+      {children}
+    </SessionContext.Provider>
+  )
 }
 
 export function useSession(): SessionValue {

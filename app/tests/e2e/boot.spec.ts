@@ -3,7 +3,31 @@ import { launch } from './app'
 
 type Bridge = { api: { call: (name: string, input?: unknown) => Promise<unknown> } }
 
-test('app boots to the login screen and the API enforces validation and roles', async () => {
+test('a fresh install opens on setup, and setting up names the organization and signs in its coordinator', async () => {
+  const { app, page } = await launch({ example: false })
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  await expect(page.getByRole('heading', { name: 'Set up your organization' })).toBeVisible()
+  await expect(page.getByText('Example data')).toBeVisible()
+  await page.screenshot({ path: 'tests/e2e/screenshots/00-welcome.png' })
+  // Meaning, not just format: the passwords must match.
+  await page.getByLabel('Organization name').fill('Eastside Food Shelf')
+  await page.getByLabel('Your name').fill('Sam Rivera')
+  await page.getByLabel('Email').fill('sam@eastside.test')
+  await page.getByLabel('Password', { exact: true }).fill('Password1')
+  await page.getByLabel('Confirm password').fill('Password2')
+  await page.getByRole('button', { name: 'Create organization' }).click()
+  await expect(page.getByText('Passwords do not match')).toBeVisible()
+  await page.getByLabel('Confirm password').fill('Password1')
+  await page.getByRole('button', { name: 'Create organization' }).click()
+  await expect(page.getByRole('heading', { name: 'Impact', exact: true })).toBeVisible()
+  await expect(page.locator('aside').getByText('Eastside Food Shelf')).toBeVisible()
+  // Setup runs once: a second call is refused, so nobody can make themselves a coordinator later.
+  const again = await page.evaluate(() => (window as unknown as Bridge).api.call('setup.example'))
+  expect(again).toMatchObject({ ok: false, error: { code: 'FORBIDDEN' } })
+  await app.close()
+})
+
+test('the example organization signs in and the API enforces validation and roles', async () => {
   const { app, page } = await launch()
   await expect(page.getByRole('heading', { name: 'Sign in' })).toBeVisible()
 

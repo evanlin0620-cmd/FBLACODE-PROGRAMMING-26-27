@@ -1,4 +1,4 @@
-# ServeHub (FBLA Coding & Programming 2026-27)
+# Turnout (FBLA Coding & Programming 2026-27)
 
 An offline Electron desktop app that runs a nonprofit's volunteer program: volunteers find shifts and log hours, coordinators approve them and report impact. The app is in `app/`; everything else in this repo is docs and Claude tooling.
 

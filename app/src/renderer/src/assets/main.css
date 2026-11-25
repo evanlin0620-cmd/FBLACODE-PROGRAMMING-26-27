@@ -4,7 +4,7 @@
 @custom-variant dark (&:is(.dark *));
 
 /*
- * ServeHub tokens: the "paper sign-up sheet at a community hall" direction.
+ * Turnout tokens: the "paper sign-up sheet at a community hall" direction.
  * App surfaces stay neutral; brand green is kept for the primary action, the
  * selection mark and one key figure. Amber means waiting; red is only for errors.
  */
@@ -123,6 +123,21 @@
   --animate-page: page 200ms var(--ease-snappy) both;
   /* A chart line drawing itself left to right, once per login. */
   --animate-draw: draw 900ms var(--ease-glide) 120ms backwards;
+  /* A name on the sign-up sheet writing itself in, left to right at an even pen speed. Visible by default. */
+  --animate-write: write 560ms linear backwards;
+  /* The "spots left" count stepping down as a name lands. */
+  --animate-tick: tick 260ms var(--ease-snappy);
+  @keyframes write {
+    from {
+      clip-path: inset(0 100% 0 0);
+    }
+  }
+  @keyframes tick {
+    from {
+      opacity: 0;
+      translate: 0 -6px;
+    }
+  }
   /* The hours ring filling from zero, once per login. */
   --animate-ring: ring 900ms var(--ease-snappy) 200ms backwards;
   @keyframes ring {

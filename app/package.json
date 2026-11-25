@@ -1,6 +1,6 @@
 {
   "name": "servehub",
-  "productName": "ServeHub",
+  "productName": "Turnout",
   "version": "1.0.0",
   "description": "Volunteer management for nonprofits (FBLA Coding & Programming 2026-27)",
   "main": "./out/main/index.js",

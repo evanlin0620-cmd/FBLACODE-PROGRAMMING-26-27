@@ -12,6 +12,7 @@ import type {
   LoginInput,
   ProfileInput,
   ReviewHoursInput,
+  SetupInput,
   SignupInput,
   VolunteerSearch
 } from './schemas'
@@ -27,6 +28,7 @@ import type {
   ReportFilter,
   RosterEntry,
   SessionUser,
+  SetupStatus,
   SignupStatus,
   Skill,
   VolunteerDashboard,
@@ -41,6 +43,11 @@ export interface ApiMap {
   'auth.signup': { in: SignupInput; out: SessionUser }
   'auth.logout': { in: void; out: null }
   'auth.createAdmin': { in: CreateAdminInput; out: SessionUser }
+
+  // First-run setup (public until someone has an account)
+  'setup.status': { in: void; out: SetupStatus }
+  'setup.create': { in: SetupInput; out: SessionUser }
+  'setup.example': { in: void; out: null }
 
   // Activities
   'activities.preview': { in: void; out: Activity[] }

@@ -1,5 +1,5 @@
 ---
-name: ServeHub
+name: Turnout
 description: The paper sign-up sheet at a community hall, for any nonprofit's volunteer program; every shift is a card you handle.
 colors:
   brand-green: "#15803d"
@@ -123,13 +123,13 @@ components:
     width: "6px"
 ---
 
-# Design System: ServeHub
+# Design System: Turnout
 
 ## Overview
 
 **Creative North Star: "The sign-up sheet at the community hall"**
 
-ServeHub is for any nonprofit's volunteer program, not one organization. The look borrows from the paper sheet pinned up at a community hall: neighborly, steady, plainspoken. App surfaces stay neutral. Graphite dark is the default theme (2026-11-19): #111 canvas and sidebar, #181818 panels, hairline borders, no glows; light mode is the same layout on near-white. Brand green is kept for the primary action and one key figure per screen. Amber means waiting. Red means something is wrong.
+Turnout (called ServeHub until 2026-11-25) is for any nonprofit's volunteer program, not one organization. The look borrows from the paper sheet pinned up at a community hall: neighborly, steady, plainspoken. App surfaces stay neutral. Graphite dark is the default theme (2026-11-19): #111 canvas and sidebar, #181818 panels, hairline borders, no glows; light mode is the same layout on near-white. Brand green is kept for the primary action and one key figure per screen. Amber means waiting. Red means something is wrong.
 
 The signature is **slot marks**: a shift's capacity drawn as the lines of a sign-up sheet, filled or open. They appear wherever spots appear and nowhere else.
 
@@ -149,7 +149,7 @@ The screens are calm and fairly dense, built for a 1280x800 laptop window, with 
 ## Colors
 
 ### Primary
-- **Brand Green** (brand-green): primary buttons, the brand tile, approved hours in the ring, count badges, the month in progress on the Impact chart, focus rings. Never a page wash.
+- **Brand Green** (brand-green): primary buttons, the app icon, approved hours in the ring, count badges, the month in progress on the Impact chart, focus rings. Never a page wash.
 - **Approved Fill / Success ink** (approved-bg, success-fg): "Confirmed" and "Approved" pills, and the goal-reached note.
 
 ### Secondary
@@ -232,6 +232,9 @@ Cards, panels, empty states, the ticket: 16px. Inline lists inside a card: 12px.
 - **Destructive:** red, only inside confirm dialogs.
 - **Demo account buttons** on sign-in are outline toggles with `aria-pressed`; the picked one gets an ink ring and a check.
 
+### Brand mark
+`components/brand-mark.tsx` (`BrandMark`), masters and icon generator in `build/brand/` (`node build/brand/make.mjs`). Four tally bars with the fifth stroke cut out as a 30° channel: the missing stroke is the spot a volunteer fills, drawn from the slot marks. One solid shape in the current text colour; no tile, stroke, gradient or second colour in the app. At 20 px and under it switches to a three-bar cut. The wordmark is "Turnout" in Geist 500 beside the mark (24 px mark: sidebar at 15px, sign-in at 17px). Green appears only on the app icon: the mark in #3fbf74 on a #111 tile with 56/256 corners.
+
 ### Slot marks (signature)
 `components/slots.tsx`. `Slots` draws one 6x12px mark per spot (filled = slot-filled, open = slot-open), up to 20 marks; bigger shifts scale and never look full or empty unless they are. `SpotsRow` adds the mono words. `CapacityBar` (status.tsx) wraps them with the words above, amber when full.
 
@@ -256,8 +259,14 @@ One smooth green line (`smoothPath` in `lib/chart.ts`, clamped so it never dips 
 ### Sign-up
 Left: the paper panel with "Pick a shift. We'll hold your spot." and a fanned deck of up to eight real upcoming shifts (`activities.preview`, public). Right: two questions as round toggles (what you like doing, which days you're free), then name, email, password (with a three-part strength bar and a show/hide button) and confirm. Answering scores every card with the real recommendation rules and brings the best fit (50% or better) to the top. "Hold my spot at …" (on by default) signs the new volunteer up for the top card right after the account is created; the answers become their starting interests and availability (free day = 08:00-20:00). The panel stays in view while the form scrolls.
 
-### Sign-in
-Left: the paper panel with the brand, the serif headline "Every shift's sign-up sheet, in one place", one line of explanation, and a clipboard holding a sample sign-up sheet (one labelled image). Hidden under 768px. Right: the form on the card surface, with the org name in the subtitle.
+### Welcome (first-run setup) and sign-in
+Turnout is for any nonprofit. A fresh install opens on **Welcome** (direction C, chosen 2026-11-23): set up your organization (name, your name, email, password twice) or try the example organization as either role in one click. Once anyone has an account, Welcome is gone for good.
+
+Both screens share the left paper panel: the brand, the serif headline "Every shift's sign-up sheet, in one place", and the sign-up-sheet clipboard (one labelled image, paper in both themes because it is an object, not a surface). The sheet fills itself once per app session: each name writes in left to right at an even pen speed (`animate-write`, 560ms linear, 640ms apart), and the moment it lands its slot mark fills from the bottom and "spots left" ticks down (`animate-tick`). Then it rests; no loop. Reduced motion shows it finished.
+
+While the example data is loaded, the bottom of the panel offers its accounts: "Riverside Community Partners" with an amber **Example data** tag, then "Try as a volunteer" (Maria Lopez) and "Try as a coordinator" (Dana Whitfield), each a tile on a paper-ink tint with an arrow that nudges 2px on hover. With them on offer, the explainer line drops; under 760px tall the sheet steps aside so the tiles and the form stay in view. A real organization's sign-in has no tiles and the explainer returns. Hidden under 768px wide. Right: the form on the card surface, with the org name in the sign-in subtitle.
+
+**The Example Is Labelled Rule.** The made-up organization never passes for a real one: its name only appears beside the Example data tag, and demo reset exists only while it is loaded.
 
 ### Navigation
 Sidebar rows are 32px, 8px corners, 16px line icons (1.5 stroke), text-2 labels. Hover: a 4% ink fill. Active: sidebar-accent step plus an inset hairline, foreground text. Counts (Hour approvals, Notifications) are muted mono numbers at the right, with a screen-reader word.

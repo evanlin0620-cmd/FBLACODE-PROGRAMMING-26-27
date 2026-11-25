@@ -406,7 +406,7 @@ export function ImpactDashboard(): React.JSX.Element {
 
                 <div className="grid grid-cols-3 gap-4">
                   {/* Once per login, left to right in reading order; gaps shrink so it lands as one wave. */}
-                  <Stat label="Volunteers" value={fmtCount(s.volunteerCount)} note="With a ServeHub account" intro={entrance(w, 0, 10)} />
+                  <Stat label="Volunteers" value={fmtCount(s.volunteerCount)} note="With a Turnout account" intro={entrance(w, 0, 10)} />
                   <Stat label="Upcoming activities" value={fmtCount(s.upcomingActivities)} note="Open and scheduled" intro={entrance(w, 40, 8)} />
                   <Stat label="Waiting for approval" value={fmtCount(s.pendingApprovals)} note="Hour logs to review" intro={entrance(w, 70, 8)} />
                 </div>

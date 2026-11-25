@@ -1,37 +1,40 @@
-# ServeHub handoff (2026-11-17)
+# ServeHub handoff (2026-11-25)
 
 ## 1. Goal
 
-ServeHub is the FBLA Coding & Programming 2026-27 entry: an offline Electron desktop app that runs a nonprofit's volunteer program, for volunteers and coordinators (admins). "Riverside Community Partners" is only the demo seed; the product is meant for **any** nonprofit (the org name is an admin setting).
+ServeHub is the FBLA Coding & Programming 2026-27 entry: an offline Electron desktop app that runs **any** nonprofit's volunteer program, for volunteers and coordinators (admins). "Riverside Community Partners" is now only the **example organization**: loaded on request, always labelled "Example data".
 
 This round of work:
-- Cleaned up the Claude setup (CLAUDE.md files, skills, rules) and ran a security scan.
-- Wrote a working-method skill, `fable-playbook`, for the next model.
-- Reviewed the sign-up page with the 21st `21st-ui-review` skill and fixed two defects.
-- Explored four whole-app directions with `21st-ui-explore`. The user picked **D, "The deck"**, and it is now built into the real app.
+- **Graphite redesign:** a left sidebar, dark by default, a month headline, a smooth Impact line chart, and motion work. Committed and pushed as `380f41d`.
+- **Review fixes:** five issues from `/ponytail-review` are fixed, also in `380f41d`:
+  - theme key `servehub-theme-v2`;
+  - the sidebar refreshes after sign-up or cancel;
+  - the navigation guard fails closed;
+  - the sidebar uses `signups.mine`;
+  - a misplaced doc comment.
+- **First-run setup:** a fresh install opens on Welcome, built from entry direction C ("Try it as…", chosen 2026-11-23). **Uncommitted.**
+- **Abandoned:** a Hallmark prototype (themes Overprint, Furrow, Console). The user disliked it; it is deleted and the hallmark skill is uninstalled (`~/.claude/skills`, `~/.agents/skills`, `~/.agents/.skill-lock.json`).
 
 ## 2. Current state
 
 **Git**
-- `main` matches `origin/main` at `1e920fe` (the redesign rollout plus a merge of the GitHub "Audit fixes" PR). Everything in this round is **uncommitted**.
-- The working tree holds three groups of changes. They can be committed together or separately:
-  1. **Claude setup:** root `CLAUDE.md` rewritten, new `app/CLAUDE.md`, new `docs/claude-setup.md`, new `.claude/skills/fable-playbook/`, skills `write-swift` / `animate-expo` / `mobile-native` removed (both `.claude/skills` and `.agents/skills`, plus `skills-lock.json`), empty `.claude/commands/verify_loop.md` deleted.
-  2. **Fixes:** Electron trusts only its own `index.html`, not any `file://` page (`app/src/main/index.ts`). Focus moves to the first invalid field after a failed submit (`lib/hooks.ts`). Unused shadcn avatar / badge / card / progress were deleted. A stale test count was removed from `app/README.md`.
-  3. **Direction D** (section 4), with `DESIGN.md`, `docs/architecture.md` and the e2e screenshots updated.
-- `graphify-out/*` was refreshed after each step (`graphify update .`).
+- `main` = `origin/main` = `7fa4540`. That commit is the user's own: it added `"ignoreDeprecations": "6.0"` to `app/tsconfig.node.json`.
+- **Uncommitted: the first-run setup and Welcome work** (about 20 files plus refreshed e2e screenshots and `graphify-out`). See section 4.
 
 **Checks (after the last code change)**
-- Typecheck is clean.
-- 52 unit tests and 3 e2e tests pass. The new e2e test covers the sign-up deck end to end.
-- Lint has no new errors. The remaining ones were there before: shadcn `ui/*`, `form.tsx`, `ipc.ts`, `session.tsx`, `profile.tsx`, `hooks.ts:34`, `smart.test.ts`, `hours.test.ts`.
-- Sign-up, volunteer home, Find activities and Impact were checked in light and dark at 1280×800 and 960×640. There were no console errors and no overflow apart from the bell badge, which overhangs its button by 2px on purpose.
-- `out/` is a fresh production build.
+- Typecheck: web is clean. **Node fails only because of `"ignoreDeprecations": "6.0"`**, which TS 5.9.3 rejects; with `--ignoreDeprecations 5.0` it is clean. The user has not decided whether to change it to `"5.0"`.
+- 61 unit tests pass, including 6 new ones in `tests/unit/setup.test.ts`.
+- 4 e2e tests pass. Two are new boot tests:
+  - a fresh install: setup, the password-mismatch error, landing on Impact, and a second setup being refused;
+  - the example sign-in.
+- Lint has no new errors. The old ones remain: `ipc.ts:34` return type, `session.tsx` exports, and the shadcn `ui/*` files.
+- Looked at:
+  - Welcome, dark and light, at 1280×800 (mid-animation and at rest), and at 960×640.
+  - Sign-in with the example, dark, at 1280×800.
 
-**Outside the repo (user-level, not in git)**
-- `npx @21st-dev/cli install-skill` installed **8** 21st skills into `~/.claude/skills`, `~/.cursor/skills` and `~/.codex/skills`. The user asked for only `21st-ui-explore` and `21st-ui-review`; the other six load in every project. The user has not been asked about removing them yet.
-- The 21st account is on the free tier: 2 code retrievals a day (both used on 2026-11-17, reset 2026-11-18) and no hosted AI generation.
-- One memory was loosened: `use-graphify-graph-first` is now a preference ("graph for relationships, grep for exact strings"), not a rule.
-- The dev server may still be running on port 5174 (preview `servehub-dev`).
+**Outside the repo**
+- The 21st CLI is **not signed in**. The 21st MCP works: free tier, AI generation off, 2 code retrievals a day.
+- `.claude/launch.json` is back to its original two entries (`servehub-dev` and `knowledge-graph`).
 
 ## 3. Active files
 
@@ -39,78 +42,72 @@ All paths are under `app/src/` unless another root is shown.
 
 | File | Why it matters |
 |---|---|
-| `renderer/src/pages/auth.tsx` | Sign-up with the fan deck, two questions, strength bar, show/hide, "Hold my spot". Sign-in still uses the clipboard. `AuthFrame` takes an optional `hero` and `wide`. |
-| `renderer/src/components/fan-deck.tsx` | Fan deck (logic adapted from 21st "Fan Deck Card" by ham7a311). Props: `cards`, `render`, `promote`, `onTop`. |
-| `renderer/src/lib/activity-style.ts` | `TYPE_STYLE` (tint and Lucide icon per activity type) and `typeGradient`. |
-| `renderer/src/components/activity.tsx` | `TypeBand` (tinted header band with an optional badge). `ActivityCard` now starts with a band. |
-| `renderer/src/components/app-shell.tsx` | Top bar: 5 tabs, Notifications and Help icon links, account menu with the other pages. The sidebar is gone. The welcome toast survives landing. |
-| `renderer/src/pages/volunteer/dashboard.tsx` | Next-shift `Ticket` (tilt and glare), `HoursRing`, "Dealt for you" cards (score, reason, all three factor scores). |
-| `renderer/src/pages/admin/impact.tsx` | `ReviewStack` (arrow keys, stamps, "Just reviewed"), `SkillGaps`, month chart with the all-time total, 3 stat cards. |
-| `shared/recommendations.ts` | Moved from `main/services/` so sign-up can score. `FREE_DAY` = 08:00-20:00. `scoreActivity` takes only skills, availability and interests. |
-| `main/services/activities.ts` | `previewActivities`: public, up to 8 open upcoming shifts, no sign-up status. |
-| `main/services/auth.ts`, `shared/schemas.ts` | `signupSchema` has `interests` and `freeDays` (default `[]`). Sign-up saves them as the starting profile. |
-| `shared/api.ts`, `main/ipc.ts` | New `activities.preview`. |
-| `app/tests/e2e/boot.spec.ts`, `flows.spec.ts` | Sign-up deck test. Account menu helper `menu()`. Review stack approved with the right arrow. |
-| `app/tests/unit/access.test.ts` | Tests for sign-up answers becoming the profile, and the public preview. |
-| `app/DESIGN.md` | Updated for D: activity tints, tabs, deck, ticket, ring, review stack. |
-| `app/.21st/design.json` | 21st design context, with the D decision and constraints recorded. |
-| `CLAUDE.md`, `app/CLAUDE.md`, `docs/claude-setup.md` | Short index, app conventions, and the skill/tool map grouped by department. |
-| `.claude/skills/fable-playbook/SKILL.md` | How to plan, split and verify work in this repo. |
-| `renderer/prototypes/redesign/` | The older side-by-side prototype, now superseded. Still present (see step 5). |
+| `main/services/settings.ts` | Setup functions:<br>• `setupStatus`<br>• `createOrganization` (public, empty install only, creates the first admin)<br>• `loadExample`<br>• `migrateLegacyInstall` (old demo-seeded installs become the example)<br>• `putSetting`<br>`createUser` runs its own `tx`, and `tx` does not nest. |
+| `main/index.ts` | No auto-seed on startup any more; calls `migrateLegacyInstall`. |
+| `main/db/seed.ts` | Writes the `org_name` = `EXAMPLE_ORGANIZATION` and `example_data` = `1` settings. |
+| `main/ipc.ts` | `setup.status`, `setup.create` (signs in), `setup.example`. `demo.reset` is refused unless the example is loaded. |
+| `shared/types.ts`, `schemas.ts`, `api.ts` | `EXAMPLE_ORGANIZATION`, `DEFAULT_ORGANIZATION` ("Your organization"), `SetupStatus`, `setupSchema`, the API entries. |
+| `renderer/src/lib/session.tsx` | Reads `setup.status` at boot and exposes `needsSetup`, `example` and `refreshSetup`. |
+| `renderer/src/App.tsx` | `/welcome` behind `SetupOnly`. `PublicOnly` sends to `/welcome` while setup is needed. |
+| `renderer/src/pages/auth.tsx` | `WelcomePage` (the setup form), `ExampleRoles` (the "Try as…" tiles, which load the example on a fresh install), the animated `Clipboard`, and `AuthFrame`'s `aside` slot. The old demo prefill buttons are gone. |
+| `renderer/src/assets/main.css` | `animate-write` and `animate-tick` keyframes. |
+| `renderer/src/pages/admin/system.tsx` | The Example data reset panel shows only while `example` is true. |
+| `app/tests/e2e/app.ts` | `launch({ example = true })` loads the example through the bridge and reloads. Pass `example: false` for an empty install. |
+| `app/DESIGN.md`, `app/PRODUCT.md`, `app/.21st/design.json` | The Welcome spec, "The Example Is Labelled Rule", and the direction C decision. |
 
-## 4. Changes made
+## 4. Changes made (uncommitted)
 
-**Direction D, "The deck"** (every shift is a card you handle)
-- **Activity colors:** 8 activity-type tints, all with white text at 4.5:1 or better, used only on card bands and the ticket. The type is always written next to the band.
-- **Sign-up:**
-  - The left side is a fanned deck of real shifts.
-  - Answering "what do you like" and "which days" scores each card with the real recommendation rules. The best fit at 50% or better lifts to the top; below that, a "nothing fits yet" line shows instead.
-  - "Hold my spot" (on by default) calls `signups.join` right after the account is created.
-  - The answers become the volunteer's interests and availability.
-  - The left panel stays fixed while the form scrolls at 960×640.
-- **Navigation:** top tabs replace the sidebar (Dashboard, Find activities, My shifts, My hours, Certificates / Impact, Activities, Hour approvals, Volunteers, Reports). The other pages are in the account menu.
-- **Volunteer home:** a tilting next-shift ticket, a ring for approved and waiting hours, and three "Dealt for you" cards. A dashed card fills the gap when there are fewer than 3 matches.
-- **Impact:** hour logs in a review stack. Approve or the right arrow throws the card right; Send back (with a reason) or the left arrow throws it left. There is no undo, because the backend can't reverse a review.
-- **Removed:** the shadcn sidebar, sheet and `use-mobile` hook, and the hour-cells grid with its `cellCounts` helper and tests.
+**First-run setup**
+- **Fresh install:** it starts empty and opens on Welcome.
+  - "Create organization" names the nonprofit and creates its first coordinator, who is then signed in.
+  - "Try as a volunteer / coordinator" loads the example and signs in with one click.
+- **Setup runs once:** both actions are refused after any account exists, so the public demo admin no longer ships on real installs (the security risk from the earlier handoff).
+- **Example label:** Riverside appears only with the amber **Example data** tag. A real organization's sign-in shows no tiles.
+- **Demo reset:** only for the example, in both the UI and the backend.
+- **Legacy installs:** demo-seeded before setup existed, they are marked as the example and keep any name someone chose.
 
-**Review fixes (21st-ui-review)**
-- Keyboard focus was dropped to the page after a failed submit. It now lands on the first invalid field, and an e2e test checks it.
-- The clipboard on sign-in was cut off at 960×640. It now fits.
+**Welcome and sign-in look (direction C)**
+- **Shared left panel:** the paper panel with the brand, the serif headline, and the sign-up-sheet clipboard.
+- **Animation:** the sheet writes itself in once per app session (`animate-write`, 560ms linear, 640ms stagger). Each landing name fills its slot mark and ticks "spots left" down. There is no loop, and with reduced motion it shows finished.
+- **Example tiles:** with the tiles shown, the explainer line drops. Under 760px tall the sheet hides; the tiles sit at the bottom.
+- **Colour:** only theme tokens (`paper`, `paper-ink`, `warning`), so light and dark both work. The clipboard stays paper in both themes because it is an object, not a surface.
 
-**Setup and security**
-- The CLAUDE.md files use progressive disclosure: a short root index, with app detail that loads only inside `app/`.
-- Security scan: no secrets in the files or git history, and 0 vulnerabilities in shipped dependencies. There are 12 moderate advisories in dev tooling (`minimatch`) whose fix is a breaking upgrade, so they were left.
-- The real risk is that every install seeds a demo admin whose password is public. A first-run setup was offered but not built.
+**Rename to Turnout and the new mark (2026-11-25, uncommitted)**
+- Chosen from a prototype (`app/src/renderer/prototypes/brand.html`, keys 1–3 and T) built with the logo-design and unslop skills. Rejected directions: Alongside (tent), Muster (collar), Show Up (webcam/avatar), Handbill, Rota.
+- Mark: four tally bars with the fifth stroke cut out as a 30° channel. `components/brand-mark.tsx` (three-bar cut at 20 px and under) in the sidebar and sign-in panel. Masters and icon generator: `app/build/brand/make.mjs`. New `build/icon.png`, `build/icon.ico` (16–256, small cut for ≤24) and `resources/icon.png`; the window now uses the icon on every platform.
+- The visible name is Turnout everywhere (window, title, sidebar, sign-in, emails, outbox, docs). Internal ids stay: `servehub.db`, npm name, `servehub-theme-v2`, `servehub:counts`, `SERVEHUB_DATA_DIR`, demo `@servehub.test` accounts, AppUserModelId. `userData` is pinned to `%APPDATA%/ServeHub` so the productName change doesn't strand data.
+- Not done: `build/icon.icns` (macOS) is still the old icon; the wordmark is live Geist text, not outlines.
 
 ## 5. Failed attempts
 
 | Tried | What went wrong | What replaced it |
 |---|---|---|
-| `npx @21st-dev/cli install-skill --help` | It ignored `--help` and installed all 8 skills for 3 editors | Left installed; the user still needs to choose which to keep |
-| Pulling 21st "Card Stack" code into the app | It needs the `motion` library, which this project doesn't have | Its decide and keyboard model was rebuilt with CSS transitions (no drag-to-throw) |
-| Hosted 21st generation | Free tier, `aiGenerationEnabled: false` | Previews written by hand, grounded in 21st search results |
-| Deck limited to 6 soonest shifts | All 6 needed skills, so a new volunteer's best fit showed "0% match" | Up to 8 shifts, plus a 50% bar before anything is called a fit |
-| `export const TYPE_STYLE` in `activity.tsx` | Broke the react-refresh lint rule | Moved to `lib/activity-style.ts` |
-| Inline `node -e` / bash heredocs with backticks and `\d` | Shell quoting stripped the escapes | Scripts written to the scratchpad and run as files |
-| String replaces after `prettier --write` | Prettier had re-wrapped the imports | Edited by hand after reading the file |
-| Built-in browser screenshots of the preview | Timed out repeatedly | Playwright (`chromium` / `_electron`) scripts |
-| One blank "home dark 960" screenshot | A timing flake: re-capturing at 300, 900 and 2000 ms showed full content | No change needed |
+| Hallmark prototypes (Overprint, Furrow, Console) | The user disliked them | Deleted, skill uninstalled |
+| Built-in browser pane on `file://` | Renders a static snapshot with no CSS or JS | A Python `http.server` launch entry (since removed) |
+| A `tx` around `createUser` in `createOrganization` | `tx` uses `BEGIN IMMEDIATE`, which does not nest | Create the user first, then the settings |
+| `settings.ts` and `seed.ts` importing each other | A circular import | The seed writes its two settings inline |
+| Clipboard counter with class `.left` (preview) | Collided with the panel's class | Renamed |
+| The sheet as a `min-h-0 flex-1` child | It overlapped the tiles and blocked clicks (e2e timeout) | The explainer drops beside the tiles; the sheet hides under 760px |
+| Reduced-motion fill via `animationend` | The slots showed empty in screenshots | Reduced motion starts the sheet finished |
+| Setting the "played once" flag during render | React lint error | Set in `useEffect` |
+| `21st` CLI search | Not signed in | The 21st MCP `search` / `get_inspiration` tools |
 
 ## 6. Specific next steps
 
-1. **Commit** the three groups in section 2, either as one commit or three. Then push if the user asks.
-2. **Try D by hand** with `npm --prefix app run dev`: fan the sign-up deck with the mouse, tilt the ticket, and review hours with the arrow keys. Only Playwright clicks have exercised these.
-3. **First-run setup:** offered, not answered. On a fresh database, ask for the org name and the first admin instead of seeding a public demo admin, and keep "Reset demo data" for the demo.
-4. **21st skills:** ask whether to remove the 6 unrequested ones from `~/.claude/skills`, `~/.cursor/skills` and `~/.codex/skills`. `21st-ui-build` may be worth keeping.
-5. **Delete the old prototype** (`app/src/renderer/prototypes/redesign/` and `redesign.html`). It has been superseded twice.
-6. **Setup-era files:** ask whether to delete `install.ps1` (a third-party installer), `test-env/`, `scripts/verify-setup.ps1` and `shadcn-registry.md`, and whether to stop tracking the dated `graphify-out/<date>/` snapshots (9 MB).
-7. **Optional:**
-   - Sign-up skills question (skills are worth 50 of 100 match points, and new volunteers have none).
-   - Drag-to-throw on the review stack (needs `motion`).
+1. **Commit** the first-run setup work as one commit, then push if the user asks.
+2. **The tsconfig decision:** change `ignoreDeprecations` to `"5.0"` (recommended) or upgrade TypeScript. Until then, `npm run typecheck` fails.
+3. **Try it by hand:**
+   - Start with a fresh data folder (`SERVEHUB_DATA_DIR`) to see Welcome.
+   - Create an organization and check the sidebar name.
+   - Try both example tiles.
+   - Look at the sign-up page in light mode, which wasn't checked.
+4. **Docs:** update `docs/architecture.md` for the setup flow (not touched this round), and offer to "update the floorplan".
+5. **Still open from earlier:**
+   - Remove the old prototype at `app/src/renderer/prototypes/redesign/` and the setup-era files (`install.ps1`, `test-env/`, `scripts/verify-setup.ps1`, `shadcn-registry.md`).
+   - Whether to keep tracking the dated `graphify-out/<date>/` snapshots.
+   - The 6 unrequested 21st skills.
+   - Drag-to-throw on the real review stack (it needs `motion`, or the hand-written spring from the deleted prototype).
    - A backend "undo review" endpoint.
-   - A screen-reader pass on the deck and the stack.
-8. **Still open from earlier:**
-   - the rederive FBLA prep ("Why did you build ServeHub?");
-   - the "Needs your answer" items in `docs/design-taste.md`;
-   - adding the floorplan note to `CLAUDE.local.md`.
-9. **After code edits:** run `graphify update .`. After larger changes, offer to "update the floorplan".
+   - A screen-reader pass on the deck, the stack and the Welcome tiles.
+   - The rederive FBLA prep.
+6. **After code edits:** run `graphify update .`.

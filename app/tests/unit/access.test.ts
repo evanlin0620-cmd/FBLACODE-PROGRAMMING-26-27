@@ -51,7 +51,7 @@ describe('role-based access', () => {
 
   it('stores the organization name an admin sets, for everyone', () => {
     const w = makeWorld()
-    expect(settings.orgName(w.as(null))).toBe('Riverside Community Partners')
+    expect(settings.orgName(w.as(null))).toBe('Your organization') // nothing saved yet: setup always saves one
     expect(settings.setOrgName(w.as(w.admin), { name: '  Hope Street Food Bank ' })).toBe('Hope Street Food Bank')
     expect(settings.orgName(w.as(null))).toBe('Hope Street Food Bank')
     expect(() => settings.setOrgName(w.as(w.admin), { name: 'x' })).toThrow(/fix the highlighted/)

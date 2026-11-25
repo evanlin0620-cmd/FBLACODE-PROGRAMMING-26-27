@@ -51,6 +51,10 @@ const handlers: Handlers = {
   },
   'auth.createAdmin': (ctx, input) => auth.createAdmin(ctx, input),
 
+  'setup.status': (ctx) => settings.setupStatus(ctx),
+  'setup.create': (ctx, input) => (session = settings.createOrganization(ctx, input)),
+  'setup.example': (ctx) => settings.loadExample(ctx),
+
   'activities.preview': (ctx) => activities.previewActivities(ctx),
   'activities.list': (ctx, f) => activities.listActivities(ctx, f),
   'activities.get': (ctx, id) => activities.getActivity(ctx, id),
@@ -117,6 +121,7 @@ const handlers: Handlers = {
 
   'demo.reset': (ctx) => {
     requireAdmin(ctx)
+    if (!settings.setupStatus(ctx).example) throw new AppError('FORBIDDEN', 'Demo data can only be reset in the example organization.')
     seedDemo(ctx.db)
     session = null // everyone's ids changed, so log out
     return null

@@ -9,11 +9,12 @@ import { pathToFileURL } from 'url'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 import { openDb } from './db'
-import { seedDemo } from './db/seed'
+import { migrateLegacyInstall } from './services/settings'
 import { registerIpc } from './ipc'
 
 // Tests point this at a temp folder so they never touch real data.
-if (process.env.SERVEHUB_DATA_DIR) app.setPath('userData', process.env.SERVEHUB_DATA_DIR)
+// The app was called ServeHub; keep its data folder so renaming never strands an install's database.
+app.setPath('userData', process.env.SERVEHUB_DATA_DIR || join(app.getPath('appData'), 'ServeHub'))
 
 function createWindow(): void {
   const mainWindow = new BrowserWindow({
@@ -24,8 +25,8 @@ function createWindow(): void {
     show: false,
     autoHideMenuBar: true,
     backgroundColor: '#111111', // graphite canvas, so the window never flashes white before the first paint
-    title: 'ServeHub',
-    ...(process.platform === 'linux' ? { icon } : {}),
+    title: 'Turnout',
+    icon,
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
       contextIsolation: true, // the UI can't reach into the preload script
@@ -78,11 +79,11 @@ app.whenReady().then(() => {
 
   try {
     const db = openDb(join(app.getPath('userData'), 'servehub.db'))
-    const isEmpty = !(db.prepare('SELECT 1 FROM users LIMIT 1').get() as unknown)
-    if (isEmpty) seedDemo(db)
+    // A fresh install starts empty and opens on first-run setup; older installs were demo-seeded.
+    migrateLegacyInstall(db)
     registerIpc(db, isAppUrl)
   } catch (err) {
-    dialog.showErrorBox('ServeHub could not start', `The database could not be opened.\n\n${String(err)}`)
+    dialog.showErrorBox('Turnout could not start', `The database could not be opened.\n\n${String(err)}`)
     app.quit()
     return
   }

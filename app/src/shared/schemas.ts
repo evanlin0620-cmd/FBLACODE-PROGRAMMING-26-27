@@ -50,6 +50,11 @@ export const signupSchema = z
 export const createAdminSchema = z.object({ fullName: name, email, password })
 export const orgNameSchema = z.object({ name })
 
+/** First-run setup: the nonprofit's name and its first coordinator. */
+export const setupSchema = z
+  .object({ orgName: name, fullName: name, email, password, confirmPassword: z.string() })
+  .refine((v) => v.password === v.confirmPassword, { message: 'Passwords do not match', path: ['confirmPassword'] })
+
 export const availabilitySchema = z
   .object({
     weekday: z.number().int().min(0).max(6),
@@ -154,6 +159,7 @@ export const certificateCodeSchema = z
 export type LoginInput = z.infer<typeof loginSchema>
 export type SignupInput = z.infer<typeof signupSchema>
 export type CreateAdminInput = z.infer<typeof createAdminSchema>
+export type SetupInput = z.infer<typeof setupSchema>
 export type ProfileInput = z.infer<typeof profileSchema>
 export type ActivityInput = z.infer<typeof activitySchema>
 export type ActivityFilter = z.infer<typeof activityFilterSchema>

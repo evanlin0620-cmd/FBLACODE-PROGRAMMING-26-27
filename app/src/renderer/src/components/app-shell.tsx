@@ -15,7 +15,6 @@ import {
   ClipboardCheck,
   Clock,
   FileText,
-  Heart,
   History,
   Home,
   LogOut,
@@ -35,6 +34,7 @@ import { api } from '@/lib/api'
 import { fmtDay, initials, today } from '@/lib/format'
 import { TYPE_STYLE } from '@/lib/activity-style'
 import { cn } from '@/lib/utils'
+import { BrandMark } from '@/components/brand-mark'
 import type { Activity } from '@shared/types'
 
 interface NavItem {
@@ -169,11 +169,9 @@ export function AppShell(): React.JSX.Element {
     <div className="flex h-svh" data-app-frame>
       <aside className="flex w-60 shrink-0 flex-col border-r bg-sidebar" data-print-hide>
         <div className="flex h-14 shrink-0 items-center gap-2.5 px-5">
-          <span className="grid size-6 place-items-center rounded-md bg-foreground text-background">
-            <Heart className="size-3.5" strokeWidth={2} aria-hidden />
-          </span>
+          <BrandMark size={24} />
           <span className="min-w-0">
-            <span className="block text-[15px] leading-tight font-medium">ServeHub</span>
+            <span className="block text-[15px] leading-tight font-medium">Turnout</span>
             <span className="block truncate text-xs leading-tight text-muted-foreground" title={org}>
               {org}
             </span>

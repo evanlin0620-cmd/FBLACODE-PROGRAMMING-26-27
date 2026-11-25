@@ -25,7 +25,7 @@ export function NotificationsPage(): React.JSX.Element {
     <>
       <PageHeader
         title="Notifications"
-        subtitle="Every email ServeHub would send you. It all stays on this computer."
+        subtitle="Every email Turnout would send you. It all stays on this computer."
         actions={
           unread > 0 && (
             <Button

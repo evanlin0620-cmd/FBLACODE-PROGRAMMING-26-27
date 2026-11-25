@@ -19,7 +19,7 @@ export function CertificateView({ cert, className }: { cert: Certificate; classN
         </span>
         <div className="leading-tight">
           <p className="font-semibold">{cert.organization}</p>
-          <p className="text-xs text-zinc-600">via ServeHub</p>
+          <p className="text-xs text-zinc-600">via Turnout</p>
         </div>
       </div>
       <h2 className="mt-8 font-serif text-4xl">Community Service Certificate</h2>

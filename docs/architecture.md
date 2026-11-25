@@ -1,6 +1,6 @@
-# ServeHub architecture
+# Turnout architecture
 
-ServeHub is an offline desktop app (Electron) for one nonprofit's volunteer program.
+Turnout is an offline desktop app (Electron) for one nonprofit's volunteer program.
 Everything runs on one computer: the UI, the backend logic and a local SQLite file.
 There is no server and no network traffic; "emails" are rows in a simulated outbox.
 

@@ -6,8 +6,18 @@
 
 export type Role = 'volunteer' | 'admin'
 
-/** The organization name until an admin sets one in Settings (the demo nonprofit). */
-export const ORGANIZATION = 'Riverside Community Partners'
+/** The made-up nonprofit behind the example data. Shown only while the example is loaded. */
+export const EXAMPLE_ORGANIZATION = 'Riverside Community Partners'
+
+/** Shown only if no name was ever saved (first-run setup always saves one). */
+export const DEFAULT_ORGANIZATION = 'Your organization'
+
+/** What the first screen needs: whether this install still has to be set up, and whether it holds example data. */
+export interface SetupStatus {
+  needed: boolean
+  example: boolean
+  orgName: string
+}
 
 /** Categories an activity can belong to. Also used as volunteer "interests". */
 export const ACTIVITY_TYPES = [

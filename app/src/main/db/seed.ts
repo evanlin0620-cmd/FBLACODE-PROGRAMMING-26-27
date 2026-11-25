@@ -10,6 +10,7 @@
 import { run, tx, type Db } from './index'
 import { hashPassword } from '../services/auth'
 import { prettyStamp, toStamp } from '@shared/time'
+import { EXAMPLE_ORGANIZATION } from '@shared/types'
 
 export const DEMO_ADMIN = { email: 'admin@servehub.test', password: 'ServeHub2026' }
 export const DEMO_VOLUNTEER = { email: 'maria@servehub.test', password: 'Volunteer2026' }
@@ -171,6 +172,10 @@ export function seedDemo(db: Db, now: Date = new Date()): void {
       })
     })
 
+    // The example is a made-up nonprofit: it carries its own name and is labelled as example data everywhere.
+    const put = "INSERT INTO settings (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value"
+    run(db, put, 'org_name', EXAMPLE_ORGANIZATION)
+    run(db, put, 'example_data', '1')
     run(db, 'INSERT INTO audit_log (actor_id, action, entity, entity_id, detail, at) VALUES (?, ?, ?, ?, ?, ?)', adminId, 'seed', 'system', null, 'Loaded demo data', nowStamp)
   })
 }

@@ -11,7 +11,7 @@ import { TooltipProvider } from '@/components/ui/tooltip'
 import { Button } from '@/components/ui/button'
 import { AppShell } from '@/components/app-shell'
 import { SessionProvider, useSession } from '@/lib/session'
-import { LoginPage, SignupPage } from '@/pages/auth'
+import { LoginPage, SignupPage, WelcomePage } from '@/pages/auth'
 import { VolunteerDashboard } from '@/pages/volunteer/dashboard'
 import { BrowseActivities } from '@/pages/volunteer/browse'
 import { ActivityDetail } from '@/pages/volunteer/activity-detail'
@@ -36,8 +36,16 @@ function home(role: Role | undefined): string {
 
 /** Only logged-out visitors see login/sign-up. Signing in lands here first, so it carries the dashboard's welcome entrance. */
 function PublicOnly(): React.JSX.Element {
-  const { user } = useSession()
-  return user ? <Navigate to={home(user.role)} replace state={{ welcome: true }} /> : <Outlet />
+  const { user, needsSetup } = useSession()
+  if (user) return <Navigate to={home(user.role)} replace state={{ welcome: true }} />
+  return needsSetup ? <Navigate to="/welcome" replace /> : <Outlet />
+}
+
+/** First-run setup: only while no account exists. */
+function SetupOnly(): React.JSX.Element {
+  const { user, needsSetup } = useSession()
+  if (user) return <Navigate to={home(user.role)} replace state={{ welcome: true }} />
+  return needsSetup ? <Outlet /> : <Navigate to="/login" replace />
 }
 
 /** Logged-in users with an allowed role see the app shell; everyone else is redirected. */
@@ -53,14 +61,26 @@ function Home(): React.JSX.Element {
   return <Navigate to={home(user?.role)} replace />
 }
 
-function FriendlyError({ message, onReset }: { message?: string; onReset: () => void }): React.JSX.Element {
+function FriendlyError({
+  message,
+  onReset
+}: {
+  message?: string
+  onReset: () => void
+}): React.JSX.Element {
   return (
     <main className="grid min-h-svh place-items-center p-8">
       <div role="alert" className="max-w-md text-center">
         <AlertTriangle className="mx-auto size-10 text-warning" aria-hidden />
         <h1 className="mt-4 text-2xl font-semibold">Something went wrong on this screen</h1>
-        <p className="mt-2 text-muted-foreground">Your data is safe. Go back to your home page and try again.</p>
-        {message && <p className="mt-4 rounded-md bg-muted p-3 text-left font-mono text-xs text-muted-foreground">{message}</p>}
+        <p className="mt-2 text-muted-foreground">
+          Your data is safe. Go back to your home page and try again.
+        </p>
+        {message && (
+          <p className="mt-4 rounded-md bg-muted p-3 text-left font-mono text-xs text-muted-foreground">
+            {message}
+          </p>
+        )}
         <Button className="mt-6" onClick={onReset}>
           Back to home
         </Button>
@@ -108,6 +128,7 @@ const router = createHashRouter([
     errorElement: <RouteError />,
     children: [
       { path: '/', element: <Home /> },
+      { element: <SetupOnly />, children: [{ path: '/welcome', element: <WelcomePage /> }] },
       {
         element: <PublicOnly />,
         children: [

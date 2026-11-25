@@ -1,6 +1,6 @@
-# ServeHub
+# Turnout
 
-ServeHub is a volunteer management app for nonprofits, built for the FBLA Coding & Programming event (2026-27 topic: *Serving the Community: Nonprofit Volunteer Management*).
+Turnout is a volunteer management app for nonprofits, built for the FBLA Coding & Programming event (2026-27 topic: *Serving the Community: Nonprofit Volunteer Management*).
 
 Volunteers find shifts, sign up (or join a waitlist), log their hours, and download a service certificate. Coordinators create activities, approve hours, find volunteers by skill, and report on community impact. It's a Windows desktop app that runs fully offline and keeps its data in a local SQLite database.
 

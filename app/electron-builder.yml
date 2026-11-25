@@ -1,5 +1,5 @@
 appId: com.electron.app
-productName: app
+productName: Turnout
 directories:
   buildResources: build
 files:

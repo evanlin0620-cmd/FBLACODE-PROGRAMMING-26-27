@@ -14,7 +14,7 @@ web
 
 ## Product Purpose
 
-ServeHub helps a nonprofit recruit, schedule, and track volunteers in one place. A volunteer can find a shift that fits, sign up, and get credit for the hours. A coordinator can fill shifts and see the impact. For the competition, success means a judge watching the demo sees every part of the 2026-27 FBLA prompt working, without errors.
+Turnout helps a nonprofit recruit, schedule, and track volunteers in one place. A volunteer can find a shift that fits, sign up, and get credit for the hours. A coordinator can fill shifts and see the impact. For the competition, success means a judge watching the demo sees every part of the 2026-27 FBLA prompt working, without errors.
 
 ## Positioning
 
@@ -23,7 +23,7 @@ Shift matching that explains itself: each recommendation shows a match score and
 ## Operating Context
 
 - A Windows desktop app (Electron) that runs offline on a laptop with its own SQLite database. The demo runs on battery with no projector.
-- Demo nonprofit: Riverside Community Partners. It runs food bank, tutoring, environmental, animal care, senior care, health, fundraising, and event-support activities.
+- Any nonprofit sets Turnout up on first run (its name and first coordinator). Riverside Community Partners is only the example organization, loaded on request and labelled Example data, with demo accounts for both roles. It runs food bank, tutoring, environmental, animal care, senior care, health, fundraising, and event-support activities.
 - Two roles with strict separation. Volunteers see only their own records and the catalog. Admins see everything.
 
 ## Capabilities and Constraints
@@ -34,7 +34,7 @@ Shift matching that explains itself: each recommendation shows a match score and
 
 ## Brand Commitments
 
-- Name: ServeHub. Approved mockups are in Figma (file tJfyvE4fPnORzU8PZv0IHr), listed in ../docs/design/figma.md.
+- Name: Turnout (renamed from ServeHub on 2026-11-25; the demo accounts keep their @servehub.test addresses). Approved mockups are in Figma (file tJfyvE4fPnORzU8PZv0IHr), listed in ../docs/design/figma.md.
 - Voice: plain, short, friendly. No jargon. Errors say what to do next.
 
 ## Evidence on Hand

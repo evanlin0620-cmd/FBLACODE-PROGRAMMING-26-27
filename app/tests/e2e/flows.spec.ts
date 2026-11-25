@@ -5,9 +5,9 @@
 import { expect, test, type Page } from '@playwright/test'
 import { launch, shot } from './app'
 
+/** The example organization's accounts are one click each on the sign-in screen. */
 async function loginAs(page: Page, role: 'Volunteer' | 'Admin'): Promise<void> {
-  await page.getByRole('button', { name: role, exact: true }).click()
-  await page.getByRole('button', { name: 'Sign in' }).click()
+  await page.getByRole('button', { name: role === 'Volunteer' ? /^Try as a volunteer/ : /^Try as a coordinator/ }).click()
 }
 
 /** Occasional pages and log out live in the account menu. */

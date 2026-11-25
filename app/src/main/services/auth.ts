@@ -77,7 +77,7 @@ export function signup(ctx: Ctx, input: unknown): SessionUser {
     ctx.now(),
     user.id,
     'welcome',
-    'Welcome to ServeHub!',
+    'Welcome to Turnout!',
     `Hi ${user.fullName},\n\nThanks for joining. Add your skills and availability on your profile so we can recommend shifts that fit you.`
   )
   audit(ctx.db, ctx.now(), user.id, 'signup', 'user', user.id)

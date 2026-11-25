@@ -1,4 +1,4 @@
-# app/ — the ServeHub Electron app
+# app/ — the Turnout Electron app
 
 ## Commands (run from `app/`)
 

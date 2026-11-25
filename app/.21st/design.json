@@ -49,6 +49,16 @@
   },
   "decisions": [
     {
+      "date": "2026-11-23",
+      "decision": "Entry direction C \"Try it as...\" chosen over A (two doors) and B (setup wizard). First-run setup or one-click example roles on one screen; the left panel's sign-up sheet writes itself in once. Riverside is only the labelled example organization.",
+      "sources": [
+        "app/DESIGN.md",
+        "https://21st.dev/@dhxwhy/components/workspace-picker-login",
+        "https://21st.dev/@dqnamo/components/signature",
+        "https://21st.dev/@pmalay694/components/progress"
+      ]
+    },
+    {
       "date": "2026-11-17",
       "decision": "Direction D \"The deck\" chosen over A (sheet sharpened), B (front desk), C (year of service). Every shift is a card: activity-type tint bands, sign-up fan deck with live match scores, next-shift ticket, hour-log review stack, top tabs instead of a sidebar.",
       "sources": [
