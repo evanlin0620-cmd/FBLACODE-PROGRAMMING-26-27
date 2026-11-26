@@ -114,8 +114,14 @@ const handlers: Handlers = {
     // Prints whatever the window is showing (a report or a certificate) to a PDF file.
     return saveFile(`${safeName}.pdf`, [{ name: 'PDF', extensions: ['pdf'] }], async (path) => {
       const win = BrowserWindow.getFocusedWindow() ?? BrowserWindow.getAllWindows()[0]
-      const pdf = await win.webContents.printToPDF({ printBackground: true, pageSize: 'Letter' })
-      writeFileSync(path, pdf)
+      // Paper is white: print in the light theme even when the app is dark, then restore it.
+      const unDark = "document.documentElement.classList.contains('dark') && (document.documentElement.classList.remove('dark'), true)"
+      const wasDark = (await win.webContents.executeJavaScript(unDark)) === true
+      try {
+        writeFileSync(path, await win.webContents.printToPDF({ printBackground: true, pageSize: 'Letter' }))
+      } finally {
+        if (wasDark) await win.webContents.executeJavaScript("document.documentElement.classList.add('dark')")
+      }
     })
   },
   'certificates.issue': (ctx, volunteerId) => reports.issueCertificate(ctx, volunteerId),

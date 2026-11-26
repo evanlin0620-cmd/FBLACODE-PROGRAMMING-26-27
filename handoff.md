@@ -100,6 +100,10 @@ All paths are under `app/src/` unless another root is shown.
 - Welcome: tally stroke (`animate-strike`) after the last name lands.
 - `docs/demo-script.md`; e2e now covers the calendar save (stubbed dialog), the reminder, and an invite to Creek Cleanup.
 
+**Entries ledger (2026-11-25, uncommitted)**
+- Reports "All entries" is now a month-grouped ledger (`EntryLedger`, `TypeMark`), chosen from `app/src/renderer/prototypes/entries.html` with the impeccable and emil-design-eng skills.
+- Fixed a pre-existing bug: PDFs saved in dark theme printed dark cards with invisible titles. `reports.savePdf` now drops the dark class for the print and restores it.
+
 ## 6. Specific next steps
 
 1. **Commit** the first-run setup work as one commit, then push if the user asks.

@@ -251,6 +251,9 @@ A 112px SVG ring (10px stroke, round caps): approved in green, waiting in pale g
 ### Dealt for you (recommendations)
 Up to three cards: the band with "N% match", "Best match for you" on the first, title and time, the strongest factor's note, then all three factor scores (Skills, Availability, Interest), slot marks and Sign up. Under three matches, a dashed "Nothing else fits you well right now" card fills the gap. An info tooltip explains the 100-point score.
 
+### Entries ledger (Reports "All entries")
+`EntryLedger` in pages/admin/reports.tsx, chosen 2026-11-25 from three directions (prototypes/entries.html: Ledger, By volunteer, Stubs). Entries are grouped by month under a hairline header with the month in Title type and "N entries · H h" in muted mono-free label text. Each row: `TypeMark` (components/activity.tsx, the type's tint and Lucide mark in a 28px 8px-radius tile), the activity title with "volunteer · type" under it in muted, the date in mono 11px (`fmtDay`), and the hours right-aligned in tabular 500 with a muted "h". Hover is a 4% ink fill (150ms); no entrance motion, since people read it. Rows avoid page breaks when printed. Saving a PDF always prints in the light theme (ipc `reports.savePdf`).
+
 ### Add to calendar
 `CalendarButton` (components/activity.tsx): outline, small, CalendarPlus icon, on My shifts rows and the activity page once signed up. On the next-shift ticket it is a quiet white ghost button in the top row. Saves an .ics file and confirms with a toast showing the path.
 

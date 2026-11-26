@@ -144,9 +144,9 @@
     "semantic_hash": ""
   },
   "app/src/main/ipc.ts": {
-    "mtime": 1795656439.178172,
-    "seen": 1795656916.0239713,
-    "ast_hash": "b5c563f1c33ef70b8d35cf3e3eccc79b",
+    "mtime": 1795658063.8129191,
+    "seen": 1795658133.7304592,
+    "ast_hash": "37c1edbbf06489fd65e9588b1b36f04e",
     "semantic_hash": ""
   },
   "app/src/main/services/activities.ts": {
@@ -216,9 +216,9 @@
     "semantic_hash": ""
   },
   "app/src/renderer/src/components/activity.tsx": {
-    "mtime": 1795656512.5856726,
-    "seen": 1795656916.0240114,
-    "ast_hash": "ef33e3049f7481152ae0806c10bb8e7a",
+    "mtime": 1795657985.0240662,
+    "seen": 1795658133.7305033,
+    "ast_hash": "3e0b2f160d764206297be5e4bf7500be",
     "semantic_hash": ""
   },
   "app/src/renderer/src/components/app-shell.tsx": {
@@ -420,9 +420,9 @@
     "semantic_hash": ""
   },
   "app/src/renderer/src/pages/admin/reports.tsx": {
-    "mtime": 1795651821.8592956,
-    "seen": 1795652064.171819,
-    "ast_hash": "862bb1bd724aa8e8acab104a30f0917f",
+    "mtime": 1795657984.9631696,
+    "seen": 1795658133.730578,
+    "ast_hash": "52d162000a3d3c9e5e97ec3f85bdd305",
     "semantic_hash": ""
   },
   "app/src/renderer/src/pages/admin/system.tsx": {
@@ -624,9 +624,9 @@
     "semantic_hash": "76f935fbd0efc937a35c510dd193f7c4"
   },
   "app/DESIGN.md": {
-    "mtime": 1795656878.8746128,
-    "seen": 1795656916.0241654,
-    "ast_hash": "8c27d893a8d0e4af947e7f59beeee5f2",
+    "mtime": 1795658109.6964762,
+    "seen": 1795658133.730664,
+    "ast_hash": "285f88833d1d174f0022d8a7cbbe337b",
     "semantic_hash": ""
   },
   "app/PRODUCT.md": {
@@ -690,9 +690,9 @@
     "semantic_hash": ""
   },
   "handoff.md": {
-    "mtime": 1795656878.8756173,
-    "seen": 1795656916.0241838,
-    "ast_hash": "edee04635d04c22c9b447d9c2be79a28",
+    "mtime": 1795658109.6964762,
+    "seen": 1795658133.730684,
+    "ast_hash": "d42144d516c71a9184df0400089af4db",
     "semantic_hash": ""
   },
   "app/.impeccable/config.json": {
@@ -894,9 +894,9 @@
     "semantic_hash": ""
   },
   "app/tests/unit/fill-shift.test.ts": {
-    "mtime": 1795656512.6895823,
-    "seen": 1795656916.0241265,
-    "ast_hash": "81b357fd1833702c98b6bbaa8999ce73",
+    "mtime": 1795656971.354612,
+    "seen": 1795658133.7306259,
+    "ast_hash": "c9e92efa9eb19a1f50a7ee794de1a933",
     "semantic_hash": ""
   },
   "app/tests/unit/reminders.test.ts": {
@@ -909,6 +909,18 @@
     "mtime": 1795656862.2400014,
     "seen": 1795656916.024179,
     "ast_hash": "7da51024aab4d9baf0108724cf33baf8",
+    "semantic_hash": ""
+  },
+  "app/src/renderer/prototypes/entries/main.tsx": {
+    "mtime": 1795657754.6384404,
+    "seen": 1795658133.7304838,
+    "ast_hash": "ca8b4414a2319866d3d8e150b08652a7",
+    "semantic_hash": ""
+  },
+  "app/src/renderer/prototypes/entries.html": {
+    "mtime": 1795657732.7008994,
+    "seen": 1795658133.7306724,
+    "ast_hash": "b40084b5b5aa061fb1f173d79358b2ac",
     "semantic_hash": ""
   },
   "app/package-lock.json": {

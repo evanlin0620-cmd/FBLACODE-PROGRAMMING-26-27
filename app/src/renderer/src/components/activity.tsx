@@ -283,3 +283,23 @@ export function CalendarButton({
     </Button>
   )
 }
+
+/** The activity type's mark on its tint at row size: the same signature as the shift-card band. */
+export function TypeMark({
+  type,
+  size = 28
+}: {
+  type: ActivityType
+  size?: number
+}): React.JSX.Element {
+  const { tint, Icon } = TYPE_STYLE[type]
+  return (
+    <span
+      className="grid shrink-0 place-items-center rounded-lg text-white"
+      style={{ background: tint, width: size, height: size }}
+      aria-hidden
+    >
+      <Icon className="size-[55%]" strokeWidth={1.75} />
+    </span>
+  )
+}
