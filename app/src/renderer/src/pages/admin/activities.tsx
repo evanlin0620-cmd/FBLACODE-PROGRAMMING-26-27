@@ -1,13 +1,27 @@
 /** Admin activity list, plus the create/edit page with roster, cancel, and delete. */
 import { useState, type FormEvent } from 'react'
 import { Link, useNavigate, useParams } from 'react-router'
-import { ArrowLeft, CalendarPlus, Plus, Search, SearchX } from 'lucide-react'
+import { ArrowLeft, CalendarPlus, Check, Plus, Search, SearchX, Send } from 'lucide-react'
+import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Checkbox } from '@/components/ui/checkbox'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
+} from '@/components/ui/table'
 import { FieldGroup } from '@/components/ui/field'
 import {
   AlertDialog,
@@ -49,11 +63,22 @@ export function AdminActivities(): React.JSX.Element {
       <PageBody>
         <div className="mb-4 flex flex-wrap items-center gap-3" role="search">
           <div className="relative w-[320px]">
-            <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" aria-hidden />
-            <Input data-page-search aria-label="Search activities" className="pl-9" placeholder="Search by name or place" value={q} onChange={(e) => setQ(e.target.value)} />
+            <Search
+              className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"
+              aria-hidden
+            />
+            <Input
+              data-page-search
+              aria-label="Search activities"
+              className="pl-9"
+              placeholder="Search by name or place"
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+            />
           </div>
           <label className="flex items-center gap-2 text-sm">
-            <Checkbox checked={includePast} onCheckedChange={(c) => setIncludePast(!!c)} /> Show past activities
+            <Checkbox checked={includePast} onCheckedChange={(c) => setIncludePast(!!c)} /> Show
+            past activities
           </label>
         </div>
         <Loader query={list} skeleton="table">
@@ -62,7 +87,9 @@ export function AdminActivities(): React.JSX.Element {
               <EmptyState
                 icon={q ? <SearchX /> : <CalendarPlus />}
                 title={q ? 'No activities match' : 'No upcoming activities'}
-                description={q ? 'Try a different search.' : 'Create the first one so volunteers can sign up.'}
+                description={
+                  q ? 'Try a different search.' : 'Create the first one so volunteers can sign up.'
+                }
                 action={
                   !q && (
                     <Button asChild>
@@ -84,9 +111,17 @@ export function AdminActivities(): React.JSX.Element {
                   </TableHeader>
                   <TableBody>
                     {rows.map((a) => (
-                      <TableRow key={a.id} className="cursor-pointer" onClick={() => navigate(`/admin/activities/${a.id}`)}>
+                      <TableRow
+                        key={a.id}
+                        className="cursor-pointer"
+                        onClick={() => navigate(`/admin/activities/${a.id}`)}
+                      >
                         <TableCell className="pl-4">
-                          <Link to={`/admin/activities/${a.id}`} className="font-medium hover:underline" onClick={(e) => e.stopPropagation()}>
+                          <Link
+                            to={`/admin/activities/${a.id}`}
+                            className="font-medium hover:underline"
+                            onClick={(e) => e.stopPropagation()}
+                          >
                             {a.title}
                           </Link>
                           <p className="text-xs text-muted-foreground">{a.type}</p>
@@ -145,11 +180,21 @@ const toDraft = (a?: Activity): Draft => ({
   skillIds: a?.skills.map((s) => s.id) ?? []
 })
 
-function ActivityForm({ activity, skills, onSaved }: { activity?: Activity; skills: Skill[]; onSaved?: () => void }): React.JSX.Element {
+function ActivityForm({
+  activity,
+  skills,
+  onSaved
+}: {
+  activity?: Activity
+  skills: Skill[]
+  onSaved?: () => void
+}): React.JSX.Element {
   const navigate = useNavigate()
   const [d, setD] = useState<Draft>(() => toDraft(activity))
   const create = useMutation('activities.create', { success: 'Activity created.' })
-  const update = useMutation('activities.update', { success: 'Changes saved. Signed-up volunteers were notified of any time change.' })
+  const update = useMutation('activities.update', {
+    success: 'Changes saved. Signed-up volunteers were notified of any time change.'
+  })
   const m = activity ? update : create
   const e = m.fieldErrors
   const set = <K extends keyof Draft>(k: K, v: Draft[K], field: string = k): void => {
@@ -178,13 +223,25 @@ function ActivityForm({ activity, skills, onSaved }: { activity?: Activity; skil
     <form onSubmit={submit} noValidate>
       <FieldGroup className="gap-4">
         <FormField label="Activity name" error={e.title}>
-          {(p) => <Input {...p} value={d.title} onChange={(ev) => set('title', ev.target.value)} placeholder="e.g. Saturday Food Pantry Sort" />}
+          {(p) => (
+            <Input
+              {...p}
+              value={d.title}
+              onChange={(ev) => set('title', ev.target.value)}
+              placeholder="e.g. Saturday Food Pantry Sort"
+            />
+          )}
         </FormField>
         <div className="grid gap-4 sm:grid-cols-2">
           <FormField label="Type" error={e.type}>
             {(p) => (
               <Select value={d.type} onValueChange={(v) => set('type', v)}>
-                <SelectTrigger id={p.id} aria-invalid={p['aria-invalid']} aria-describedby={p['aria-describedby']} className="w-full">
+                <SelectTrigger
+                  id={p.id}
+                  aria-invalid={p['aria-invalid']}
+                  aria-describedby={p['aria-describedby']}
+                  className="w-full"
+                >
                   <SelectValue placeholder="Pick a type" />
                 </SelectTrigger>
                 <SelectContent>
@@ -197,26 +254,76 @@ function ActivityForm({ activity, skills, onSaved }: { activity?: Activity; skil
               </Select>
             )}
           </FormField>
-          <FormField label="Volunteer slots" error={e.capacity} hint="When it’s full, new sign-ups join a waitlist.">
-            {(p) => <Input {...p} type="number" min={1} max={500} className="tabular" value={d.capacity} onChange={(ev) => set('capacity', ev.target.value)} />}
+          <FormField
+            label="Volunteer slots"
+            error={e.capacity}
+            hint="When it’s full, new sign-ups join a waitlist."
+          >
+            {(p) => (
+              <Input
+                {...p}
+                type="number"
+                min={1}
+                max={500}
+                className="tabular"
+                value={d.capacity}
+                onChange={(ev) => set('capacity', ev.target.value)}
+              />
+            )}
           </FormField>
         </div>
         <FormField label="Location" error={e.location}>
-          {(p) => <Input {...p} value={d.location} onChange={(ev) => set('location', ev.target.value)} placeholder="e.g. Riverside Food Pantry, 220 Mill St" />}
+          {(p) => (
+            <Input
+              {...p}
+              value={d.location}
+              onChange={(ev) => set('location', ev.target.value)}
+              placeholder="e.g. Riverside Food Pantry, 220 Mill St"
+            />
+          )}
         </FormField>
         <div className="grid gap-4 sm:grid-cols-3">
           <FormField label="Date" error={e.startAt}>
-            {(p) => <Input {...p} type="date" value={d.date} onChange={(ev) => set('date', ev.target.value, 'startAt')} />}
+            {(p) => (
+              <Input
+                {...p}
+                type="date"
+                value={d.date}
+                onChange={(ev) => set('date', ev.target.value, 'startAt')}
+              />
+            )}
           </FormField>
           <FormField label="Start time">
-            {(p) => <Input {...p} type="time" value={d.start} onChange={(ev) => set('start', ev.target.value, 'startAt')} />}
+            {(p) => (
+              <Input
+                {...p}
+                type="time"
+                value={d.start}
+                onChange={(ev) => set('start', ev.target.value, 'startAt')}
+              />
+            )}
           </FormField>
           <FormField label="End time" error={e.endAt}>
-            {(p) => <Input {...p} type="time" value={d.end} onChange={(ev) => set('end', ev.target.value, 'endAt')} />}
+            {(p) => (
+              <Input
+                {...p}
+                type="time"
+                value={d.end}
+                onChange={(ev) => set('end', ev.target.value, 'endAt')}
+              />
+            )}
           </FormField>
         </div>
         <FormField label="Description" error={e.description}>
-          {(p) => <Textarea {...p} rows={4} value={d.description} onChange={(ev) => set('description', ev.target.value)} placeholder="What volunteers will do and what to bring" />}
+          {(p) => (
+            <Textarea
+              {...p}
+              rows={4}
+              value={d.description}
+              onChange={(ev) => set('description', ev.target.value)}
+              placeholder="What volunteers will do and what to bring"
+            />
+          )}
         </FormField>
         <fieldset>
           <legend className="mb-2 text-sm font-medium">Skills that help (optional)</legend>
@@ -228,7 +335,12 @@ function ActivityForm({ activity, skills, onSaved }: { activity?: Activity; skil
               >
                 <Checkbox
                   checked={d.skillIds.includes(s.id)}
-                  onCheckedChange={(c) => set('skillIds', c ? [...d.skillIds, s.id] : d.skillIds.filter((x) => x !== s.id))}
+                  onCheckedChange={(c) =>
+                    set(
+                      'skillIds',
+                      c ? [...d.skillIds, s.id] : d.skillIds.filter((x) => x !== s.id)
+                    )
+                  }
                 />
                 {s.name}
               </label>
@@ -254,7 +366,10 @@ export function NewActivity(): React.JSX.Element {
   const skills = useQuery('skills.list')
   return (
     <>
-      <PageHeader title="New activity" subtitle="Volunteers can sign up as soon as you create it." />
+      <PageHeader
+        title="New activity"
+        subtitle="Volunteers can sign up as soon as you create it."
+      />
       <PageBody className="max-w-[760px]">
         <Loader query={skills} skeleton="form">
           {(s) => (
@@ -268,12 +383,23 @@ export function NewActivity(): React.JSX.Element {
   )
 }
 
-function DangerZone({ activity, onChanged }: { activity: Activity; onChanged: () => void }): React.JSX.Element {
-  const cancel = useMutation('activities.cancel', { success: 'Activity cancelled. Everyone signed up was notified.' })
+function DangerZone({
+  activity,
+  onChanged
+}: {
+  activity: Activity
+  onChanged: () => void
+}): React.JSX.Element {
+  const cancel = useMutation('activities.cancel', {
+    success: 'Activity cancelled. Everyone signed up was notified.'
+  })
   const del = useMutation('activities.delete', { success: 'Activity deleted.' })
   const navigate = useNavigate()
   return (
-    <Panel title="Cancel or delete" description="Cancelling keeps the history. Deleting removes it completely and isn’t allowed once hours are logged.">
+    <Panel
+      title="Cancel or delete"
+      description="Cancelling keeps the history. Deleting removes it completely and isn’t allowed once hours are logged."
+    >
       <div className="flex flex-wrap gap-2">
         <AlertDialog>
           <AlertDialogTrigger asChild>
@@ -285,12 +411,17 @@ function DangerZone({ activity, onChanged }: { activity: Activity; onChanged: ()
             <AlertDialogHeader>
               <AlertDialogTitle>Cancel {activity.title}?</AlertDialogTitle>
               <AlertDialogDescription>
-                {fmtCount(activity.confirmed + activity.waitlisted)} signed-up volunteers will get a cancellation email. The activity stays in your records.
+                {fmtCount(activity.confirmed + activity.waitlisted)} signed-up volunteers will get a
+                cancellation email. The activity stays in your records.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
               <AlertDialogCancel>Keep it</AlertDialogCancel>
-              <AlertDialogAction onClick={async () => (await cancel.run(activity.id)) && onChanged()}>Cancel activity</AlertDialogAction>
+              <AlertDialogAction
+                onClick={async () => (await cancel.run(activity.id)) && onChanged()}
+              >
+                Cancel activity
+              </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
@@ -301,7 +432,9 @@ function DangerZone({ activity, onChanged }: { activity: Activity; onChanged: ()
           <AlertDialogContent>
             <AlertDialogHeader>
               <AlertDialogTitle>Delete {activity.title}?</AlertDialogTitle>
-              <AlertDialogDescription>This removes the activity and its sign-ups for good. It can’t be undone.</AlertDialogDescription>
+              <AlertDialogDescription>
+                This removes the activity and its sign-ups for good. It can’t be undone.
+              </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
               <AlertDialogCancel>Keep it</AlertDialogCancel>
@@ -317,6 +450,71 @@ function DangerZone({ activity, onChanged }: { activity: Activity; onChanged: ()
           </AlertDialogContent>
         </AlertDialog>
       </div>
+    </Panel>
+  )
+}
+
+/**
+ * Fill-a-shift assist: while a shift has open spots, the best-matched volunteers who haven't signed up, each with
+ * their match and the main reason, and a one-click invite (sent to their notifications and the outbox).
+ */
+function SuggestedVolunteers({ activityId }: { activityId: number }): React.JSX.Element {
+  const q = useQuery('volunteers.suggest', activityId)
+  const invite = useMutation('volunteers.invite')
+  return (
+    <Panel
+      title="Suggested volunteers"
+      description="Strong matches who haven’t signed up yet, scored on skills, free times and interests."
+    >
+      <Loader query={q} skeleton="table">
+        {(list) =>
+          list.length === 0 ? (
+            <p className="text-sm text-muted-foreground">
+              Nobody else is a 50% match or better right now.
+            </p>
+          ) : (
+            <ol className="divide-y">
+              {list.map((v) => (
+                <li key={v.userId} className="flex items-center justify-between gap-3 py-2.5">
+                  <div className="min-w-0">
+                    <Link
+                      to={`/admin/volunteers/${v.userId}`}
+                      className="block truncate text-sm font-medium hover:underline"
+                    >
+                      {v.fullName}
+                    </Link>
+                    <p className="truncate text-xs text-muted-foreground">
+                      <span className="text-text-2 tabular-nums">{v.score}% match</span> · {v.note}
+                    </p>
+                  </div>
+                  {v.invited ? (
+                    <span className="flex shrink-0 items-center gap-1 text-xs text-muted-foreground">
+                      <Check className="size-3.5" aria-hidden /> Invited
+                    </span>
+                  ) : (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      disabled={invite.pending}
+                      aria-label={`Invite ${v.fullName}`}
+                      onClick={async () => {
+                        if ((await invite.run({ activityId, userId: v.userId })) === undefined)
+                          return
+                        toast.success(`Invite sent to ${v.fullName}.`, {
+                          description: 'It’s in their notifications and the email outbox.'
+                        })
+                        q.reload()
+                      }}
+                    >
+                      <Send aria-hidden /> Invite
+                    </Button>
+                  )}
+                </li>
+              ))}
+            </ol>
+          )
+        }
+      </Loader>
     </Panel>
   )
 }
@@ -342,7 +540,11 @@ export function ManageActivity(): React.JSX.Element {
     <>
       <PageHeader
         title={activity.data?.title ?? 'Activity'}
-        subtitle={activity.data ? `${fmtDay(activity.data.startAt)} · ${fmtRange(activity.data.startAt, activity.data.endAt)}` : undefined}
+        subtitle={
+          activity.data
+            ? `${fmtDay(activity.data.startAt)} · ${fmtRange(activity.data.startAt, activity.data.endAt)}`
+            : undefined
+        }
         actions={
           <Button variant="outline" asChild>
             <Link to="/admin/activities">
@@ -356,7 +558,12 @@ export function ManageActivity(): React.JSX.Element {
           {({ a, s }) => (
             <div className="grid gap-5 lg:grid-cols-[1fr_360px]">
               <div className="space-y-5">
-                <Panel title="Details" description={past ? 'This activity already happened, so it can’t be edited.' : undefined}>
+                <Panel
+                  title="Details"
+                  description={
+                    past ? 'This activity already happened, so it can’t be edited.' : undefined
+                  }
+                >
                   {past || a.status === 'cancelled' ? (
                     <dl className="grid grid-cols-[120px_1fr] gap-y-2 text-sm">
                       <dt className="text-muted-foreground">Type</dt>
@@ -367,35 +574,55 @@ export function ManageActivity(): React.JSX.Element {
                       <dd>{a.description}</dd>
                     </dl>
                   ) : (
-                    <ActivityForm key={a.id + a.startAt + a.capacity} activity={a} skills={s} onSaved={reloadAll} />
+                    <ActivityForm
+                      key={a.id + a.startAt + a.capacity}
+                      activity={a}
+                      skills={s}
+                      onSaved={reloadAll}
+                    />
                   )}
                 </Panel>
                 {!past && <DangerZone activity={a} onChanged={reloadAll} />}
               </div>
-              <Panel title="Roster">
-                <CapacityBar activity={a} className="mb-4" />
-                <Loader query={roster} skeleton="table">
-                  {(r) =>
-                    r.length === 0 ? (
-                      <p className="text-sm text-muted-foreground">Nobody has signed up yet.</p>
-                    ) : (
-                      <ol className="divide-y">
-                        {r.map((p) => (
-                          <li key={p.userId} className="flex items-center justify-between gap-3 py-2.5">
-                            <div className="min-w-0">
-                              <Link to={`/admin/volunteers/${p.userId}`} className="block truncate text-sm font-medium hover:underline">
-                                {p.fullName}
-                              </Link>
-                              <p className="truncate text-xs text-muted-foreground">{p.email}</p>
-                            </div>
-                            {p.status === 'confirmed' ? <Pill tone="green">Confirmed</Pill> : <Pill tone="amber">Waitlist #{p.position}</Pill>}
-                          </li>
-                        ))}
-                      </ol>
-                    )
-                  }
-                </Loader>
-              </Panel>
+              <div className="space-y-5">
+                <Panel title="Roster">
+                  <CapacityBar activity={a} className="mb-4" />
+                  <Loader query={roster} skeleton="table">
+                    {(r) =>
+                      r.length === 0 ? (
+                        <p className="text-sm text-muted-foreground">Nobody has signed up yet.</p>
+                      ) : (
+                        <ol className="divide-y">
+                          {r.map((p) => (
+                            <li
+                              key={p.userId}
+                              className="flex items-center justify-between gap-3 py-2.5"
+                            >
+                              <div className="min-w-0">
+                                <Link
+                                  to={`/admin/volunteers/${p.userId}`}
+                                  className="block truncate text-sm font-medium hover:underline"
+                                >
+                                  {p.fullName}
+                                </Link>
+                                <p className="truncate text-xs text-muted-foreground">{p.email}</p>
+                              </div>
+                              {p.status === 'confirmed' ? (
+                                <Pill tone="green">Confirmed</Pill>
+                              ) : (
+                                <Pill tone="amber">Waitlist #{p.position}</Pill>
+                              )}
+                            </li>
+                          ))}
+                        </ol>
+                      )
+                    }
+                  </Loader>
+                </Panel>
+                {a.status === 'open' && a.startAt > nowStamp() && a.confirmed < a.capacity && (
+                  <SuggestedVolunteers activityId={a.id} />
+                )}
+              </div>
             </div>
           )}
         </Loader>

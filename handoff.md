@@ -92,6 +92,14 @@ All paths are under `app/src/` unless another root is shown.
 | Setting the "played once" flag during render | React lint error | Set in `useEffect` |
 | `21st` CLI search | Not signed in | The 21st MCP `search` / `get_inspiration` tools |
 
+**Usefulness round (2026-11-25, uncommitted, with the count-up motion work)**
+- Decision: no three.js or landing page (offline desktop demo, no rubric credit). Plan: `~/.claude/plans/use-plan-help-me-agile-spindle-of-4ec55c17-dfbf-4420-97b2-0596eb25929d.md`.
+- Add to calendar: `shared/calendar.ts` (`toIcs`), `signups.calendarFile`, API `signups.calendar` (save dialog), `CalendarButton` on the ticket, My shifts and activity page.
+- Reminders: `signups.remindUpcoming` runs from the `auth.login` handler for volunteers; confirmed shifts in the next 7 days (not 72h: the example's next shift is 6 days out), once each via `signups.reminded_at`.
+- Fill-a-shift: `profiles.suggestVolunteers` / `inviteVolunteer` (in profiles.ts to avoid an activities↔profiles import cycle), new `invites` table, API `volunteers.suggest` / `volunteers.invite`, "Suggested volunteers" panel on the admin activity page.
+- Welcome: tally stroke (`animate-strike`) after the last name lands.
+- `docs/demo-script.md`; e2e now covers the calendar save (stubbed dialog), the reminder, and an invite to Creek Cleanup.
+
 ## 6. Specific next steps
 
 1. **Commit** the first-run setup work as one commit, then push if the user asks.

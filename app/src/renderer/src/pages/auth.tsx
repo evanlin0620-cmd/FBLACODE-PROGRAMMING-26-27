@@ -101,7 +101,7 @@ function Clipboard(): React.JSX.Element {
           ))}
         </ol>
         <div className="mt-3 flex items-center justify-between">
-          <span className="flex gap-[3px]">
+          <span className="relative flex gap-[3px]">
             {SHEET.map((_, i) => (
               <span
                 key={i}
@@ -116,6 +116,16 @@ function Clipboard(): React.JSX.Element {
                 />
               </span>
             ))}
+            {landed === NAMES.length && (
+              // The fifth stroke of a tally, as in the Turnout mark: once every name is in, the sheet is counted.
+              <span
+                aria-hidden
+                className={cn(
+                  'absolute top-1/2 left-[-3px] h-[2px] w-[39px] -translate-y-1/2 -rotate-[24deg] rounded-full bg-[#15803d]',
+                  play && 'animate-strike'
+                )}
+              />
+            )}
           </span>
           <span className="font-mono text-[11px] text-[#5e554a] tabular-nums">
             <span key={landed} className={cn('inline-block', play && landed > 0 && 'animate-tick')}>

@@ -18,13 +18,18 @@ import { useSession } from '@/lib/session'
 import { fmtCount, fmtDay, fmtHours, fmtMonth, today } from '@/lib/format'
 import { cn, entrance } from '@/lib/utils'
 import { smoothPath } from '@/lib/chart'
+import { CountUp } from '@/components/count-up'
 import type { HourLog } from '@shared/types'
 
-function Stat({ label, value, note, intro }: { label: string; value: string; note: string; intro?: ReturnType<typeof entrance> }): React.JSX.Element {
+/** A stat card. On the once-per-login entrance it rises in and its figure counts up with it. */
+function Stat({ label, value, note, intro, delay, rise }: { label: string; value: number; note: string; intro: boolean; delay: number; rise: number }): React.JSX.Element {
+  const enter = entrance(intro, delay, rise)
   return (
-    <div className={cn('h-full rounded-2xl border bg-card p-5', intro?.className)} style={intro?.style}>
+    <div className={cn('h-full rounded-2xl border bg-card p-5', enter.className)} style={enter.style}>
       <p className="text-sm text-text-2">{label}</p>
-      <p className="mt-2 text-[32px] leading-none font-medium tracking-[-0.02em] tabular-nums">{value}</p>
+      <p className="mt-2 text-[32px] leading-none font-medium tracking-[-0.02em] tabular-nums">
+        <CountUp value={value} format={fmtCount} intro={intro} delay={delay} />
+      </p>
       <p className="mt-2 text-xs text-muted-foreground">{note}</p>
     </div>
   )
@@ -390,7 +395,7 @@ export function ImpactDashboard(): React.JSX.Element {
                     action={sixMonthTotal > 0 && <span className="text-sm text-muted-foreground tabular-nums">{fmtHours(sixMonthTotal)} hours in 6 months</span>}
                   >
                     <p className="-mt-1 mb-4 text-[44px] leading-none font-medium tracking-[-0.02em] tabular-nums">
-                      {fmtHours(s.totalApprovedHours)}
+                      <CountUp value={s.totalApprovedHours} format={fmtHours} intro={w} delay={120} />
                       <span className="ml-2 text-sm font-normal tracking-normal text-muted-foreground">approved hours, all time</span>
                     </p>
                     {sixMonthTotal === 0 ? (
@@ -406,9 +411,9 @@ export function ImpactDashboard(): React.JSX.Element {
 
                 <div className="grid grid-cols-3 gap-4">
                   {/* Once per login, left to right in reading order; gaps shrink so it lands as one wave. */}
-                  <Stat label="Volunteers" value={fmtCount(s.volunteerCount)} note="With a Turnout account" intro={entrance(w, 0, 10)} />
-                  <Stat label="Upcoming activities" value={fmtCount(s.upcomingActivities)} note="Open and scheduled" intro={entrance(w, 40, 8)} />
-                  <Stat label="Waiting for approval" value={fmtCount(s.pendingApprovals)} note="Hour logs to review" intro={entrance(w, 70, 8)} />
+                  <Stat label="Volunteers" value={s.volunteerCount} note="With a Turnout account" intro={w} delay={0} rise={10} />
+                  <Stat label="Upcoming activities" value={s.upcomingActivities} note="Open and scheduled" intro={w} delay={40} rise={8} />
+                  <Stat label="Waiting for approval" value={s.pendingApprovals} note="Hour logs to review" intro={w} delay={70} rise={8} />
                 </div>
 
                 <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
@@ -418,14 +423,17 @@ export function ImpactDashboard(): React.JSX.Element {
                       <p className="text-sm text-muted-foreground">No approved hours yet.</p>
                     ) : (
                       <ol className="space-y-3">
-                        {s.topActivities.map((t) => (
+                        {s.topActivities.map((t, i) => (
                           <li key={t.title}>
                             <div className="flex justify-between gap-3 text-sm">
                               <span className="truncate">{t.title}</span>
                               <span className="text-text-2 tabular-nums">{fmtHours(t.hours)}</span>
                             </div>
                             <div className="mt-1.5 h-1 rounded-full bg-track" aria-hidden>
-                              <div className="h-full rounded-full bg-muted-foreground/60" style={{ width: `${(t.hours / topMax) * 100}%` }} />
+                              <div
+                                className={cn('h-full origin-left rounded-full bg-muted-foreground/60', w && 'animate-grow')}
+                                style={{ width: `${(t.hours / topMax) * 100}%`, animationDelay: w ? `${240 + i * 60}ms` : undefined }}
+                              />
                             </div>
                           </li>
                         ))}

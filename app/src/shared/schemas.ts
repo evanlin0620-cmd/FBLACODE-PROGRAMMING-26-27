@@ -149,6 +149,7 @@ export const reportFilterSchema = z
   .refine((f) => !f.from || !f.to || f.from <= f.to, { message: 'The start date must be before the end date', path: ['to'] })
 
 export const idSchema = z.number().int().positive()
+export const inviteSchema = z.object({ activityId: idSchema, userId: idSchema })
 export const idsSchema = z.array(z.number().int().positive())
 export const certificateCodeSchema = z
   .string()

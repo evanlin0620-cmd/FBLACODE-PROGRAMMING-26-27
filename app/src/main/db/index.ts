@@ -13,6 +13,9 @@ export function openDb(file: string): Db {
   db.exec('PRAGMA foreign_keys = ON;')
   if (file !== ':memory:') db.exec('PRAGMA journal_mode = WAL;')
   db.exec(SCHEMA)
+  // Databases created before shift reminders lack this column; CREATE IF NOT EXISTS won't add it.
+  const cols = db.prepare('PRAGMA table_info(signups)').all() as { name: string }[]
+  if (!cols.some((c) => c.name === 'reminded_at')) db.exec('ALTER TABLE signups ADD COLUMN reminded_at TEXT')
   return db
 }
 

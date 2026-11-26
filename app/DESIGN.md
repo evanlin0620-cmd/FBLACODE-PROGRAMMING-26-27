@@ -213,7 +213,8 @@ Motion explains a change; it never decorates. Curves: `ease-snappy` and `ease-gl
 - **Handled objects:** the sign-up deck fans out on hover or focus and a picked card lifts out and tucks in on top (300ms, transforms only). A reviewed hour log flies off left or right with a stamp (260ms). The next-shift ticket tilts up to 6° toward the pointer with a soft glare. All three stay still with reduced motion.
 - **Press feedback:** buttons scale to 0.97 for 150ms.
 - **List refreshes** (`withViewTransition`): rows with a `viewTransitionName` slide to their new place in 220ms.
-- **Once per login:** dashboard panels rise in a wave (0, 50, 90ms; 12/8/6px); the hours ring fills from zero (900ms, `animate-ring`); the Impact line draws left to right (900ms clip-path, `animate-draw`) and its value label appears after.
+- **Once per login:** dashboard panels rise in a wave (0, 50, 90ms; 12/8/6px); the hours ring fills from zero (900ms, `animate-ring`) while its number counts up with it; the Impact line draws left to right (900ms clip-path, `animate-draw`), the all-time hours count up beside it, and the value label appears after; the stat card figures count up as their cards rise; the Top activities bars grow from their left edge (700ms `animate-grow`, scale only, 60ms apart).
+- **Figures tween, never jump** (`components/count-up.tsx`): from zero on the entrance (900ms) and from the old value to the new one when it changes, such as approving an hour log (420ms). Ease-out quartic; screen readers get only the final value; reduced motion lands at once.
 - **Sign-in:** the clipboard settles in once (600ms, 4px blur to sharp, 12px rise).
 - **Tooltips:** the first waits 250ms; neighbours open instantly.
 - **The one celebration:** a new certificate prints top to bottom (700ms clip-path).
@@ -250,6 +251,12 @@ A 112px SVG ring (10px stroke, round caps): approved in green, waiting in pale g
 ### Dealt for you (recommendations)
 Up to three cards: the band with "N% match", "Best match for you" on the first, title and time, the strongest factor's note, then all three factor scores (Skills, Availability, Interest), slot marks and Sign up. Under three matches, a dashed "Nothing else fits you well right now" card fills the gap. An info tooltip explains the 100-point score.
 
+### Add to calendar
+`CalendarButton` (components/activity.tsx): outline, small, CalendarPlus icon, on My shifts rows and the activity page once signed up. On the next-shift ticket it is a quiet white ghost button in the top row. Saves an .ics file and confirms with a toast showing the path.
+
+### Suggested volunteers (admin activity page)
+Below the roster while a shift is upcoming with open spots: up to five volunteers at a 50% match or better who haven't signed up, each with "N% match" in text-2, the strongest reason in muted text, and an outline Invite button (Send icon) that becomes a muted "Invited" with a check. Same scoring and wording as the volunteer's own recommendations.
+
 ### Review stack (admin Impact)
 Pending hour logs, oldest first, as up to three stacked cards (volunteer, activity, date, note, hours in 40px). Approve (or the right arrow while the stack has focus) throws the top card right with an "Approved" stamp; Send back (or the left arrow) asks for a 5+ character reason, then throws it left. A "Just reviewed" list keeps the last five decisions. Approving refreshes the chart, the stats and the tab badge. No undo: the backend can't reverse a review.
 
@@ -262,7 +269,7 @@ Left: the paper panel with "Pick a shift. We'll hold your spot." and a fanned de
 ### Welcome (first-run setup) and sign-in
 Turnout is for any nonprofit. A fresh install opens on **Welcome** (direction C, chosen 2026-11-23): set up your organization (name, your name, email, password twice) or try the example organization as either role in one click. Once anyone has an account, Welcome is gone for good.
 
-Both screens share the left paper panel: the brand, the serif headline "Every shift's sign-up sheet, in one place", and the sign-up-sheet clipboard (one labelled image, paper in both themes because it is an object, not a surface). The sheet fills itself once per app session: each name writes in left to right at an even pen speed (`animate-write`, 560ms linear, 640ms apart), and the moment it lands its slot mark fills from the bottom and "spots left" ticks down (`animate-tick`). Then it rests; no loop. Reduced motion shows it finished.
+Both screens share the left paper panel: the brand, the serif headline "Every shift's sign-up sheet, in one place", and the sign-up-sheet clipboard (one labelled image, paper in both themes because it is an object, not a surface). The sheet fills itself once per app session: each name writes in left to right at an even pen speed (`animate-write`, 560ms linear, 640ms apart), and the moment it lands its slot mark fills from the bottom and "spots left" ticks down (`animate-tick`). Once the last name lands, a green tally stroke draws across the filled slot marks (`animate-strike`, 420ms clip-path, 160ms after), echoing the Turnout mark. Then it rests; no loop. Reduced motion shows it finished.
 
 While the example data is loaded, the bottom of the panel offers its accounts: "Riverside Community Partners" with an amber **Example data** tag, then "Try as a volunteer" (Maria Lopez) and "Try as a coordinator" (Dana Whitfield), each a tile on a paper-ink tint with an arrow that nudges 2px on hover. With them on offer, the explainer line drops; under 760px tall the sheet steps aside so the tiles and the form stay in view. A real organization's sign-in has no tiles and the explainer returns. Hidden under 768px wide. Right: the form on the card surface, with the org name in the sign-in subtitle.
 

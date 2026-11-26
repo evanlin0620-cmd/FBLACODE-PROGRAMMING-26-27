@@ -33,6 +33,7 @@ import type {
   Skill,
   VolunteerDashboard,
   VolunteerDetail,
+  VolunteerSuggestion,
   VolunteerSummary
 } from './types'
 
@@ -63,6 +64,7 @@ export interface ApiMap {
   'signups.join': { in: number; out: { status: SignupStatus; position: number | null } }
   'signups.cancel': { in: number; out: null }
   'signups.mine': { in: void; out: Activity[] }
+  'signups.calendar': { in: number; out: { saved: boolean; path?: string } }
 
   // Hours
   'hours.log': { in: LogHoursInput; out: HourLog }
@@ -76,6 +78,8 @@ export interface ApiMap {
   'profile.get': { in: void; out: Profile }
   'profile.update': { in: ProfileInput; out: Profile }
   'volunteers.search': { in: VolunteerSearch; out: VolunteerSummary[] }
+  'volunteers.suggest': { in: number; out: VolunteerSuggestion[] }
+  'volunteers.invite': { in: { activityId: number; userId: number }; out: null }
   'volunteers.get': { in: number; out: VolunteerDetail }
 
   // Dashboards and reports

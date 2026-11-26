@@ -4,7 +4,7 @@
  */
 import { useState } from 'react'
 import { Link } from 'react-router'
-import { CalendarDays, Clock, MapPin } from 'lucide-react'
+import { CalendarDays, CalendarPlus, Clock, MapPin } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import {
@@ -249,5 +249,37 @@ export function DateTile({ stamp }: { stamp: string }): React.JSX.Element {
       </span>
       <span className="block text-lg font-medium tabular-nums">{d.getDate()}</span>
     </div>
+  )
+}
+
+/** Saves one of the volunteer's own shifts as an .ics file for Outlook, Google or Apple Calendar. */
+export function CalendarButton({
+  activityId,
+  size = 'sm',
+  variant = 'outline',
+  className
+}: {
+  activityId: number
+  size?: 'default' | 'sm'
+  variant?: 'outline' | 'ghost'
+  className?: string
+}): React.JSX.Element {
+  const cal = useMutation('signups.calendar')
+  return (
+    <Button
+      variant={variant}
+      size={size}
+      className={className}
+      disabled={cal.pending}
+      onClick={async () => {
+        const r = await cal.run(activityId)
+        if (r?.saved)
+          toast.success('Calendar event saved. Open it to add the shift to your calendar.', {
+            description: r.path
+          })
+      }}
+    >
+      <CalendarPlus aria-hidden /> Add to calendar
+    </Button>
   )
 }

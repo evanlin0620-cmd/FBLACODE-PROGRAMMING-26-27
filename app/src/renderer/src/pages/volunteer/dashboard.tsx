@@ -5,12 +5,13 @@ import { CalendarDays, Check, Clock, Info, Sparkles } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { Loader, PageBody, PageHeader, EmptyState } from '@/components/page'
-import { SignupButton, TypeBand } from '@/components/activity'
+import { CalendarButton, SignupButton, TypeBand } from '@/components/activity'
 import { Slots } from '@/components/slots'
 import { useQuery, useWelcome } from '@/lib/hooks'
 import { fmtDay, fmtHours, fmtRange, spotsLabel } from '@/lib/format'
 import { typeGradient } from '@/lib/activity-style'
 import { cn, entrance } from '@/lib/utils'
+import { CountUp } from '@/components/count-up'
 import type { Activity, Recommendation } from '@shared/types'
 
 /** A card that tips toward the pointer. Stays flat for keyboard users and with reduced motion. */
@@ -61,7 +62,11 @@ function Ticket({ a, more }: { a: Activity; more: number }): React.JSX.Element {
           <span className="text-sm text-white/85">{d.toLocaleDateString('en-US', { weekday: 'long' })}</span>
         </div>
         <div className="flex min-w-0 flex-1 flex-col p-6">
-          <p className="font-mono text-[11px] text-white/85">Your next shift · {soon(a.startAt)}</p>
+          <div className="-mt-1.5 flex items-center justify-between gap-3">
+            <p className="font-mono text-[11px] text-white/85">Your next shift · {soon(a.startAt)}</p>
+            {/* On the ticket's colour band, so it reads as a quiet white action rather than a card button. */}
+            <CalendarButton activityId={a.id} variant="ghost" className="-mr-2 h-7 px-2 text-xs text-white/90 hover:bg-white/15 hover:text-white" />
+          </div>
           <h2 className="mt-1 font-serif text-[28px] leading-tight">
             <Link to={`/activities/${a.id}`} className="underline-offset-4 hover:underline">
               {a.title}
@@ -124,7 +129,9 @@ function HoursRing({ approved, pending, goal, intro }: { approved: number; pendi
         {p > a && arc(p, 'var(--pending-a)')}
         {a > 0 && arc(a, 'var(--primary)')}
       </svg>
-      <span className="text-3xl font-medium tabular-nums">{fmtHours(approved)}</span>
+      <span className="text-3xl font-medium tabular-nums">
+        <CountUp value={approved} format={fmtHours} intro={intro} delay={200} />
+      </span>
     </div>
   )
 }

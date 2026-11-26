@@ -67,6 +67,7 @@ CREATE TABLE IF NOT EXISTS signups (
   user_id     INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   status      TEXT NOT NULL CHECK (status IN ('confirmed', 'waitlisted', 'cancelled')),
   queued_at   TEXT NOT NULL,
+  reminded_at TEXT,
   UNIQUE (activity_id, user_id)
 );
 CREATE INDEX IF NOT EXISTS signups_by_activity ON signups (activity_id, status);
@@ -84,6 +85,15 @@ CREATE TABLE IF NOT EXISTS hour_logs (
   created_at  TEXT NOT NULL
 );
 CREATE INDEX IF NOT EXISTS hour_logs_by_status ON hour_logs (status);
+
+-- A coordinator inviting a well-matched volunteer to a shift; one invite per person per shift.
+CREATE TABLE IF NOT EXISTS invites (
+  activity_id INTEGER NOT NULL REFERENCES activities(id) ON DELETE CASCADE,
+  user_id     INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  invited_by  INTEGER REFERENCES users(id),
+  invited_at  TEXT NOT NULL,
+  PRIMARY KEY (activity_id, user_id)
+);
 
 -- The simulated email outbox. Every "email" the app would send is a row here.
 CREATE TABLE IF NOT EXISTS notifications (

@@ -107,7 +107,8 @@ export function Outbox(): React.JSX.Element {
                   ))}
                 </ul>
                 {open && (
-                  <article className="p-6" aria-label="Email preview">
+                  // Keyed by email so each pick fades in rather than swapping text in place; same quick fade as Help answers.
+                  <article key={open.id} className="animate-in p-6 duration-150 ease-snappy fade-in-0" aria-label="Email preview">
                     <dl className="grid grid-cols-[64px_1fr] gap-y-1 border-b pb-4 text-sm">
                       <dt className="text-muted-foreground">From</dt>
                       <dd>Turnout &lt;no-reply@turnout.test&gt;</dd>

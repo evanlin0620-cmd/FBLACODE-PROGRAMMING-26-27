@@ -43,7 +43,11 @@ async function saveFile(defaultName: string, filters: Electron.FileFilter[], wri
 
 const handlers: Handlers = {
   'auth.me': () => session,
-  'auth.login': (ctx, input) => (session = auth.login(ctx, input)),
+  'auth.login': (ctx, input) => {
+    session = auth.login(ctx, input)
+    if (session.role === 'volunteer') signups.remindUpcoming({ ...ctx, user: session })
+    return session
+  },
   'auth.signup': (ctx, input) => (session = auth.signup(ctx, input)),
   'auth.logout': () => {
     session = null
@@ -73,6 +77,10 @@ const handlers: Handlers = {
     return null
   },
   'signups.mine': (ctx) => signups.mySignups(ctx),
+  'signups.calendar': (ctx, id) => {
+    const file = signups.calendarFile(ctx, id) // ownership check before the dialog opens
+    return saveFile(file.name, [{ name: 'Calendar event', extensions: ['ics'] }], (path) => writeFileSync(path, file.text, 'utf8'))
+  },
 
   'hours.log': (ctx, input) => hours.logHours(ctx, input),
   'hours.mine': (ctx) => hours.myHours(ctx),
@@ -84,6 +92,11 @@ const handlers: Handlers = {
   'profile.get': (ctx) => profiles.getMyProfile(ctx),
   'profile.update': (ctx, input) => profiles.updateMyProfile(ctx, input),
   'volunteers.search': (ctx, input) => profiles.searchVolunteers(ctx, input),
+  'volunteers.suggest': (ctx, id) => profiles.suggestVolunteers(ctx, id),
+  'volunteers.invite': (ctx, input) => {
+    profiles.inviteVolunteer(ctx, input)
+    return null
+  },
   'volunteers.get': (ctx, id) => profiles.getVolunteer(ctx, id),
 
   'dashboard.volunteer': (ctx) => reports.volunteerDashboard(ctx),

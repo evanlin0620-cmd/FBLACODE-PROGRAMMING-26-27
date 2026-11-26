@@ -11,7 +11,8 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { ChartContainer, type ChartConfig } from '@/components/ui/chart'
+import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from '@/components/ui/chart'
+import { CountUp } from '@/components/count-up'
 import { ChartTable, EmptyState, Loader, PageBody, PageHeader, Panel } from '@/components/page'
 import { Meter } from '@/components/status'
 import { FormField } from '@/components/form'
@@ -168,14 +169,19 @@ export function Reports(): React.JSX.Element {
                   </p>
                 </div>
                 <div className="grid grid-cols-3 gap-4">
-                  {[
-                    ['Approved hours', fmtHours(r.totalHours)],
-                    ['Volunteers', fmtCount(r.volunteerCount)],
-                    ['Entries', fmtCount(r.rows.length)]
-                  ].map(([label, value]) => (
+                  {/* Figures count up on arrival and tween to the new totals when a filter changes. */}
+                  {(
+                    [
+                      ['Approved hours', r.totalHours, fmtHours],
+                      ['Volunteers', r.volunteerCount, fmtCount],
+                      ['Entries', r.rows.length, fmtCount]
+                    ] as const
+                  ).map(([label, value, format], i) => (
                     <div key={label} className="rounded-2xl border bg-card p-5">
-                      <p className="text-sm text-muted-foreground">{label}</p>
-                      <p className="mt-1 text-3xl font-semibold tabular">{value}</p>
+                      <p className="text-sm text-text-2">{label}</p>
+                      <p className="mt-2 text-[32px] leading-none font-medium tracking-[-0.02em] tabular-nums">
+                        <CountUp value={value} format={format} intro delay={i * 40} />
+                      </p>
                     </div>
                   ))}
                 </div>
@@ -191,6 +197,7 @@ export function Reports(): React.JSX.Element {
                           <BarChart data={r.byMonth.map((m) => ({ label: `${fmtMonth(m.month)} ’${m.month.slice(2, 4)}`, hours: m.hours }))} margin={{ top: 20 }} accessibilityLayer={false}>
                             <CartesianGrid vertical={false} />
                             <XAxis dataKey="label" tickLine={false} axisLine={false} tickMargin={8} />
+                            <ChartTooltip cursor={false} content={<ChartTooltipContent hideIndicator />} />
                             <Bar dataKey="hours" fill="var(--color-hours)" radius={5} isAnimationActive={false}>
                               <LabelList dataKey="hours" position="top" className="fill-foreground" fontSize={12} />
                             </Bar>
@@ -199,7 +206,7 @@ export function Reports(): React.JSX.Element {
                       </Panel>
                       <Panel title="Hours by activity type">
                         <ul className="space-y-3">
-                          {r.byType.map((t) => (
+                          {r.byType.map((t, i) => (
                             <li key={t.type}>
                               <div className="mb-1 flex justify-between text-sm">
                                 <span>{t.type}</span>
@@ -207,7 +214,7 @@ export function Reports(): React.JSX.Element {
                                   {fmtHours(t.hours)} h · {Math.round((t.hours / r.totalHours) * 100)}%
                                 </span>
                               </div>
-                              <Meter value={t.hours} max={r.totalHours} label={`${t.type} share of hours`} />
+                              <Meter value={t.hours} max={r.totalHours} label={`${t.type} share of hours`} introDelay={120 + i * 50} />
                             </li>
                           ))}
                         </ul>

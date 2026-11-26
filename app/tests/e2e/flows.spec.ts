@@ -3,6 +3,9 @@
  * screenshot of every screen to tests/e2e/screenshots/ (useful for slides too).
  */
 import { expect, test, type Page } from '@playwright/test'
+import { mkdtempSync, readFileSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
 import { launch, shot } from './app'
 
 /** The example organization's accounts are one click each on the sign-in screen. */
@@ -37,6 +40,15 @@ test('volunteer and admin flows', async () => {
   await expect(page.getByRole('heading', { level: 1, name: /^\w+ \d{4}$/ })).toBeVisible()
   await expect(page.getByText('Best match for you')).toBeVisible()
   await shot(page, '02-volunteer-dashboard')
+
+  // Add to calendar: the save dialog is stubbed in the main process so the .ics file is really written
+  const icsPath = join(mkdtempSync(join(tmpdir(), 'turnout-ics-')), 'shift.ics')
+  await app.evaluate(({ dialog }, path) => {
+    dialog.showSaveDialog = (async () => ({ canceled: false, filePath: path })) as typeof dialog.showSaveDialog
+  }, icsPath)
+  await page.getByRole('button', { name: 'Add to calendar' }).first().click()
+  await expect(page.getByText('Calendar event saved')).toBeVisible()
+  expect(readFileSync(icsPath, 'utf8')).toContain('BEGIN:VEVENT')
 
   // Browse + filter + waitlist
   await page.getByRole('link', { name: 'Find activities' }).first().click()
@@ -81,6 +93,7 @@ test('volunteer and admin flows', async () => {
   await shot(page, '09-profile')
   await page.getByRole('link', { name: 'Notifications' }).click()
   await expect(page.getByText('You’re on the waitlist: Website Refresh Sprint')).toBeVisible()
+  await expect(page.getByText(/^Coming up: /).first()).toBeVisible() // reminder created at sign-in
   await shot(page, '10-notifications')
   await page.getByRole('link', { name: 'Help & questions' }).click()
   await page.getByLabel('Ask a question').fill('how do i register for an event')
@@ -127,6 +140,14 @@ test('volunteer and admin flows', async () => {
   await expect(page.getByText('Enter at least 3 characters')).toBeVisible()
   await shot(page, '16-new-activity-errors')
 
+  // Fill-a-shift: an upcoming shift with open spots suggests matched volunteers to invite
+  await page.getByRole('link', { name: 'Activities' }).click()
+  await page.getByRole('row', { name: /Creek Cleanup/ }).click()
+  await expect(page.getByRole('heading', { name: 'Suggested volunteers' })).toBeVisible()
+  await page.getByRole('button', { name: /^Invite / }).first().click()
+  await expect(page.getByText(/^Invite sent to /)).toBeVisible()
+  await shot(page, '16b-suggested-volunteers')
+
   await page.getByRole('link', { name: 'Volunteers' }).click()
   await page.getByLabel('Search volunteers').fill('spanish')
   await expect(page.getByText('Grace Okafor')).toBeVisible()
@@ -139,6 +160,7 @@ test('volunteer and admin flows', async () => {
   await expect(page.getByText('All entries')).toBeVisible()
   await shot(page, '19-reports')
   await menu(page, 'Email outbox')
+  await expect(page.getByText(/^You’re invited: Creek Cleanup/).first()).toBeVisible()
   await shot(page, '20-outbox')
   await menu(page, 'Audit log')
   await expect(page.getByText('Approved hours').first()).toBeVisible()

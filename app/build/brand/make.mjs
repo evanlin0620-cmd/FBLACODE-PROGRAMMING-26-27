@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/explicit-function-return-type -- a plain Node script, not app code */
 // Turnout brand masters: four tally bars with the fifth stroke cut out as a 30° channel.
 // Run `node build/brand/make.mjs` to regenerate the SVG masters; icons are rendered from them.
 import { writeFileSync } from 'node:fs'

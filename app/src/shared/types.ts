@@ -146,6 +146,15 @@ export interface Factor {
   note: string
 }
 
+/** A volunteer who fits an activity with open spots, for the coordinator's "Suggested volunteers" list. */
+export interface VolunteerSuggestion {
+  userId: number
+  fullName: string
+  score: number // 0-100, same rules as a volunteer's own recommendations
+  note: string // the strongest reason, in the volunteer-facing wording
+  invited: boolean
+}
+
 export interface Recommendation {
   activity: Activity
   score: number // 0-100

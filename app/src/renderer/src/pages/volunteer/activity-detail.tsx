@@ -4,7 +4,7 @@ import { ArrowLeft } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Loader, PageBody, PageHeader, Panel } from '@/components/page'
 import { CapacityBar, Pill, SignupPill } from '@/components/status'
-import { SignupButton, WhenWhere } from '@/components/activity'
+import { CalendarButton, SignupButton, WhenWhere } from '@/components/activity'
 import { useQuery } from '@/lib/hooks'
 
 export function ActivityDetail(): React.JSX.Element {
@@ -47,6 +47,7 @@ export function ActivityDetail(): React.JSX.Element {
                 <CapacityBar activity={a} className="mt-5" />
                 <div className="mt-5 flex flex-wrap items-center gap-3">
                   {a.mySignup && <SignupPill status={a.mySignup} position={a.myWaitlistPosition} />}
+                  {a.mySignup && <CalendarButton activityId={a.id} size="default" />}
                   <SignupButton activity={a} onChange={q.reload} />
                 </div>
                 {a.mySignup === 'waitlisted' && (

@@ -4,10 +4,20 @@
  */
 import { all, one, run, tx, type Db } from '../db'
 import { AppError } from '@shared/errors'
-import { idSchema, profileSchema, volunteerSearchSchema } from '@shared/schemas'
-import type { ActivityType, Profile, Skill, VolunteerDetail, VolunteerSummary } from '@shared/types'
+import { idSchema, inviteSchema, profileSchema, volunteerSearchSchema } from '@shared/schemas'
+import type {
+  ActivityType,
+  Profile,
+  Skill,
+  VolunteerDetail,
+  VolunteerSuggestion,
+  VolunteerSummary
+} from '@shared/types'
+import { MIN_MATCH, scoreActivity } from '@shared/recommendations'
+import { prettyStamp } from '@shared/time'
 import { type Ctx, parse, requireAdmin, requireUser, requireVolunteer } from './context'
-import { checkSkillsExist, loadActivities } from './activities'
+import { checkSkillsExist, getActivity, loadActivities } from './activities'
+import { audit, notify } from './log'
 import { approvedTotal, hourLogsFor } from './hours'
 
 export function listSkills(ctx: Ctx): Skill[] {
@@ -16,7 +26,15 @@ export function listSkills(ctx: Ctx): Skill[] {
 }
 
 export function loadProfile(db: Db, userId: number): Profile {
-  const row = one<{ id: number; email: string; full_name: string; phone: string; bio: string; interests: string; hour_goal: number }>(
+  const row = one<{
+    id: number
+    email: string
+    full_name: string
+    phone: string
+    bio: string
+    interests: string
+    hour_goal: number
+  }>(
     db,
     `SELECT u.id, u.email, u.full_name, p.phone, p.bio, p.interests, p.hour_goal
      FROM users u JOIN volunteer_profiles p ON p.user_id = u.id WHERE u.id = ?`,
@@ -64,10 +82,18 @@ export function updateMyProfile(ctx: Ctx, input: unknown): Profile {
       user.id
     )
     run(ctx.db, 'DELETE FROM volunteer_skills WHERE user_id = ?', user.id)
-    for (const id of new Set(p.skillIds)) run(ctx.db, 'INSERT INTO volunteer_skills (user_id, skill_id) VALUES (?, ?)', user.id, id)
+    for (const id of new Set(p.skillIds))
+      run(ctx.db, 'INSERT INTO volunteer_skills (user_id, skill_id) VALUES (?, ?)', user.id, id)
     run(ctx.db, 'DELETE FROM availability WHERE user_id = ?', user.id)
     for (const b of p.availability) {
-      run(ctx.db, 'INSERT INTO availability (user_id, weekday, start_time, end_time) VALUES (?, ?, ?, ?)', user.id, b.weekday, b.start, b.end)
+      run(
+        ctx.db,
+        'INSERT INTO availability (user_id, weekday, start_time, end_time) VALUES (?, ?, ?, ?)',
+        user.id,
+        b.weekday,
+        b.start,
+        b.end
+      )
     }
   })
   return loadProfile(ctx.db, user.id)
@@ -87,10 +113,19 @@ export function searchVolunteers(ctx: Ctx, input: unknown = {}): VolunteerSummar
     params.push(like, like, like)
   }
   if (f.skillId) {
-    where.push('EXISTS (SELECT 1 FROM volunteer_skills v WHERE v.user_id = u.id AND v.skill_id = ?)')
+    where.push(
+      'EXISTS (SELECT 1 FROM volunteer_skills v WHERE v.user_id = u.id AND v.skill_id = ?)'
+    )
     params.push(f.skillId)
   }
-  return all<{ id: number; full_name: string; email: string; skills: string | null; hours: number; upcoming: number }>(
+  return all<{
+    id: number
+    full_name: string
+    email: string
+    skills: string | null
+    hours: number
+    upcoming: number
+  }>(
     ctx.db,
     `SELECT u.id, u.full_name, u.email,
        (SELECT group_concat(s.name, '|') FROM volunteer_skills v JOIN skills s ON s.id = v.skill_id WHERE v.user_id = u.id) AS skills,
@@ -134,4 +169,103 @@ export function getVolunteer(ctx: Ctx, id: unknown): VolunteerDetail {
     signups: activities.map((activity) => ({ activity, status: statuses.get(activity.id)! })),
     approvedHours: approvedTotal(ctx.db, userId)
   }
+}
+
+/**
+ * Fill-a-shift assist: the best-matched volunteers for an activity who aren't signed up yet, scored with the same
+ * rules volunteers see on their own recommendations (skills, availability, interest). Top five at a 50% match or better.
+ */
+export function suggestVolunteers(ctx: Ctx, id: unknown): VolunteerSuggestion[] {
+  requireAdmin(ctx)
+  const activity = getActivity(ctx, id)
+  const people = all<{ id: number; full_name: string; invited: number }>(
+    ctx.db,
+    `SELECT u.id, u.full_name, EXISTS (SELECT 1 FROM invites i WHERE i.activity_id = ? AND i.user_id = u.id) AS invited
+     FROM users u WHERE u.role = 'volunteer' AND u.id NOT IN
+       (SELECT user_id FROM signups WHERE activity_id = ? AND status IN ('confirmed', 'waitlisted'))`,
+    activity.id,
+    activity.id
+  )
+  return people
+    .map((p) => {
+      const r = scoreActivity(activity, loadProfile(ctx.db, p.id))
+      const top = [...r.factors].sort((x, y) => y.points / y.max - x.points / x.max)[0]
+      return {
+        userId: p.id,
+        fullName: p.full_name,
+        score: r.score,
+        note: top?.note ?? '',
+        invited: p.invited === 1
+      }
+    })
+    .filter((s) => s.score >= MIN_MATCH)
+    .sort((a, b) => b.score - a.score || a.fullName.localeCompare(b.fullName))
+    .slice(0, 5)
+}
+
+/** Sends one suggested volunteer a personal invite to an upcoming shift that still has open spots. */
+export function inviteVolunteer(ctx: Ctx, input: unknown): void {
+  const admin = requireAdmin(ctx)
+  const { activityId, userId } = parse(inviteSchema, input)
+  const activity = getActivity(ctx, activityId)
+  if (activity.status !== 'open' || activity.startAt <= ctx.now())
+    throw new AppError(
+      'CONFLICT',
+      'This shift has already started or been cancelled, so invites are closed.'
+    )
+  if (activity.confirmed >= activity.capacity)
+    throw new AppError(
+      'CONFLICT',
+      'This shift is already full, so there’s no spot to invite anyone to.'
+    )
+  const v = one<{ full_name: string }>(
+    ctx.db,
+    "SELECT full_name FROM users WHERE id = ? AND role = 'volunteer'",
+    userId
+  )
+  if (!v) throw new AppError('NOT_FOUND', 'That volunteer no longer exists.')
+  if (
+    one(
+      ctx.db,
+      "SELECT 1 FROM signups WHERE activity_id = ? AND user_id = ? AND status IN ('confirmed', 'waitlisted')",
+      activityId,
+      userId
+    )
+  ) {
+    throw new AppError('CONFLICT', `${v.full_name} is already signed up for this shift.`)
+  }
+  if (
+    one(ctx.db, 'SELECT 1 FROM invites WHERE activity_id = ? AND user_id = ?', activityId, userId)
+  ) {
+    throw new AppError('CONFLICT', `${v.full_name} has already been invited to this shift.`)
+  }
+  tx(ctx.db, () => {
+    run(
+      ctx.db,
+      'INSERT INTO invites (activity_id, user_id, invited_by, invited_at) VALUES (?, ?, ?, ?)',
+      activityId,
+      userId,
+      admin.id,
+      ctx.now()
+    )
+    notify(
+      ctx.db,
+      ctx.now(),
+      userId,
+      'shift_invite',
+      `You’re invited: ${activity.title}`,
+      `Hi ${v.full_name},
+
+${admin.fullName} thinks you’d be a great fit for "${activity.title}" on ${prettyStamp(activity.startAt)} at ${activity.location}, and there are still spots open. If you can make it, sign up from Find activities.`
+    )
+    audit(
+      ctx.db,
+      ctx.now(),
+      admin.id,
+      'invite',
+      'activity',
+      activityId,
+      `${v.full_name} to ${activity.title}`
+    )
+  })
 }

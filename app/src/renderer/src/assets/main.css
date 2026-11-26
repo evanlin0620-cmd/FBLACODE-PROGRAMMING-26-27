@@ -125,6 +125,13 @@
   --animate-draw: draw 900ms var(--ease-glide) 120ms backwards;
   /* A name on the sign-up sheet writing itself in, left to right at an even pen speed. Visible by default. */
   --animate-write: write 560ms linear backwards;
+  /* The tally stroke drawing across the filled slot marks once the last name lands. */
+  --animate-strike: strike 420ms var(--ease-snappy) 160ms backwards;
+  @keyframes strike {
+    from {
+      clip-path: inset(0 100% 0 0);
+    }
+  }
   /* The "spots left" count stepping down as a name lands. */
   --animate-tick: tick 260ms var(--ease-snappy);
   @keyframes write {
@@ -181,6 +188,13 @@
   /* The sign-in clipboard settling onto the desk, once per visit. `backwards` keeps content visible by default. */
   --animate-settle: settle 600ms var(--ease-snappy) 80ms backwards;
   --animate-fill: fill 0.9s var(--ease-snappy) backwards;
+  /* A ranked bar growing out from its left edge, once per login. Scale, never width. */
+  --animate-grow: grow 700ms var(--ease-snappy) backwards;
+  @keyframes grow {
+    from {
+      scale: 0 1;
+    }
+  }
   @keyframes settle {
     from {
       opacity: 0;

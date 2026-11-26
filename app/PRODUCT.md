@@ -28,7 +28,7 @@ Shift matching that explains itself: each recommendation shows a match score and
 
 ## Capabilities and Constraints
 
-- Profiles with skills, availability, interests, and an hour goal. Activity create/edit/cancel/delete. Sign-ups with overlap checks and an automatic waitlist. Hour logging with approve/reject. Search and filters. An impact dashboard. Customizable reports exported to CSV or PDF. Certificates. A simulated email outbox. An audit log. A one-click demo reset.
+- Profiles with skills, availability, interests, and an hour goal. Activity create/edit/cancel/delete. Sign-ups with overlap checks and an automatic waitlist. Hour logging with approve/reject. Search and filters. An impact dashboard. Customizable reports exported to CSV or PDF. Certificates. A simulated email outbox. An audit log. A one-click demo reset. Add to calendar (.ics) for a volunteer's own shifts. "Coming up" reminders created at sign-in for confirmed shifts in the next 7 days. Fill-a-shift assist: coordinators see the best-matched volunteers for a shift with open spots and invite them in one click. A 7-minute demo script is in ../docs/demo-script.md.
 - The FBLA rating sheet rewards: UX rationale, the user journey, and accessibility features; an interactive help menu with an intelligent Q&A; input validation of both format and meaning; customizable reports; no spelling or navigation errors.
 - Window minimum size is 960x640; it's designed at 1280x800.
 

@@ -4,7 +4,7 @@ import { CalendarDays } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { EmptyState, Loader, PageBody, PageHeader } from '@/components/page'
 import { SignupPill } from '@/components/status'
-import { DateTile, SignupButton } from '@/components/activity'
+import { CalendarButton, DateTile, SignupButton } from '@/components/activity'
 import { useQuery } from '@/lib/hooks'
 import { fmtDay, fmtRange } from '@/lib/format'
 
@@ -49,6 +49,7 @@ export function MyShifts(): React.JSX.Element {
                       </p>
                     </div>
                     <SignupPill status={a.mySignup!} position={a.myWaitlistPosition} />
+                    <CalendarButton activityId={a.id} />
                     <SignupButton activity={a} onChange={q.reload} size="sm" />
                   </li>
                 ))}
